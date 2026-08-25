@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="CuraLink.API/CuraLink.API.csproj" />
+  <Project Path="CuraLink.Application/CuraLink.Application.csproj" />
+  <Project Path="CuraLink.Domain/CuraLink.Domain.csproj" />
+  <Project Path="CuraLink.Infrastructure/CuraLink.Infrastructure.csproj" />
+</Solution>
