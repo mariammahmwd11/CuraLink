@@ -35,7 +35,10 @@ namespace CuraLink.Infrastructure
             services.AddScoped<IAuthService, AuthService>();
             services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
             services.AddScoped<IRefreshTokenGenerator, RefreshTokenGenerator>();
+            services.AddScoped<IIdentityService, IdentityService>();
 
+            services.Configure<JwtSettings>(
+             configuration.GetSection("Jwt"));
 
             services.AddAuthentication(options =>
             {
