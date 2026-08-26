@@ -3,4 +3,5 @@
   <Project Path="CuraLink.Application/CuraLink.Application.csproj" />
   <Project Path="CuraLink.Domain/CuraLink.Domain.csproj" />
   <Project Path="CuraLink.Infrastructure/CuraLink.Infrastructure.csproj" />
+  <Project Path="CuraLink.MVC/CuraLink.MVC.csproj" Id="87b3010e-55ca-4bf5-80fe-69bdd69c7987" />
 </Solution>

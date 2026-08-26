@@ -1,0 +1,75 @@
+﻿@model CuraLink.MVC.Models.Auth.LoginViewModel
+@{
+    ViewData["Title"] = "Patient Login";
+    Layout = "_AuthLayout";
+}
+
+<div class="auth-card">
+
+    <div class="auth-card-header">
+        <h1 class="auth-title">Welcome back</h1>
+        <p class="auth-subtitle">Log in to manage your appointments and health records.</p>
+    </div>
+
+    @if (!ViewData.ModelState.IsValid)
+    {
+        <div asp-validation-summary="ModelOnly" class="alert alert-danger auth-alert" role="alert"></div>
+    }
+
+    <form asp-controller="Auth" asp-action="Login" method="post" novalidate class="auth-form">
+
+        <div class="mb-3">
+            <label asp-for="Email" class="form-label"></label>
+            <div class="input-group auth-input-group">
+                <span class="input-group-text"><i class="bi bi-envelope"></i></span>
+                <input asp-for="Email" class="form-control" placeholder="name@example.com"
+                       autocomplete="email" autofocus />
+            </div>
+            <span asp-validation-for="Email" class="text-danger small"></span>
+        </div>
+
+        <div class="mb-2">
+            <label asp-for="Password" class="form-label"></label>
+            <div class="input-group auth-input-group">
+                <span class="input-group-text"><i class="bi bi-lock"></i></span>
+                <input asp-for="Password" type="password" class="form-control"
+                       placeholder="Enter your password" autocomplete="current-password"
+                       id="loginPassword" />
+                <button type="button"
+                        class="btn btn-outline-secondary password-toggle-btn"
+                        data-toggle-target="loginPassword"
+                        aria-label="Show password">
+                    <i class="bi bi-eye"></i>
+                </button>
+            </div>
+            <span asp-validation-for="Password" class="text-danger small"></span>
+        </div>
+
+        <div class="d-flex justify-content-between align-items-center auth-options">
+            <div class="form-check">
+                <input asp-for="RememberMe" class="form-check-input" />
+                <label asp-for="RememberMe" class="form-check-label"></label>
+            </div>
+            <a asp-controller="Auth" asp-action="ForgotPassword" class="auth-link">Forgot password?</a>
+        </div>
+
+        <button type="submit" class="btn btn-primary auth-submit-btn">
+            Log In
+        </button>
+
+        <div class="auth-divider"><span>or</span></div>
+
+        <button type="button" class="btn btn-outline-secondary auth-social-btn" disabled
+                title="Coming soon">
+            <i class="bi bi-google"></i>
+            Continue with Google
+        </button>
+
+    </form>
+
+    <p class="auth-switch">
+        Don't have an account?
+        <a asp-controller="Auth" asp-action="RegisterPatient">Create one</a>
+    </p>
+
+</div>

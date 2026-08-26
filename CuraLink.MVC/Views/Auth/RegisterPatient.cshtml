@@ -1,0 +1,125 @@
+﻿@model CuraLink.MVC.Models.Auth.RegisterPatientViewModel
+@{
+    ViewData["Title"] = "Create Your Account";
+    Layout = "_AuthLayout";
+}
+
+<div class="auth-card auth-card-wide">
+
+    <div class="auth-card-header">
+        <h1 class="auth-title">Create your patient account</h1>
+        <p class="auth-subtitle">It only takes a minute to start booking appointments.</p>
+    </div>
+
+    @if (!ViewData.ModelState.IsValid)
+    {
+        <div asp-validation-summary="ModelOnly" class="alert alert-danger auth-alert" role="alert"></div>
+    }
+
+    <form asp-controller="Auth" asp-action="RegisterPatient" method="post" novalidate class="auth-form" id="registerForm">
+
+        <div class="row">
+            <div class="col-sm-6 mb-3">
+                <label asp-for="FirstName" class="form-label"></label>
+                <input asp-for="FirstName" class="form-control" placeholder="Jane" autocomplete="given-name" autofocus />
+                <span asp-validation-for="FirstName" class="text-danger small"></span>
+            </div>
+            <div class="col-sm-6 mb-3">
+                <label asp-for="LastName" class="form-label"></label>
+                <input asp-for="LastName" class="form-control" placeholder="Doe" autocomplete="family-name" />
+                <span asp-validation-for="LastName" class="text-danger small"></span>
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Email" class="form-label"></label>
+            <div class="input-group auth-input-group">
+                <span class="input-group-text"><i class="bi bi-envelope"></i></span>
+                <input asp-for="Email" class="form-control" placeholder="name@example.com" autocomplete="email" />
+            </div>
+            <span asp-validation-for="Email" class="text-danger small"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="PhoneNumber" class="form-label"></label>
+            <div class="input-group auth-input-group">
+                <span class="input-group-text"><i class="bi bi-telephone"></i></span>
+                <input asp-for="PhoneNumber" class="form-control" placeholder="+20 100 000 0000" autocomplete="tel" />
+            </div>
+            <span asp-validation-for="PhoneNumber" class="text-danger small"></span>
+        </div>
+
+        <div class="row">
+            <div class="col-sm-6 mb-2">
+                <label asp-for="Password" class="form-label"></label>
+                <div class="input-group auth-input-group">
+                    <span class="input-group-text"><i class="bi bi-lock"></i></span>
+                    <input asp-for="Password" type="password" class="form-control"
+                           placeholder="Create a password" autocomplete="new-password"
+                           id="registerPassword" />
+                    <button type="button"
+                            class="btn btn-outline-secondary password-toggle-btn"
+                            data-toggle-target="registerPassword"
+                            aria-label="Show password">
+                        <i class="bi bi-eye"></i>
+                    </button>
+                </div>
+                <span asp-validation-for="Password" class="text-danger small"></span>
+            </div>
+            <div class="col-sm-6 mb-2">
+                <label asp-for="ConfirmPassword" class="form-label"></label>
+                <div class="input-group auth-input-group">
+                    <span class="input-group-text"><i class="bi bi-lock-fill"></i></span>
+                    <input asp-for="ConfirmPassword" type="password" class="form-control"
+                           placeholder="Repeat your password" autocomplete="new-password"
+                           id="registerConfirmPassword" />
+                    <button type="button"
+                            class="btn btn-outline-secondary password-toggle-btn"
+                            data-toggle-target="registerConfirmPassword"
+                            aria-label="Show password">
+                        <i class="bi bi-eye"></i>
+                    </button>
+                </div>
+                <span asp-validation-for="ConfirmPassword" class="text-danger small"></span>
+            </div>
+        </div>
+
+        <!-- Password strength meter — purely front-end UX, driven by auth.js -->
+        <div class="password-strength-wrap mb-2" id="passwordStrengthWrap" aria-hidden="true">
+            <div class="password-strength-bar">
+                <div class="password-strength-fill" id="passwordStrengthFill"></div>
+            </div>
+            <span class="password-strength-label" id="passwordStrengthLabel">Password strength</span>
+        </div>
+
+        <ul class="password-requirements" id="passwordRequirements">
+            <li data-rule="length"><i class="bi bi-circle"></i> At least 8 characters</li>
+            <li data-rule="upperLower"><i class="bi bi-circle"></i> Upper &amp; lower case letters</li>
+            <li data-rule="number"><i class="bi bi-circle"></i> At least one number</li>
+            <li data-rule="special"><i class="bi bi-circle"></i> At least one special character</li>
+        </ul>
+
+        <div class="form-check mb-4 mt-3">
+            <input asp-for="AcceptTerms" class="form-check-input" />
+            <label asp-for="AcceptTerms" class="form-check-label">
+                I agree to the
+                <a href="#" class="auth-link">Terms &amp; Conditions</a> and
+                <a href="#" class="auth-link">Privacy Policy</a>
+            </label>
+            <div>
+                <span asp-validation-for="AcceptTerms" class="text-danger small"></span>
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary auth-submit-btn">
+            Create Account
+        </button>
+
+    </form>
+
+    <p class="auth-switch">
+        Already have an account?
+        <a asp-controller="Auth" asp-action="Login">Log in</a>
+    </p>
+
+</div>
