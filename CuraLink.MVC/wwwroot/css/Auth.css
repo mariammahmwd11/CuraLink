@@ -390,7 +390,40 @@
                 color: var(--cl-success);
             }
 
-/* ---------- Validation state polish (unobtrusive jQuery validation) ---------- */
+/* ---------- Validation state polish ---------- */
+
+/* Bootstrap validation: show invalid feedback when is-invalid is present */
+.auth-form .is-invalid ~ .invalid-feedback:not([hidden]),
+.auth-form .invalid-feedback:not([hidden]) {
+    display: block;
+    margin-top: 0.25rem;
+    font-size: 0.875rem;
+    color: var(--cl-danger);
+}
+
+/* Hide invalid feedback when hidden attribute is present */
+.auth-form .invalid-feedback[hidden] {
+    display: none !important;
+}
+
+/* Style field errors */
+.form-error-text {
+    color: var(--cl-danger);
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+}
+
+/* Apply red border to invalid inputs */
+.auth-form .is-invalid {
+    border-color: var(--cl-danger) !important;
+}
+
+/* Apply green border to valid inputs (only after interaction) */
+.auth-form .is-valid {
+    border-color: var(--cl-success) !important;
+}
+
+/* jQuery unobtrusive validation compatibility */
 .auth-form input.input-validation-error {
     border-color: var(--cl-danger);
 }

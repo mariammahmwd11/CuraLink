@@ -13,5 +13,13 @@ namespace CuraLink.Application.Common.Interfaces.Authentication
             string email,
             string phone,
             string password);
+        Task<(bool Succeeded, string[] Errors, string? UserId)>
+        CreateDoctorAsync(
+            string FirstName,
+            string LastName,
+            string email,
+            string phone,
+            string password);
+       
     }
 }

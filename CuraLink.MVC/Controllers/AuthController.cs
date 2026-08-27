@@ -39,14 +39,16 @@ namespace CuraLink.MVC.Controllers
 
             return RedirectToAction("Index", "Home");
         }
+
         [HttpGet]
         public IActionResult RegisterPatient()
         {
             return View();
         }
+
         [HttpPost]
         public async Task<IActionResult> RegisterPatient(
-       RegisterPatientViewModel model)
+            RegisterPatientViewModel model)
         {
             if (!ModelState.IsValid)
                 return View(model);
@@ -73,5 +75,40 @@ namespace CuraLink.MVC.Controllers
 
             return RedirectToAction(nameof(Login));
         }
+
+        [HttpGet]
+        public IActionResult RegisterDoctor()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> RegisterDoctor(RegisterDoctorViewModel model)
+        {
+            if (!ModelState.IsValid)
+                return View(model);
+
+            var response = await _authApiClient.RegisterDoctorAsync(model);
+
+            if (response.StatusCode == HttpStatusCode.Conflict)
+            {
+                ModelState.AddModelError(
+                    nameof(model.Email),
+                    "This email is already registered.");
+
+                return View(model);
+            }
+
+            if (!response.IsSuccessStatusCode)
+            {
+                ModelState.AddModelError(
+                    string.Empty,
+                    "Registration failed. Please try again.");
+
+                return View(model);
+            }
+
+            return RedirectToAction(nameof(Login));
+        }
     }
-    }
+}

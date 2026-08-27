@@ -21,41 +21,50 @@
 
     <div class="auth-wrapper">
 
-        <!-- Brand / marketing panel — hidden on small screens -->
+        <!-- Brand / marketing panel — hidden on small screens.
+             Pages can override this with @@section BrandPanel { ... };
+             falls back to the default patient-facing copy below. -->
         <aside class="auth-brand-panel" aria-hidden="true">
-            <div class="auth-brand-inner">
-                <div class="auth-brand-logo">
-                    <span class="auth-brand-mark">
-                        <i class="bi bi-heart-pulse-fill"></i>
-                    </span>
-                    <span class="auth-brand-name">CuraLink</span>
+            @if (IsSectionDefined("BrandPanel"))
+            {
+                @await RenderSectionAsync("BrandPanel")
+            }
+            else
+            {
+                <div class="auth-brand-inner">
+                    <div class="auth-brand-logo">
+                        <span class="auth-brand-mark">
+                            <i class="bi bi-heart-pulse-fill"></i>
+                        </span>
+                        <span class="auth-brand-name">CuraLink</span>
+                    </div>
+
+                    <h2 class="auth-brand-headline">Your care, connected.</h2>
+                    <p class="auth-brand-subtext">
+                        One secure place to manage appointments, talk to your doctors,
+                        and keep track of your health — anytime, anywhere.
+                    </p>
+
+                    <ul class="auth-feature-list">
+                        <li>
+                            <i class="bi bi-calendar2-check"></i>
+                            <span>Book and manage appointments in seconds</span>
+                        </li>
+                        <li>
+                            <i class="bi bi-file-earmark-medical"></i>
+                            <span>Access your medical records anytime</span>
+                        </li>
+                        <li>
+                            <i class="bi bi-shield-lock"></i>
+                            <span>Bank-grade security for your health data</span>
+                        </li>
+                    </ul>
                 </div>
 
-                <h2 class="auth-brand-headline">Your care, connected.</h2>
-                <p class="auth-brand-subtext">
-                    One secure place to manage appointments, talk to your doctors,
-                    and keep track of your health — anytime, anywhere.
-                </p>
-
-                <ul class="auth-feature-list">
-                    <li>
-                        <i class="bi bi-calendar2-check"></i>
-                        <span>Book and manage appointments in seconds</span>
-                    </li>
-                    <li>
-                        <i class="bi bi-file-earmark-medical"></i>
-                        <span>Access your medical records anytime</span>
-                    </li>
-                    <li>
-                        <i class="bi bi-shield-lock"></i>
-                        <span>Bank-grade security for your health data</span>
-                    </li>
-                </ul>
-            </div>
-
-            <div class="auth-brand-footer">
-                &copy; @DateTime.Now.Year CuraLink. All rights reserved.
-            </div>
+                <div class="auth-brand-footer">
+                    &copy; @DateTime.Now.Year CuraLink. All rights reserved.
+                </div>
+            }
         </aside>
 
         <!-- Form panel -->
@@ -81,7 +90,6 @@
     <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.5/dist/jquery.validate.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/jquery-validation-unobtrusive@4.0.0/dist/jquery.validate.unobtrusive.min.js"></script>
-    <script src="~/js/validation-adapters.js" asp-append-version="true"></script>
 
     <script src="~/js/auth.js" asp-append-version="true"></script>
 

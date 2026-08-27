@@ -16,6 +16,49 @@ namespace CuraLink.Infrastructure.Services
             this.userManager = userManager;
         }
 
+        public async Task<(bool Succeeded, string[] Errors, string UserId)> CreateDoctorAsync(string firstName, string lastName, string email, string phone, string password)
+        {
+       
+            var existingDoctor = await userManager.FindByEmailAsync(email);
+
+            if (existingDoctor != null)
+            {
+                return (
+                    false,
+                    new[] { "Email already exists." },
+                    string.Empty);
+            }
+
+            var user = new ApplicationUser
+            {
+                UserName = $"{firstName}{lastName}{Random.Shared.Next(1000, 9999)}",
+                Email = email,
+                PhoneNumber = phone,
+                FirstName = firstName,
+                LastName = lastName
+            };
+            Console.WriteLine($"USERNAME: [{user.UserName}]");
+            var result = await userManager.CreateAsync(user, password);
+
+            if (!result.Succeeded)
+            {
+                return (
+                    false,
+                    result.Errors
+                        .Select(e => e.Description)
+                        .ToArray(),
+                    string.Empty);
+            }
+
+            await userManager.AddToRoleAsync(user, "Doctor");
+
+            return (
+                true,
+                Array.Empty<string>(),
+                user.Id);
+        }
+        
+
         public async Task<(bool Succeeded, string[] Errors)> CreatePatientAsync(string FirstName, string LastName, string email, string phone, string password)
         {
             var existingpatient=await userManager.FindByEmailAsync(email);

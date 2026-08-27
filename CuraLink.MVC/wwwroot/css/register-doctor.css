@@ -1,0 +1,694 @@
+/* =========================================================
+   CuraLink — Doctor Registration
+   Styles for RegisterDoctor.cshtml
+   ========================================================= */
+
+/* =========================================================
+   Registration Card
+   ========================================================= */
+
+.auth-card-xl {
+    max-width: 760px;
+    width: 100%;
+}
+
+/* =========================================================
+   Header
+   ========================================================= */
+
+.auth-card-header {
+    margin-bottom: 1.5rem;
+}
+
+.auth-title {
+    color: var(--cl-text);
+    font-weight: 700;
+}
+
+.auth-subtitle {
+    color: var(--cl-text-muted);
+    line-height: 1.6;
+}
+
+/* =========================================================
+   Form
+   ========================================================= */
+
+.auth-form {
+    width: 100%;
+}
+
+/* =========================================================
+   Form Sections
+   ========================================================= */
+
+.auth-section {
+    border: 0;
+    border-bottom: 1px solid var(--cl-border);
+    padding: 0 0 1.75rem;
+    margin: 0 0 1.75rem;
+}
+
+    .auth-section:last-of-type {
+        border-bottom: none;
+    }
+
+.auth-section-title {
+    color: var(--cl-text);
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+}
+
+    .auth-section-title i {
+        color: var(--cl-primary);
+        font-size: 1.15rem;
+    }
+
+.auth-section-desc {
+    color: var(--cl-text-muted);
+    font-size: 0.9rem;
+    margin-top: -0.5rem;
+    margin-bottom: 1rem;
+    line-height: 1.5;
+}
+
+/* =========================================================
+   Labels
+   ========================================================= */
+
+.form-label {
+    color: var(--cl-text);
+    font-size: 0.92rem;
+    font-weight: 600;
+    margin-bottom: 0.45rem;
+}
+
+/* =========================================================
+   Inputs
+   ========================================================= */
+
+.form-control,
+.form-select {
+    min-height: 46px;
+    border: 1.5px solid var(--cl-border);
+    border-radius: var(--cl-radius-md);
+    color: var(--cl-text);
+    background-color: #fff;
+    font-family: var(--cl-font);
+    font-size: 0.95rem;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+}
+
+.form-control {
+    padding: 0.65rem 0.9rem;
+}
+
+.form-select {
+    padding: 0.65rem 2.25rem 0.65rem 0.9rem;
+}
+
+.form-control::placeholder {
+    color: var(--cl-text-muted);
+    opacity: 0.8;
+}
+
+.form-control:focus,
+.form-select:focus {
+    border-color: var(--cl-primary);
+    box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.1);
+    outline: none;
+}
+
+/* Don't show red validation before user interacts */
+.form-control:not(.is-invalid):not(.is-valid),
+.form-select:not(.is-invalid):not(.is-valid) {
+    border-color: var(--cl-border);
+}
+
+/* =========================================================
+   Bootstrap Validation
+   ========================================================= */
+
+.form-control.is-invalid,
+.form-select.is-invalid {
+    border-color: var(--cl-danger);
+    background-image: none;
+}
+
+    .form-control.is-invalid:focus,
+    .form-select.is-invalid:focus {
+        border-color: var(--cl-danger);
+        box-shadow: 0 0 0 3px rgba(192, 57, 43, 0.1);
+    }
+
+.form-control.is-valid,
+.form-select.is-valid {
+    border-color: var(--cl-success);
+    background-image: none;
+}
+
+    .form-control.is-valid:focus,
+    .form-select.is-valid:focus {
+        border-color: var(--cl-success);
+        box-shadow: 0 0 0 3px rgba(39, 174, 96, 0.1);
+    }
+
+/* =========================================================
+   Input Groups
+   ========================================================= */
+
+.auth-input-group {
+    border: 1.5px solid var(--cl-border);
+    border-radius: var(--cl-radius-md);
+    overflow: hidden;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+    .auth-input-group:focus-within {
+        border-color: var(--cl-primary);
+        box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.1);
+    }
+
+    .auth-input-group .input-group-text {
+        background: #fff;
+        border: none;
+        color: var(--cl-text-muted);
+        padding-left: 0.9rem;
+        padding-right: 0.7rem;
+    }
+
+    .auth-input-group .form-control {
+        border: none;
+        box-shadow: none;
+    }
+
+        .auth-input-group .form-control:focus {
+            box-shadow: none;
+        }
+
+    .auth-input-group:focus-within .input-group-text {
+        color: var(--cl-primary);
+    }
+
+    /* Invalid input group */
+
+    .auth-input-group:has(.form-control.is-invalid) {
+        border-color: var(--cl-danger);
+    }
+
+        .auth-input-group:has(.form-control.is-invalid):focus-within {
+            border-color: var(--cl-danger);
+            box-shadow: 0 0 0 3px rgba(192, 57, 43, 0.1);
+        }
+
+    /* Valid input group */
+
+    .auth-input-group:has(.form-control.is-valid) {
+        border-color: var(--cl-success);
+    }
+
+/* =========================================================
+   Validation Messages
+   ---------------------------------------------------------
+   IMPORTANT: visibility is driven ENTIRELY by the `hidden`
+   attribute, toggled from register-doctor.js. We do not rely
+   on Bootstrap's own `.invalid-feedback { display: none }` +
+   `.is-invalid ~ .invalid-feedback` sibling-combinator rules,
+   because several of these feedback elements sit inside a
+   wrapper (e.g. .input-group) rather than as a direct sibling
+   of the input, so that combinator never matches anyway.
+   Declaring `display: none` here ourselves, unconditionally,
+   means these messages stay hidden on page load even if
+   Bootstrap's CSS loads late, fails to load, or is overridden
+   elsewhere in the site.
+   ========================================================= */
+
+.invalid-feedback {
+    display: none;
+    color: var(--cl-danger);
+    font-size: 0.84rem;
+    margin-top: 0.35rem;
+}
+
+    .invalid-feedback:not([hidden]) {
+        display: block;
+    }
+
+.form-text {
+    color: var(--cl-text-muted);
+    font-size: 0.82rem;
+    line-height: 1.5;
+}
+
+/* =========================================================
+   Password Toggle
+   ========================================================= */
+
+.password-toggle-btn {
+    border: none;
+    background: transparent;
+    color: var(--cl-text-muted);
+    padding: 0 0.75rem;
+    min-width: 44px;
+}
+
+    .password-toggle-btn:hover,
+    .password-toggle-btn:focus {
+        color: var(--cl-primary);
+        background: transparent;
+        box-shadow: none;
+    }
+
+    .password-toggle-btn:focus-visible {
+        outline: 2px solid var(--cl-primary);
+        outline-offset: -2px;
+    }
+
+/* =========================================================
+   Password Strength
+   ========================================================= */
+
+.password-strength-wrap {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.password-strength-bar {
+    flex: 1;
+    height: 6px;
+    background: var(--cl-border);
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.password-strength-fill {
+    width: 0;
+    height: 100%;
+    border-radius: inherit;
+    transition: width 0.25s ease, background-color 0.25s ease;
+    /* Single source of truth for the fill color. register-doctor.js sets
+       --strength-color via style.setProperty() on every keystroke. If that
+       JS never runs for any reason, this falls back to neutral grey rather
+       than staying on whatever red the shared auth.css page happened to
+       declare for .password-strength-fill on the Patient Registration page. */
+    background-color: var(--strength-color, var(--cl-border));
+}
+
+.password-strength-label {
+    color: var(--cl-text-muted);
+    font-size: 0.8rem;
+    white-space: nowrap;
+}
+
+.password-requirements {
+    list-style: none;
+    padding: 0;
+    margin: 0.75rem 0 0;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.4rem 1rem;
+}
+
+    .password-requirements li {
+        color: var(--cl-text-muted);
+        font-size: 0.8rem;
+        display: flex;
+        align-items: center;
+        gap: 0.35rem;
+    }
+
+    .password-requirements i {
+        font-size: 0.65rem;
+    }
+
+/* =========================================================
+   File Upload
+   ========================================================= */
+
+.upload-dropzone {
+    position: relative;
+    border: 2px dashed var(--cl-border);
+    border-radius: var(--cl-radius-md);
+    padding: 2rem 1.5rem;
+    text-align: center;
+    background: #fff;
+    cursor: pointer;
+    transition: border-color 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+    .upload-dropzone:hover,
+    .upload-dropzone:focus-visible {
+        border-color: var(--cl-primary);
+        background: var(--cl-primary-light);
+    }
+
+    .upload-dropzone.dragover {
+        border-color: var(--cl-primary);
+        background: var(--cl-primary-light);
+        box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.08);
+    }
+
+    .upload-dropzone.error {
+        border-color: var(--cl-danger);
+        background: rgba(192, 57, 43, 0.04);
+    }
+
+.upload-input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.upload-prompt-icon {
+    display: block;
+    font-size: 2.5rem;
+    color: var(--cl-primary);
+    margin-bottom: 0.75rem;
+}
+
+.upload-prompt-text {
+    margin: 0;
+    color: var(--cl-text);
+    font-size: 0.95rem;
+}
+
+.upload-browse-link {
+    color: var(--cl-primary);
+    font-weight: 600;
+    text-decoration: underline;
+}
+
+.upload-dropzone:hover .upload-browse-link {
+    color: var(--cl-primary-dark);
+}
+
+/* =========================================================
+   File Preview
+   ========================================================= */
+
+.upload-preview {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    text-align: left;
+    padding: 0.9rem;
+    border: 1px solid var(--cl-border);
+    border-radius: var(--cl-radius-md);
+    background: var(--cl-primary-light);
+}
+
+.upload-preview-thumb {
+    width: 64px;
+    height: 64px;
+    object-fit: cover;
+    border-radius: var(--cl-radius-sm);
+    border: 1px solid var(--cl-border);
+    flex-shrink: 0;
+}
+
+.upload-preview-file-icon {
+    width: 64px;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    color: var(--cl-danger);
+    background: #fff;
+    border-radius: var(--cl-radius-sm);
+    flex-shrink: 0;
+}
+
+.upload-preview-info {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+}
+
+.upload-preview-name {
+    color: var(--cl-text);
+    font-size: 0.9rem;
+    font-weight: 600;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.upload-preview-size {
+    color: var(--cl-text-muted);
+    font-size: 0.8rem;
+}
+
+.upload-remove-btn {
+    flex-shrink: 0;
+}
+
+/* =========================================================
+   Verification Notice
+   ========================================================= */
+
+.auth-verification-notice {
+    margin: 0 0 1rem;
+    padding: 0.9rem 1rem;
+    border-left: 3px solid var(--cl-primary);
+    border-radius: var(--cl-radius-sm);
+    background: var(--cl-primary-light);
+    color: var(--cl-text);
+    font-size: 0.85rem;
+    line-height: 1.6;
+}
+
+/* =========================================================
+   Checkbox
+   ========================================================= */
+
+.form-check {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.55rem;
+    padding-left: 0;
+    flex-wrap: wrap;
+}
+
+.form-check-input {
+    float: none;
+    margin: 0.15rem 0 0;
+    width: 1.1rem;
+    height: 1.1rem;
+    flex-shrink: 0;
+    cursor: pointer;
+    border: 1.5px solid var(--cl-border);
+}
+
+    .form-check-input:checked {
+        background-color: var(--cl-primary);
+        border-color: var(--cl-primary);
+    }
+
+    .form-check-input:focus {
+        border-color: var(--cl-primary);
+        box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.1);
+    }
+
+    .form-check-input.is-invalid {
+        border-color: var(--cl-danger);
+    }
+
+.form-check-label {
+    color: var(--cl-text);
+    font-size: 0.9rem;
+    line-height: 1.5;
+    cursor: pointer;
+}
+
+/* The terms checkbox error needs to span the full row, below both
+   the checkbox and its label, rather than sitting inline with them. */
+.form-check .invalid-feedback {
+    flex-basis: 100%;
+    margin-left: 1.65rem;
+}
+
+/* =========================================================
+   Submit Button
+   ========================================================= */
+
+.auth-submit-btn {
+    width: 100%;
+    min-height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    background: var(--cl-primary);
+    border-color: var(--cl-primary);
+    color: #fff;
+    font-size: 0.95rem;
+    font-weight: 600;
+    border-radius: var(--cl-radius-md);
+    transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+    .auth-submit-btn:hover:not(:disabled) {
+        background: var(--cl-primary-dark);
+        border-color: var(--cl-primary-dark);
+        color: #fff;
+        transform: translateY(-1px);
+        box-shadow: 0 6px 18px rgba(15, 118, 110, 0.25);
+    }
+
+    .auth-submit-btn:active:not(:disabled) {
+        transform: translateY(0);
+    }
+
+    .auth-submit-btn:disabled {
+        opacity: 0.7;
+        cursor: not-allowed;
+    }
+
+/* =========================================================
+   Alert
+   ========================================================= */
+
+#registerAlertPlaceholder {
+    margin-bottom: 1rem;
+}
+
+    #registerAlertPlaceholder .alert {
+        margin-bottom: 0;
+        border-radius: var(--cl-radius-md);
+        font-size: 0.9rem;
+    }
+
+/* =========================================================
+   Success State
+   ========================================================= */
+
+.auth-success {
+    text-align: center;
+    padding: 2rem 1rem;
+}
+
+.auth-success-icon {
+    font-size: 4rem;
+    color: var(--cl-success);
+    display: block;
+    margin-bottom: 1rem;
+}
+
+.auth-success-title {
+    color: var(--cl-text);
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 0.75rem;
+}
+
+.auth-success-text {
+    color: var(--cl-text-muted);
+    line-height: 1.6;
+    max-width: 550px;
+    margin: 0 auto 1.5rem;
+}
+
+/* =========================================================
+   Login Switch
+   ========================================================= */
+
+.auth-switch {
+    text-align: center;
+    margin-top: 1.5rem;
+    color: var(--cl-text-muted);
+    font-size: 0.9rem;
+}
+
+    .auth-switch a {
+        color: var(--cl-primary);
+        font-weight: 600;
+        text-decoration: none;
+    }
+
+        .auth-switch a:hover {
+            text-decoration: underline;
+        }
+
+/* =========================================================
+   Responsive
+   ========================================================= */
+
+@media (max-width: 768px) {
+
+    .auth-card-xl {
+        max-width: 100%;
+    }
+
+    .auth-section {
+        margin-bottom: 1.5rem;
+        padding-bottom: 1.5rem;
+    }
+
+    .auth-section-title {
+        font-size: 1rem;
+    }
+
+    .password-requirements {
+        grid-template-columns: 1fr;
+    }
+
+    .upload-dropzone {
+        padding: 1.5rem 1rem;
+    }
+}
+
+@media (max-width: 576px) {
+
+    .auth-title {
+        font-size: 1.45rem;
+    }
+
+    .auth-subtitle {
+        font-size: 0.85rem;
+    }
+
+    .auth-section-title {
+        font-size: 0.95rem;
+    }
+
+    .form-control,
+    .form-select {
+        min-height: 44px;
+        font-size: 0.9rem;
+    }
+
+    .upload-preview {
+        align-items: flex-start;
+    }
+
+    .upload-preview-thumb,
+    .upload-preview-file-icon {
+        width: 52px;
+        height: 52px;
+    }
+
+    .upload-preview-name {
+        white-space: normal;
+        word-break: break-word;
+    }
+
+    .password-strength-wrap {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.4rem;
+    }
+
+    .password-strength-label {
+        white-space: normal;
+    }
+}

@@ -1,5 +1,8 @@
 ﻿using CuraLink.Application.Common.Interfaces.Authentication;
+using CuraLink.Application.Common.Interfaces.FileStorage;
+using CuraLink.Application.Common.Interfaces.Presistence;
 using CuraLink.Infrastructure.Authentication;
+using CuraLink.Infrastructure.FileStorage;
 using CuraLink.Infrastructure.Identity;
 using CuraLink.Infrastructure.Presistance.Data;
 using CuraLink.Infrastructure.Services;
@@ -24,6 +27,8 @@ namespace CuraLink.Infrastructure
             services.AddIdentityCore<ApplicationUser>(options =>
             {
                 options.User.RequireUniqueEmail = true;
+                options.User.AllowedUserNameCharacters =
+                            "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+";
 
                 options.Lockout.MaxFailedAccessAttempts = 5;
                 options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(15);
@@ -36,9 +41,14 @@ namespace CuraLink.Infrastructure
             services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
             services.AddScoped<IRefreshTokenGenerator, RefreshTokenGenerator>();
             services.AddScoped<IIdentityService, IdentityService>();
+            services.AddScoped<IFileStorageService, CloudinaryFileStorageService>();
+            services.AddScoped<IApplicationDbContext, ApplicationDbContext>();
 
             services.Configure<JwtSettings>(
              configuration.GetSection("Jwt"));
+
+            services.Configure<CloudinarySettings>(
+                    configuration.GetSection("CloudinarySettings"));
 
             services.AddAuthentication(options =>
             {
@@ -53,6 +63,8 @@ namespace CuraLink.Infrastructure
                     var jwtSettings = configuration
                         .GetSection("Jwt")
                         .Get<JwtSettings>()!;
+
+            
 
                     options.TokenValidationParameters = new TokenValidationParameters
                     {

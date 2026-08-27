@@ -1,0 +1,317 @@
+@{
+    ViewData["Title"] = "Doctor Registration";
+    Layout = "_AuthLayout";
+}
+
+@section BrandPanel {
+    <div class="auth-brand-inner">
+        <div class="auth-brand-logo">
+            <span class="auth-brand-mark">
+                <i class="bi bi-heart-pulse-fill"></i>
+            </span>
+            <span class="auth-brand-name">CuraLink</span>
+        </div>
+
+        <h2 class="auth-brand-headline">Bring your practice online.</h2>
+        <p class="auth-brand-subtext">
+            Join a growing network of verified clinicians and manage your
+            consultations, schedule, and patients in one secure place.
+        </p>
+
+        <ul class="auth-feature-list">
+            <li>
+                <i class="bi bi-patch-check"></i>
+                <span>Secure credential verification</span>
+            </li>
+            <li>
+                <i class="bi bi-person-badge"></i>
+                <span>Manage your professional profile</span>
+            </li>
+            <li>
+                <i class="bi bi-camera-video"></i>
+                <span>Offer consultations to patients</span>
+            </li>
+        </ul>
+    </div>
+
+    <div class="auth-brand-footer">
+        &copy; @DateTime.Now.Year CuraLink. All rights reserved.
+    </div>
+}
+
+<div class="auth-card auth-card-xl" id="registrationCard">
+
+    <div class="auth-card-header">
+        <h1 class="auth-title">Create your doctor account</h1>
+        <p class="auth-subtitle">
+            Join CuraLink and start offering medical consultations after your credentials are verified.
+        </p>
+    </div>
+
+    <!-- Server / network error messages get injected here by register-doctor.js -->
+    <div id="registerAlertPlaceholder" aria-live="polite"></div>
+    <form id="doctorRegisterForm"
+          class="auth-form"
+          novalidate
+          method="post"
+          enctype="multipart/form-data"
+          asp-controller="Auth"
+          asp-action="RegisterDoctor">
+
+        <!-- ============================= -->
+        <!-- 1. Personal Information        -->
+        <!-- ============================= -->
+        <fieldset class="auth-section">
+            <legend class="auth-section-title">
+                <i class="bi bi-person"></i> Personal Information
+            </legend>
+
+            <div class="row">
+                <div class="col-sm-6 mb-3">
+                    <label for="FirstName" class="form-label">First name</label>
+                    <input type="text" class="form-control" id="FirstName" name="FirstName"
+                           placeholder="Jane" autocomplete="given-name" required aria-required="true"
+                           aria-describedby="firstNameError" />
+                    <div class="invalid-feedback" id="firstNameError" hidden>
+                        Please enter your first name.
+                    </div>
+                </div>
+                <div class="col-sm-6 mb-3">
+                    <label for="LastName" class="form-label">Last name</label>
+                    <input type="text" class="form-control" id="LastName" name="LastName"
+                           placeholder="Doe" autocomplete="family-name" required aria-required="true"
+                           aria-describedby="lastNameError" />
+                    <div class="invalid-feedback" id="lastNameError" hidden>
+                        Please enter your last name.
+                    </div>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label for="Email" class="form-label">Email address</label>
+                <div class="input-group auth-input-group">
+                    <span class="input-group-text"><i class="bi bi-envelope"></i></span>
+                    <input type="email" class="form-control" id="Email" name="Email"
+                           placeholder="doctor@example.com" autocomplete="email" required aria-required="true"
+                           aria-describedby="emailError" />
+                </div>
+                <div class="invalid-feedback form-error-text" id="emailError" hidden>
+                    Please enter a valid email address.
+                </div>
+            </div>
+
+            <div class="mb-1">
+                <label for="PhoneNumber" class="form-label">Phone number</label>
+                <div class="input-group auth-input-group">
+                    <span class="input-group-text"><i class="bi bi-telephone"></i></span>
+                    <input type="tel" class="form-control" id="PhoneNumber" name="PhoneNumber"
+                           placeholder="+20 100 000 0000" autocomplete="tel" required aria-required="true"
+                           aria-describedby="phoneError" />
+                </div>
+                <div class="invalid-feedback form-error-text" id="phoneError" hidden>
+                    Please enter a valid phone number.
+                </div>
+            </div>
+        </fieldset>
+
+        <!-- ============================= -->
+        <!-- 2. Professional Information    -->
+        <!-- ============================= -->
+        <fieldset class="auth-section">
+            <legend class="auth-section-title">
+                <i class="bi bi-briefcase"></i> Professional Information
+            </legend>
+
+            <div class="mb-3">
+                <label for="Specialty" class="form-label">Specialty</label>
+                <select class="form-select" id="Specialty" name="Specialty" required aria-required="true"
+                        aria-describedby="specialtyError">
+                    <option value="" disabled selected>Select your specialty</option>
+                    <option>Cardiology</option>
+                    <option>Dermatology</option>
+                    <option>Pediatrics</option>
+                    <option>Internal Medicine</option>
+                    <option>Orthopedics</option>
+                    <option>Neurology</option>
+                    <option>Dentistry</option>
+                    <option>Ophthalmology</option>
+                    <option>Psychiatry</option>
+                    <option>Other</option>
+                </select>
+                <div class="invalid-feedback" id="specialtyError" hidden>
+                    Please select your specialty.
+                </div>
+            </div>
+
+            <div class="mb-1">
+                <label for="SyndicateId" class="form-label">Syndicate ID</label>
+                <input type="text" class="form-control" id="SyndicateId" name="SyndicateId"
+                       placeholder="e.g. 123456" required aria-required="true"
+                       aria-describedby="syndicateIdHelp syndicateIdError" />
+                <div id="syndicateIdHelp" class="form-text">
+                    Used to verify your professional credentials with your medical syndicate.
+                </div>
+                <div class="invalid-feedback" id="syndicateIdError" hidden>
+                    Please enter your syndicate ID.
+                </div>
+            </div>
+        </fieldset>
+
+        <!-- ============================= -->
+        <!-- 3. Password                    -->
+        <!-- ============================= -->
+        <fieldset class="auth-section">
+            <legend class="auth-section-title">
+                <i class="bi bi-shield-lock"></i> Set a Password
+            </legend>
+
+            <div class="row">
+                <div class="col-sm-6 mb-2">
+                    <label for="Password" class="form-label">Password</label>
+                    <div class="input-group auth-input-group">
+                        <span class="input-group-text"><i class="bi bi-lock"></i></span>
+                        <input type="password" class="form-control" id="Password" name="Password"
+                               placeholder="Create a password" autocomplete="new-password"
+                               minlength="8" required aria-required="true" aria-describedby="passwordError" />
+                        <button type="button" class="btn btn-outline-secondary password-toggle-btn"
+                                data-toggle-target="Password" aria-label="Show password">
+                            <i class="bi bi-eye"></i>
+                        </button>
+                    </div>
+                    <div class="invalid-feedback form-error-text" id="passwordError" hidden>
+                        Password must be at least 8 characters.
+                    </div>
+                </div>
+                <div class="col-sm-6 mb-2">
+                    <label for="ConfirmPassword" class="form-label">Confirm password</label>
+                    <div class="input-group auth-input-group">
+                        <span class="input-group-text"><i class="bi bi-lock-fill"></i></span>
+                        <input type="password" class="form-control" id="ConfirmPassword" name="ConfirmPassword"
+                               placeholder="Repeat your password" autocomplete="new-password"
+                               required aria-required="true" aria-describedby="confirmPasswordError" />
+                        <button type="button" class="btn btn-outline-secondary password-toggle-btn"
+                                data-toggle-target="ConfirmPassword" aria-label="Show password">
+                            <i class="bi bi-eye"></i>
+                        </button>
+                    </div>
+                    <div class="invalid-feedback form-error-text" id="confirmPasswordError" hidden>
+                        Passwords do not match.
+                    </div>
+                </div>
+            </div>
+
+            <div class="password-strength-wrap mb-2" id="passwordStrengthWrap" aria-hidden="true">
+                <div class="password-strength-bar">
+                    <div class="password-strength-fill" id="passwordStrengthFill"></div>
+                </div>
+                <span class="password-strength-label" id="passwordStrengthLabel">Password strength</span>
+            </div>
+
+            <ul class="password-requirements" id="passwordRequirements">
+                <li data-rule="length"><i class="bi bi-circle"></i> At least 8 characters</li>
+                <li data-rule="upperLower"><i class="bi bi-circle"></i> Upper &amp; lower case letters</li>
+                <li data-rule="number"><i class="bi bi-circle"></i> At least one number</li>
+                <li data-rule="special"><i class="bi bi-circle"></i> At least one special character</li>
+            </ul>
+        </fieldset>
+
+        <!-- ============================= -->
+        <!-- 4. License / Credential Upload -->
+        <!-- ============================= -->
+        <fieldset class="auth-section">
+            <legend class="auth-section-title">
+                <i class="bi bi-file-earmark-medical"></i> Medical License / Syndicate Credential
+            </legend>
+            <p class="auth-section-desc">
+                Upload a clear copy of your medical syndicate ID or professional license.
+            </p>
+
+            <div class="upload-dropzone" id="uploadDropzone" tabindex="0" role="button"
+                 aria-label="Upload license document, JPG, PNG or PDF, up to 5 megabytes">
+
+                <!-- name MUST stay LicenseDocument to match the API contract -->
+                <input type="file" class="upload-input" id="LicenseDocument" name="LicenseDocument"
+                       accept=".jpg,.jpeg,.png,.pdf,image/jpeg,image/png,application/pdf"
+                       aria-describedby="uploadHelp" required />
+
+                <div class="upload-prompt" id="uploadPrompt">
+                    <i class="bi bi-cloud-arrow-up upload-prompt-icon"></i>
+                    <p class="upload-prompt-text">
+                        Drag &amp; drop your file here, or <span class="upload-browse-link">browse</span>
+                    </p>
+                    <small id="uploadHelp" class="text-muted">JPG, PNG or PDF, up to 5 MB</small>
+                </div>
+
+                <div class="upload-preview d-none" id="uploadPreview">
+                    <img class="upload-preview-thumb d-none" id="uploadImagePreview" alt="Selected file preview" />
+                    <i class="bi bi-file-earmark-pdf-fill upload-preview-file-icon d-none" id="uploadFileIcon"></i>
+                    <div class="upload-preview-info">
+                        <span class="upload-preview-name" id="uploadFileName"></span>
+                        <span class="upload-preview-size" id="uploadFileSize"></span>
+                    </div>
+                    <button type="button" class="btn btn-sm btn-outline-danger upload-remove-btn" id="removeFileBtn">
+                        <i class="bi bi-x-lg"></i>
+                        <span class="visually-hidden">Remove selected file</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="invalid-feedback form-error-text" id="fileError" hidden></div>
+        </fieldset>
+
+        <!-- ============================= -->
+        <!-- 5. Terms / verification notice -->
+        <!-- ============================= -->
+        <p class="auth-verification-notice">
+            By registering, you confirm that the information and professional credentials you provide are
+            accurate. Your account will remain pending until an administrator verifies your credentials.
+        </p>
+
+        <div class="form-check mb-4">
+            <input type="checkbox"
+                   class="form-check-input"
+                   id="ConfirmAccuracy"
+                   name="ConfirmAccuracy"
+                   required
+                   aria-required="true"
+                   aria-describedby="termsError" />
+            <label for="ConfirmAccuracy" class="form-check-label">
+                I confirm that the information provided is accurate.
+            </label>
+            <div class="invalid-feedback" id="termsError" hidden>
+                Please confirm your information is accurate before submitting.
+            </div>
+        </div>
+
+        <!-- ============================= -->
+        <!-- 6. Submit                      -->
+        <!-- ============================= -->
+        <button type="submit" class="btn btn-primary auth-submit-btn" id="submitBtn">
+            <span class="spinner-border spinner-border-sm d-none" id="submitSpinner" role="status" aria-hidden="true"></span>
+            <span id="submitBtnLabel">Submit Registration</span>
+        </button>
+    </form>
+
+    <!-- ============================= -->
+    <!-- 7. Success state (202 Accepted)-->
+    <!-- ============================= -->
+    <div class="auth-success d-none" id="registrationSuccess" role="status" aria-live="polite">
+        <i class="bi bi-check-circle-fill auth-success-icon"></i>
+        <h2 class="auth-success-title">Registration submitted successfully</h2>
+        <p class="auth-success-text">
+            Your doctor account has been created and your professional credentials are pending verification.
+            You will be able to offer medical services once your account is approved.
+        </p>
+        <a asp-controller="Auth" asp-action="Login" class="btn btn-primary auth-submit-btn">Go to Login</a>
+    </div>
+
+    <p class="auth-switch" id="loginSwitchLink">
+        Already have an account?
+        <a asp-controller="Auth" asp-action="Login">Log in</a>
+    </p>
+
+</div>
+
+@section Scripts {
+    <script src="~/js/register-doctor.js" asp-append-version="true"></script>
+}

@@ -48,5 +48,7 @@ app.MapControllers();
 //authentication endpoints
 app.MapLoginEndPoint();
 app.MapRegisterPatientEndpoint();
+app.MapRegisterDoctorEndpoint();
+
 
 app.Run();
