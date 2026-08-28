@@ -15,6 +15,23 @@ namespace CuraLink.Infrastructure.Services
         {
             this.userManager = userManager;
         }
+        public async Task ActivateUserAsync(string userId)
+        {
+            var user = await userManager.FindByIdAsync(userId);
+
+            if (user == null)
+                throw new InvalidOperationException("User not found.");
+
+            user.IsActive = true;
+
+            var result = await userManager.UpdateAsync(user);
+
+            if (!result.Succeeded)
+            {
+                throw new Exception(
+                    string.Join(", ", result.Errors.Select(e => e.Description)));
+            }
+        }
 
         public async Task<(bool Succeeded, string[] Errors, string UserId)> CreateDoctorAsync(string firstName, string lastName, string email, string phone, string password)
         {
@@ -35,7 +52,8 @@ namespace CuraLink.Infrastructure.Services
                 Email = email,
                 PhoneNumber = phone,
                 FirstName = firstName,
-                LastName = lastName
+                LastName = lastName,
+                IsActive= false
             };
             Console.WriteLine($"USERNAME: [{user.UserName}]");
             var result = await userManager.CreateAsync(user, password);
@@ -77,7 +95,8 @@ namespace CuraLink.Infrastructure.Services
                 ,
                 PhoneNumber = phone,
                 FirstName=FirstName,
-                LastName=LastName
+                LastName=LastName,
+                IsActive= true
 
             };
             var result= await userManager.CreateAsync(user,password);
@@ -97,6 +116,19 @@ namespace CuraLink.Infrastructure.Services
            Array.Empty<string>());
         }
 
+        public async Task<(string Email, string FirstName, string LastName)?> GetUserInfoAsync(string userId)
+        {
+            var user = await userManager.FindByIdAsync(userId);
+
+            if (user == null)
+                return null;
+
+            return (
+                user.Email!,
+                user.FirstName,
+                user.LastName
+            );
+        }
         }
     }
 

@@ -16,8 +16,30 @@ namespace CuraLink.Domain.Entities.Doctor
 
         public DoctorStatusEnum Status { get; set; }
         public string? RejectionReason { get; set; }
+        public DateTime? VerifiedAt { get; set; }
+        public Guid? ChangeStatusByAdminId { get; set; }
+       
+
         public ICollection<DoctorDocument> Documents { get; set; }
             = new List<DoctorDocument>();
+        public void Verify(Guid adminId)
+        {
+            Status = DoctorStatusEnum.verified;
+            RejectionReason = null;
+            VerifiedAt = DateTime.UtcNow;
+            ChangeStatusByAdminId = adminId;
+        }
+
+        public void Reject(string reason, Guid adminId)
+        {
+            if (string.IsNullOrWhiteSpace(reason))
+                throw new ArgumentException("Rejection reason is required.");
+
+            Status = DoctorStatusEnum.Rejected;
+            RejectionReason = reason;
+            VerifiedAt = null;
+            ChangeStatusByAdminId = adminId;
+        }
     }
 
 }

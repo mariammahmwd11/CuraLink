@@ -30,18 +30,20 @@ namespace CuraLink.Infrastructure.Services
             {
                 throw new UnauthorizedAccessException("Invalid email or password.");
             }
-            var result =await _signInManager.CheckPasswordSignInAsync(user, request.Password, lockoutOnFailure: true);
-            if (result.IsLockedOut)
+            if (!user.IsActive)
             {
                 throw new UnauthorizedAccessException(
-                    "Account is locked.");
+                    "Your account is not active yet.");
             }
+            var result = await _signInManager.CheckPasswordSignInAsync(
+     user,
+     request.Password,
+     lockoutOnFailure: false);
 
-            if (!result.Succeeded)
-            {
-                throw new UnauthorizedAccessException(
-                    "Invalid email or password.");
-            }
+            Console.WriteLine($"Succeeded: {result.Succeeded}");
+            Console.WriteLine($"IsLockedOut: {result.IsLockedOut}");
+            Console.WriteLine($"IsNotAllowed: {result.IsNotAllowed}");
+            Console.WriteLine($"RequiresTwoFactor: {result.RequiresTwoFactor}");
             var roles = await _userManager.GetRolesAsync(user);
 
             var role = roles.FirstOrDefault() ?? string.Empty;

@@ -34,7 +34,8 @@ namespace CuraLink.Application.Features.Authentication.Commands.RegisterDoctor
            request.LastName,
            request.Email,
            request.PhoneNumber,
-           request.Password);
+           request.Password
+           );
 
             if (!result.Succeeded)
             {

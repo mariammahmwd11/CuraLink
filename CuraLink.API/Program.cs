@@ -1,3 +1,4 @@
+using CuraLink.API.Endpoints.Admin;
 using CuraLink.API.Endpoints.AuthEndPoints;
 using CuraLink.API.Exceptions;
 using CuraLink.Application;
@@ -10,31 +11,36 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-builder.Services.AddOpenApi();
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
 builder.Services.AddInfrastructureServices(
     builder.Configuration);
 builder.Services.AddApplicationServices(
     );
-builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 
+
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();
 
 var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())
 {
-    var roleManager =
-        scope.ServiceProvider
-            .GetRequiredService<RoleManager<IdentityRole>>();
+    var services = scope.ServiceProvider;
+
+    var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
+    var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
 
     await IdentitySeeder.SeedRolesAsync(roleManager);
+    await IdentitySeeder.SeedAdminAsync(userManager);
 }
 
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.MapOpenApi();
+    app.UseSwagger();
+    app.UseSwaggerUI();
 }
 app.UseExceptionHandler();
 
@@ -43,12 +49,17 @@ app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
-
 //minimal API endpoints
 //authentication endpoints
 app.MapLoginEndPoint();
 app.MapRegisterPatientEndpoint();
 app.MapRegisterDoctorEndpoint();
+//admin api endpoints
+app.MapPendingDoctorsEndpoint();
+app.MapGetDoctorDocumentEndpoint();
+app.MapTestEmail();
+app.MapDownloadDoctorDocumentEndpoint();
+app.MapVerifyDoctorEndpoint();
 
 
 app.Run();

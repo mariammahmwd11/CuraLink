@@ -1,17 +1,22 @@
 ﻿using CuraLink.Application.Common.Interfaces.Authentication;
+using CuraLink.Application.Common.Interfaces.Email;
 using CuraLink.Application.Common.Interfaces.FileStorage;
 using CuraLink.Application.Common.Interfaces.Presistence;
 using CuraLink.Infrastructure.Authentication;
 using CuraLink.Infrastructure.FileStorage;
 using CuraLink.Infrastructure.Identity;
+using CuraLink.Infrastructure.Presistance;
 using CuraLink.Infrastructure.Presistance.Data;
+using CuraLink.Infrastructure.Presistance.Repositories;
 using CuraLink.Infrastructure.Services;
+using CuraLink.Infrastructure.Services.Email;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
+using System.Security.Claims;
 using System.Text;
 
 namespace CuraLink.Infrastructure
@@ -37,18 +42,36 @@ namespace CuraLink.Infrastructure
             .AddEntityFrameworkStores<ApplicationDbContext>()
             .AddSignInManager();
 
+
+
             services.AddScoped<IAuthService, AuthService>();
             services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
             services.AddScoped<IRefreshTokenGenerator, RefreshTokenGenerator>();
             services.AddScoped<IIdentityService, IdentityService>();
             services.AddScoped<IFileStorageService, CloudinaryFileStorageService>();
-            services.AddScoped<IApplicationDbContext, ApplicationDbContext>();
+            services.AddScoped<IApplicationDbContext>(provider =>
+             provider.GetRequiredService<ApplicationDbContext>());
+            services.AddScoped<IUserRepository, UserRepository>();
+            services.AddScoped<IDoctorRepository, DoctorRepository>();
+            services.AddScoped<IDoctorDocumentRepository, DoctorDocumentRepository>();
+            services.AddScoped<ICurrentUserService, CurrentUserService>();
+            services.AddScoped<IUnitOfWork, UnitOfWork>();
+             services.AddHttpClient<IEmailService, BrevoEmailService>();
+
+
 
             services.Configure<JwtSettings>(
              configuration.GetSection("Jwt"));
 
+
             services.Configure<CloudinarySettings>(
                     configuration.GetSection("CloudinarySettings"));
+
+
+            services.Configure<EmailSettings>(
+            configuration.GetSection("EmailSettings"));
+
+          
 
             services.AddAuthentication(options =>
             {
@@ -81,7 +104,18 @@ namespace CuraLink.Infrastructure
                             Encoding.UTF8.GetBytes(jwtSettings.SecretKey))
                     };
                 });
-            services.AddAuthorization();
+
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy("AdminOnly", policy =>
+                {
+                    policy.RequireClaim(
+                        ClaimTypes.Role,
+                        "Admin");
+                });
+            });
+
+
             return services;
         }
     }                   

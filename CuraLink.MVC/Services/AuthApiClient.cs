@@ -1,4 +1,5 @@
-﻿using CuraLink.MVC.Models.Auth;
+﻿using CuraLink.Application.Features.Authentication.DTOs;
+using CuraLink.MVC.Models.Auth;
 
 namespace CuraLink.MVC.Services
 {
@@ -11,7 +12,8 @@ namespace CuraLink.MVC.Services
             _httpClient = httpClient;
         }
 
-        public async Task<HttpResponseMessage> LoginAsync(LoginViewModel model)
+        public async Task<HttpResponseMessage> LoginAsync(
+            LoginViewModel model)
         {
             return await _httpClient.PostAsJsonAsync(
                 "api/auth/login",

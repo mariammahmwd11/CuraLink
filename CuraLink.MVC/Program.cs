@@ -1,12 +1,47 @@
 using CuraLink.MVC.Services;
+using Microsoft.AspNetCore.Authentication.Cookies;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+builder.Services.AddHttpContextAccessor();
+
+var apiBaseUrl = builder.Configuration["Api:BaseUrl"] ?? "https://localhost:7188/";
+
 builder.Services.AddHttpClient<AuthApiClient>(client =>
 {
-    client.BaseAddress = new Uri("http://localhost:5139/");
+    client.BaseAddress = new Uri(apiBaseUrl);
+});
+
+builder.Services.AddHttpClient<AdminApiClient>(client =>
+{
+    client.BaseAddress = new Uri(apiBaseUrl);
+});
+
+// Cookie authentication for the MVC app's own browser session.
+// This is separate from, and does not change, the backend's JWT
+// authentication. It exists so the MVC app can remember who is signed in
+// between requests and gate admin-only pages (e.g. /Admin/PendingDoctors)
+// with [Authorize(Roles = "Admin")]. The JWT issued by POST /api/auth/login
+// is captured as a claim on this cookie identity and forwarded as a Bearer
+// token whenever the MVC app calls a protected backend API - see
+// AuthController.SignInLocallyAsync and Services/AdminApiClient.cs.
+builder.Services
+    .AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(options =>
+    {
+        options.Cookie.Name = "CuraLink.Auth";
+        options.Cookie.HttpOnly = true;
+        options.LoginPath = "/Auth/Login";
+        options.AccessDeniedPath = "/Auth/Login";
+        options.ExpireTimeSpan = TimeSpan.FromHours(8);
+        options.SlidingExpiration = true;
+    });
+
+builder.Services.AddAntiforgery(options =>
+{
+    options.HeaderName = "X-CSRF-TOKEN";
 });
 
 var app = builder.Build();
@@ -16,13 +51,14 @@ var app = builder.Build();
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnet-hsts.
     app.UseHsts();
 }
 
 app.UseHttpsRedirection();
 app.UseRouting();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapStaticAssets();

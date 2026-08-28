@@ -19,6 +19,7 @@ namespace CuraLink.Application
 
             services.AddValidatorsFromAssembly(
                   typeof(ApplicationRegistration).Assembly);
+           
 
             return services;
         }

@@ -18,6 +18,7 @@ namespace CuraLink.Application.Features.Authentication.Commands.RegisterPatient
         public async Task Handle(RegisterPatientCommand request, CancellationToken cancellationToken)
         {
             var result =await identityService.CreatePatientAsync(request.FirstName, request.LastName, request.Email, request.PhoneNumber,request.Password);
+           
             if (!result.Succeeded)
             {
                 throw new Exception(

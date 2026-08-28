@@ -7,7 +7,7 @@ namespace CuraLink.Domain.Entities.Doctor
     public enum DoctorStatusEnum
     {
         PendingVerification = 1,
-        Approved = 2,
+       verified = 2,
         Rejected = 3
     }
 }

@@ -32,7 +32,8 @@ namespace CuraLink.Infrastructure.FileStorage
             var uploadParams = new RawUploadParams
             {
                 File = new FileDescription(fileName, fileStream),
-                PublicId = $"doctors/{Guid.NewGuid()}_{Path.GetFileNameWithoutExtension(fileName)}"
+                PublicId = $"doctors/{Guid.NewGuid()}_{Path.GetFileNameWithoutExtension(fileName)}",
+                  Type = "authenticated"
             };
 
             var result = await _cloudinary.UploadAsync(uploadParams);
@@ -45,5 +46,54 @@ namespace CuraLink.Infrastructure.FileStorage
 
             return result.PublicId;
         }
+      
+        public Task<string> GetUrlAsync(
+         string storageKey,
+        CancellationToken cancellationToken = default)
+        {
+            var url = _cloudinary.Api.Url
+                .ResourceType("raw")
+                .Type("authenticated")
+                .Secure(true)
+                .BuildUrl(storageKey);
+
+            url = url.Replace("http://", "https://");
+
+            return Task.FromResult(url);
+        }
+        public async Task<Stream> DownloadAsync(
+     string storageKey,
+     CancellationToken cancellationToken = default)
+        {
+            var url = _cloudinary.Api.Url
+                .ResourceType("raw")
+                .Type("authenticated")
+                .Secure(true)
+                .Signed(true)
+                .BuildUrl(storageKey);
+
+            using var httpClient = new HttpClient();
+
+            var response = await httpClient.GetAsync(
+                url,
+                cancellationToken);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                throw new Exception(
+                    $"File download failed. Status code: {response.StatusCode}");
+            }
+
+            var memoryStream = new MemoryStream();
+
+            await response.Content.CopyToAsync(
+                memoryStream,
+                cancellationToken);
+
+            memoryStream.Position = 0;
+
+            return memoryStream;
+        }
     }
 }
+  

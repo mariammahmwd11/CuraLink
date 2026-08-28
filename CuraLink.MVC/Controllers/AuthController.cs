@@ -1,7 +1,11 @@
 ﻿using CuraLink.MVC.Models.Auth;
 using CuraLink.MVC.Services;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
+using System.Security.Claims;
+using System.Text.Json;
 
 namespace CuraLink.MVC.Controllers
 {
@@ -20,24 +24,95 @@ namespace CuraLink.MVC.Controllers
             return View();
         }
 
+
         [HttpPost]
         public async Task<IActionResult> Login(LoginViewModel model)
         {
             if (!ModelState.IsValid)
                 return View(model);
 
-            var response = await _authApiClient.LoginAsync(model);
+            try
+            {
+                var response = await _authApiClient.LoginAsync(model);
 
-            if (!response.IsSuccessStatusCode)
+                if (!response.IsSuccessStatusCode)
+                {
+                    var error = await response.Content.ReadAsStringAsync();
+
+                    ModelState.AddModelError(
+                        string.Empty,
+                        "Invalid email or password.");
+
+                    return View(model);
+                }
+
+                var json = await response.Content.ReadAsStringAsync();
+
+                var loginResponse =
+                    JsonSerializer.Deserialize<LoginResponseViewModel>(
+                        json,
+                        new JsonSerializerOptions
+                        {
+                            PropertyNameCaseInsensitive = true
+                        });
+
+                if (loginResponse == null ||
+                    string.IsNullOrEmpty(loginResponse.AccessToken))
+                {
+                    ModelState.AddModelError(
+                        string.Empty,
+                        "Login failed. Please try again.");
+
+                    return View(model);
+                }
+
+                var claims = new List<Claim>
+        {
+            new Claim(
+                ClaimTypes.NameIdentifier,
+                loginResponse.User.Id),
+
+            new Claim(
+                ClaimTypes.Name,
+                loginResponse.User.Email),
+
+            new Claim(
+                ClaimTypes.Email,
+                loginResponse.User.Email),
+
+            new Claim(
+                ClaimTypes.Role,
+                loginResponse.User.Role),
+
+            new Claim(
+                "AccessToken",
+                loginResponse.AccessToken),
+
+            new Claim(
+                "RefreshToken",
+                loginResponse.RefreshToken)
+        };
+
+                var identity = new ClaimsIdentity(
+                    claims,
+                    CookieAuthenticationDefaults.AuthenticationScheme);
+
+                var principal = new ClaimsPrincipal(identity);
+
+                await HttpContext.SignInAsync(
+                    CookieAuthenticationDefaults.AuthenticationScheme,
+                    principal);
+
+                return RedirectToAction("Index", "Home");
+            }
+            catch
             {
                 ModelState.AddModelError(
                     string.Empty,
-                    "Invalid email or password.");
+                    "Unable to connect to the server.");
 
                 return View(model);
             }
-
-            return RedirectToAction("Index", "Home");
         }
 
         [HttpGet]

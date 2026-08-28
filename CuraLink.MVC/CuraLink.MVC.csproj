@@ -6,4 +6,13 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Compile Include="..\..\..\..\Downloads\CuraLink_AdminDoctorVerification_Files\CuraLink.MVC\Models\Admin\DoctorDocumentViewModel.cs" Link="Models\Admin\DoctorDocumentViewModel.cs" />
+    <Compile Include="..\..\..\..\Downloads\CuraLink_AdminDoctorVerification_Files\CuraLink.MVC\Models\Admin\VerifyDoctorRequestViewModel.cs" Link="Models\Admin\VerifyDoctorRequestViewModel.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\CuraLink.Application\CuraLink.Application.csproj" />
+  </ItemGroup>
+
 </Project>

@@ -11,5 +11,13 @@ namespace CuraLink.Application.Common.Interfaces.FileStorage
        string fileName,
        string contentType,
        CancellationToken cancellationToken = default);
+
+        Task<string> GetUrlAsync(
+          string storageKey,
+          CancellationToken cancellationToken = default);
+        Task<Stream> DownloadAsync(
+   string storageKey,
+   CancellationToken cancellationToken = default);
+
     }
 }

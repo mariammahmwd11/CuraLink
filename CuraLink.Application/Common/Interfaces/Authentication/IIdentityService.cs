@@ -20,6 +20,9 @@ namespace CuraLink.Application.Common.Interfaces.Authentication
             string email,
             string phone,
             string password);
-       
+
+        Task ActivateUserAsync(string userId);
+        Task<(string Email, string FirstName, string LastName)?>
+      GetUserInfoAsync(string userId);
     }
 }

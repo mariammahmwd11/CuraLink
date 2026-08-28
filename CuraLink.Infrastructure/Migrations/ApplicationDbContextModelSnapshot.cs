@@ -32,6 +32,9 @@ namespace CuraLink.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
+                    b.Property<Guid?>("ChangeStatusByAdminId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<string>("RejectionReason")
                         .HasColumnType("nvarchar(max)");
 
@@ -47,6 +50,9 @@ namespace CuraLink.Infrastructure.Migrations
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
+
+                    b.Property<DateTime?>("VerifiedAt")
+                        .HasColumnType("datetime2");
 
                     b.HasKey("Id");
 
@@ -117,6 +123,9 @@ namespace CuraLink.Infrastructure.Migrations
                     b.Property<string>("FirstName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
 
                     b.Property<string>("LastName")
                         .IsRequired()
