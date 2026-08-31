@@ -25,25 +25,31 @@ namespace CuraLink.Infrastructure.Services
         }
         public async Task<LoginResponseDTO> LoginAsync(LoginRequestDTO request)
         {
-            var user =await _userManager.FindByEmailAsync(request.Email);
+            var user = await _userManager.FindByEmailAsync(request.Email);
+
             if (user == null)
             {
-                throw new UnauthorizedAccessException("Invalid email or password.");
+                throw new UnauthorizedAccessException(
+                    "Invalid email or password.");
             }
+
             if (!user.IsActive)
             {
                 throw new UnauthorizedAccessException(
-                    "Your account is not active yet.");
+                    "Your account is not active yet. Please wait for admin verification.");
             }
-            var result = await _signInManager.CheckPasswordSignInAsync(
-     user,
-     request.Password,
-     lockoutOnFailure: false);
 
-            Console.WriteLine($"Succeeded: {result.Succeeded}");
-            Console.WriteLine($"IsLockedOut: {result.IsLockedOut}");
-            Console.WriteLine($"IsNotAllowed: {result.IsNotAllowed}");
-            Console.WriteLine($"RequiresTwoFactor: {result.RequiresTwoFactor}");
+            var result = await _signInManager.CheckPasswordSignInAsync(
+                user,
+                request.Password,
+                lockoutOnFailure: false);
+
+            if (!result.Succeeded)
+            {
+                throw new UnauthorizedAccessException(
+                    "Invalid email or password.");
+            }
+
             var roles = await _userManager.GetRolesAsync(user);
 
             var role = roles.FirstOrDefault() ?? string.Empty;

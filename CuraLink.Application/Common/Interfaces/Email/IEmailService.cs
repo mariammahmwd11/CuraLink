@@ -9,5 +9,10 @@ namespace CuraLink.Application.Common.Interfaces.Email
         Task SendDoctorActivationEmailAsync(
             string email,
             string doctorName);
+
+        Task SendDoctorRejectionEmailAsync(
+        string email,
+        string doctorName,
+        string rejectionReason);
     }
 }

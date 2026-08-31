@@ -5,22 +5,22 @@
 
 /* ---------- Design tokens ---------- */
 :root {
-    --cl-primary: #0f766e; /* calm clinical teal */
-    --cl-primary-dark: #0b5c56;
-    --cl-primary-light: #e6f4f3;
-    --cl-accent: #2563eb; /* used sparingly for links/focus */
-    --cl-bg: #f6f9fa;
+    --cl-primary: #2f6fed; /* medilab-style clinical blue */
+    --cl-primary-dark: #1a3fae;
+    --cl-primary-light: #eaf1ff;
+    --cl-accent: #2f6fed; /* used sparingly for links/focus */
+    --cl-bg: #f5f8ff;
     --cl-surface: #ffffff;
-    --cl-text: #10201f;
-    --cl-text-muted: #5b6b6a;
-    --cl-border: #dde5e4;
+    --cl-text: #14213d;
+    --cl-text-muted: #5b6b85;
+    --cl-border: #dde5f5;
     --cl-danger: #c0392b;
     --cl-success: #1e8e5a;
     --cl-warning: #d99e2b;
     --cl-radius-lg: 18px;
     --cl-radius-md: 10px;
     --cl-radius-sm: 6px;
-    --cl-shadow-card: 0 10px 40px rgba(15, 60, 55, 0.10);
+    --cl-shadow-card: 0 10px 40px rgba(20, 60, 130, 0.10);
     --cl-font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
@@ -54,7 +54,10 @@
     padding: 3rem 3rem 2rem;
     flex-direction: column;
     justify-content: space-between;
-    position: relative;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow: hidden;
 }
 
 .auth-brand-inner {
@@ -221,7 +224,7 @@
 }
 
 .auth-input-group:focus-within {
-    box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.15);
+    box-shadow: 0 0 0 3px rgba(47, 111, 237, 0.15);
     border-radius: var(--cl-radius-sm);
 }
 

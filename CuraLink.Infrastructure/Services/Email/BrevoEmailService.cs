@@ -61,8 +61,8 @@ namespace CuraLink.Infrastructure.Services.Email
                     CuraLink Team
                     """,
 
-              
-        htmlContent = $"""
+
+                htmlContent = $"""
             <div style="
                 font-family: Arial, sans-serif;
                 max-width: 600px;
@@ -135,5 +135,128 @@ namespace CuraLink.Infrastructure.Services.Email
                     $"Error: {error}");
             }
         }
+        public async Task SendDoctorRejectionEmailAsync(
+    string email,
+    string doctorName,
+    string rejectionReason)
+        {
+            var request = new HttpRequestMessage(
+                HttpMethod.Post,
+                "https://api.brevo.com/v3/smtp/email");
+
+            request.Headers.Add(
+                "api-key",
+                _settings.ApiKey);
+
+            var body = new
+            {
+                sender = new
+                {
+                    name = _settings.FromName,
+                    email = _settings.FromEmail
+                },
+
+                to = new[]
+                {
+            new
+            {
+                email = email,
+                name = doctorName
+            }
+        },
+
+                subject = "CuraLink - Doctor Verification Rejected",
+
+                textContent = $"""
+            Hello Dr. {doctorName},
+
+            Unfortunately, your CuraLink doctor verification request has been rejected.
+
+            Reason for rejection:
+            {rejectionReason}
+
+            Please review the reason above and submit the required corrections if you wish to apply again.
+
+            CuraLink Team
+            """,
+
+                htmlContent = $"""
+            <div style="
+                font-family: Arial, sans-serif;
+                max-width: 600px;
+                margin: 0 auto;
+                padding: 30px;
+                color: #333;
+                background-color: #ffffff;
+            ">
+
+                <h2 style="color: #dc3545;">
+                    Doctor Verification Update
+                </h2>
+
+                <p>
+                    Hello Dr. {doctorName},
+                </p>
+
+                <p>
+                    Unfortunately, your CuraLink doctor verification request
+                    has been <strong>rejected.</strong>
+                </p>
+
+                <div style="
+                    margin: 25px 0;
+                    padding: 18px;
+                    background-color: #f8f9fa;
+                    border-left: 4px solid #dc3545;
+                    border-radius: 4px;
+                ">
+
+                    <p style="
+                        margin: 0 0 8px 0;
+                        font-weight: bold;
+                        color: #dc3545;
+                    ">
+                        Reason for rejection:
+                    </p>
+
+                    <p style="margin: 0;">
+                        {rejectionReason}
+                    </p>
+
+                </div>
+
+                <p>
+                    Please review the reason above and submit the required
+                    corrections if you wish to apply again.
+                </p>
+
+                <p style="margin-top: 30px;">
+                    <strong>CuraLink Team</strong>
+                </p>
+
+            </div>
+            """
+            };
+
+            var json = JsonSerializer.Serialize(body);
+
+            request.Content = new StringContent(
+                json,
+                Encoding.UTF8,
+                "application/json");
+
+            var response = await _httpClient.SendAsync(request);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = await response.Content.ReadAsStringAsync();
+
+                throw new Exception(
+                    $"Failed to send rejection email. " +
+                    $"Status: {response.StatusCode}. " +
+                    $"Error: {error}");
+            }
+        }
+
     }
-}
+    }

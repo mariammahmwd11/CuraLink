@@ -87,6 +87,20 @@
             .getElementById("btnConfirmApprove")
             .addEventListener("click", submitApproval);
 
+        // Bootstrap doesn't correctly support one modal opening on top of
+        // another out of the box — stacking reviewDoctorModal and
+        // approveConfirmModal left the body stuck with a dark backdrop
+        // and no scrolling once the top modal closed. openApproveConfirm()
+        // now hides the review modal first and only opens the confirm
+        // modal after that hide transition fully finishes. This listener
+        // handles bringing the review modal back if the confirm modal is
+        // closed without a successful approval (Cancel, or a failed request).
+        approveModal.addEventListener("hidden.bs.modal", function () {
+            if (activeDoctorId && doctorsById.has(String(activeDoctorId))) {
+                reviewModalInstance.show();
+            }
+        });
+
         loadPendingDoctors();
     }
 
@@ -546,7 +560,22 @@
             return;
         }
 
-        approveModalInstance.show();
+        // Never show a second Bootstrap modal while another one is still
+        // open — stacking modals this way is what left the body stuck
+        // with a dark backdrop and no scrolling once the top modal closed.
+        // Hide the review modal first, and only open the confirm modal
+        // once its hide transition has fully finished.
+        reviewModalInstance.hide();
+
+        document
+            .getElementById("reviewDoctorModal")
+            .addEventListener(
+                "hidden.bs.modal",
+                function onHidden() {
+                    this.removeEventListener("hidden.bs.modal", onHidden);
+                    approveModalInstance.show();
+                }
+            );
     }
 
     async function submitApproval() {

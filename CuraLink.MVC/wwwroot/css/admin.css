@@ -1,0 +1,285 @@
+﻿/* =========================================================
+   CuraLink — Admin Layout
+   ========================================================= */
+
+:root {
+    --adm-primary: #2f6fed;
+    --adm-primary-dark: #1a3fae;
+    --adm-primary-light: #eaf1ff;
+    --adm-bg: #f5f7fb;
+    --adm-surface: #ffffff;
+    --adm-text: #14213d;
+    --adm-text-muted: #5b6b85;
+    --adm-border: #e2e7f2;
+    --adm-danger: #c0392b;
+    --adm-success: #1e8e5a;
+    --adm-warning: #d99e2b;
+    --adm-radius: 12px;
+    --adm-sidebar-width: 250px;
+    --adm-font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* No horizontal scroll on the page, ever */
+html, body {
+    overflow-x: hidden;
+    max-width: 100%;
+}
+
+.admin-body {
+    margin: 0;
+    min-height: 100vh;
+    font-family: var(--adm-font);
+    color: var(--adm-text);
+    background: var(--adm-bg);
+    -webkit-font-smoothing: antialiased;
+}
+
+/* ---------- Layout shell ---------- */
+.admin-wrapper {
+    display: flex;
+    min-height: 100vh;
+    width: 100%;
+}
+
+.admin-main {
+    flex: 1 1 auto;
+    min-width: 0; /* critical: lets flex children shrink instead of overflowing */
+    display: flex;
+    flex-direction: column;
+}
+
+.admin-content {
+    padding: 1.75rem 2rem;
+    min-width: 0;
+    width: 100%;
+   
+}
+
+/* ---------- Sidebar ---------- */
+.admin-sidebar {
+    flex: 0 0 var(--adm-sidebar-width);
+    width: var(--adm-sidebar-width);
+    background: linear-gradient(180deg, var(--adm-primary) 0%, var(--adm-primary-dark) 100%);
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    padding: 1.5rem 1rem;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    transition: transform 0.25s ease;
+    z-index: 1040;
+}
+
+.admin-sidebar-brand {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-weight: 700;
+    font-size: 1.15rem;
+    padding: 0.5rem 0.6rem 1.75rem;
+}
+
+    .admin-sidebar-brand .auth-brand-mark {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 34px;
+        height: 34px;
+        border-radius: 9px;
+        background: rgba(255, 255, 255, 0.16);
+    }
+
+.admin-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    flex: 1;
+}
+
+.admin-nav-link {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    padding: 0.65rem 0.8rem;
+    border-radius: 9px;
+    color: rgba(255, 255, 255, 0.82);
+    text-decoration: none;
+    font-size: 0.92rem;
+    font-weight: 500;
+    transition: background-color 0.15s ease, color 0.15s ease, transform 0.15s ease;
+}
+
+    .admin-nav-link i {
+        font-size: 1rem;
+        width: 20px;
+        text-align: center;
+    }
+
+    .admin-nav-link:hover {
+        background: rgba(255, 255, 255, 0.12);
+        color: #fff;
+        transform: translateX(3px);
+    }
+
+    .admin-nav-link.active {
+        background: rgba(255, 255, 255, 0.18);
+        color: #fff;
+        font-weight: 600;
+    }
+
+.admin-sidebar-footer {
+    border-top: 1px solid rgba(255, 255, 255, 0.15);
+    padding-top: 0.75rem;
+    margin-top: 0.75rem;
+}
+
+.admin-logout:hover {
+    background: rgba(192, 57, 43, 0.25);
+}
+
+/* ---------- Topbar ---------- */
+.admin-topbar {
+    display: flex;
+    align-items: center;
+    gap: 0.9rem;
+    padding: 1.1rem 2rem;
+    background: var(--adm-surface);
+    border-bottom: 1px solid var(--adm-border);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.admin-topbar-title {
+    font-size: 1.15rem;
+    font-weight: 700;
+    margin: 0;
+    color: var(--adm-text);
+}
+
+.admin-sidebar-toggle {
+    border: none;
+    background: var(--adm-primary-light);
+    color: var(--adm-primary);
+    width: 38px;
+    height: 38px;
+    border-radius: 9px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    transition: background-color 0.15s ease;
+}
+
+    .admin-sidebar-toggle:hover {
+        background: var(--adm-primary);
+        color: #fff;
+    }
+
+.admin-sidebar-backdrop {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.45);
+    z-index: 1030;
+}
+
+/* ---------- Generic content polish (cards, table, buttons) ---------- */
+.card {
+    border: 1px solid var(--adm-border);
+    border-radius: var(--adm-radius);
+}
+
+.table-responsive {
+    max-width: 100%;
+    overflow-x: auto; /* scrolls INSIDE the table only, never the page */
+}
+
+.table > tbody > tr {
+    transition: background-color 0.15s ease;
+}
+
+    .table > tbody > tr:hover {
+        background-color: var(--adm-primary-light);
+    }
+
+.btn-primary {
+    background-color: var(--adm-primary);
+    border-color: var(--adm-primary);
+    transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+}
+
+    .btn-primary:hover {
+        background-color: var(--adm-primary-dark);
+        border-color: var(--adm-primary-dark);
+        transform: translateY(-1px);
+        box-shadow: 0 6px 16px rgba(47, 111, 237, 0.25);
+    }
+
+.btn:active {
+    transform: translateY(0);
+}
+
+.modal-content {
+    border: none;
+    border-radius: var(--adm-radius);
+    animation: admFadeInUp 0.25s ease both;
+}
+
+.spinner-border {
+    animation-duration: 0.7s;
+}
+
+/* ---------- Animations ---------- */
+@keyframes admFadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ---------- Responsive: sidebar becomes an off-canvas drawer ---------- */
+@media (max-width: 991.98px) {
+    .admin-sidebar {
+        position: fixed;
+        left: 0;
+        top: 0;
+        transform: translateX(-100%);
+        box-shadow: 0 0 30px rgba(0, 0, 0, 0.25);
+    }
+
+        .admin-sidebar.open {
+            transform: translateX(0);
+        }
+
+    .admin-sidebar-backdrop.open {
+        display: block;
+    }
+
+    .admin-content {
+        padding: 1.25rem 1.25rem;
+    }
+   
+
+
+    #reviewDoctorModal .modal-dialog {
+        max-height: calc(100vh - 2rem);
+    }
+
+    #reviewDoctorModal .modal-content {
+        max-height: calc(100vh - 2rem);
+    }
+
+    #reviewDoctorModal .modal-body {
+        overflow-y: auto;
+    }
+  
+
+   
+}

@@ -71,6 +71,17 @@ namespace CuraLink.Application.Features.Admin.Doctors.Commands.VerifyDoctor
                 doctor.Reject(
                     request.RejectionReason!,
                     adminId);
+                var userInfo = await identityService.GetUserInfoAsync(
+        doctor.ApplicationUserId);
+
+                if (userInfo == null)
+                    throw new NotFoundException(
+                        "Doctor application user was not found.");
+
+                await emailService.SendDoctorRejectionEmailAsync(
+                    userInfo.Value.Email,
+                    $"{userInfo.Value.FirstName} {userInfo.Value.LastName}",
+                    request.RejectionReason!);
             }
 
             await unitOfWork.SaveChangesAsync(cancellationToken);

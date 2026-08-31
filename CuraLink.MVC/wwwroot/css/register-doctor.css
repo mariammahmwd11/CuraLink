@@ -76,6 +76,7 @@
     line-height: 1.5;
 }
 
+
 /* =========================================================
    Labels
    ========================================================= */
@@ -119,7 +120,7 @@
 .form-control:focus,
 .form-select:focus {
     border-color: var(--cl-primary);
-    box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.1);
+    box-shadow: 0 0 0 3px rgba(47, 111, 237, 0.1);
     outline: none;
 }
 
@@ -170,7 +171,7 @@
 
     .auth-input-group:focus-within {
         border-color: var(--cl-primary);
-        box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.1);
+        box-shadow: 0 0 0 3px rgba(47, 111, 237, 0.1);
     }
 
     .auth-input-group .input-group-text {
@@ -350,7 +351,7 @@
     .upload-dropzone.dragover {
         border-color: var(--cl-primary);
         background: var(--cl-primary-light);
-        box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.08);
+        box-shadow: 0 0 0 3px rgba(47, 111, 237, 0.08);
     }
 
     .upload-dropzone.error {
@@ -496,7 +497,7 @@
 
     .form-check-input:focus {
         border-color: var(--cl-primary);
-        box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.1);
+        box-shadow: 0 0 0 3px rgba(47, 111, 237, 0.1);
     }
 
     .form-check-input.is-invalid {
@@ -542,7 +543,7 @@
         border-color: var(--cl-primary-dark);
         color: #fff;
         transform: translateY(-1px);
-        box-shadow: 0 6px 18px rgba(15, 118, 110, 0.25);
+        box-shadow: 0 6px 18px rgba(47, 111, 237, 0.25);
     }
 
     .auth-submit-btn:active:not(:disabled) {
@@ -691,4 +692,21 @@
     .password-strength-label {
         white-space: normal;
     }
+    .auth-verification-notice {
+        margin-top: 5rem;
+        padding: 0.75rem 1rem;
+        border-radius: 8px;
+        background: var(--cl-light);
+        font-size: 0.9rem;
+        color: var(--cl-text-muted);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+        .auth-verification-notice i {
+            font-size: 1rem;
+        }
 }
+
+
