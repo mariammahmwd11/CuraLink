@@ -22,15 +22,11 @@ builder.Services.AddHttpClient<ClinicApiClient>(client =>
 {
     client.BaseAddress = new Uri(apiBaseUrl);
 });
+builder.Services.AddHttpClient<PatientApiClient>(client =>
+{
+    client.BaseAddress = new Uri(apiBaseUrl); 
+});
 
-// Cookie authentication for the MVC app's own browser session.
-// This is separate from, and does not change, the backend's JWT
-// authentication. It exists so the MVC app can remember who is signed in
-// between requests and gate admin-only pages (e.g. /Admin/PendingDoctors)
-// with [Authorize(Roles = "Admin")]. The JWT issued by POST /api/auth/login
-// is captured as a claim on this cookie identity and forwarded as a Bearer
-// token whenever the MVC app calls a protected backend API - see
-// AuthController.SignInLocallyAsync and Services/AdminApiClient.cs.
 builder.Services
     .AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>

@@ -9,6 +9,13 @@ namespace CuraLink.Application.Common.Interfaces.Presistence
         IDoctorRepository Doctors { get; }
         IUserRepository Users { get; }
         IDoctorDocumentRepository DoctorDocuments { get; }
+        IClinicRepository Clinics { get; }
+        IPatientRepository Patients { get; }
+
+        IMedicalHistoryRepository MedicalHistories { get; }
+
+        IMedicalDocumentRepository MedicalDocuments { get; }
+
         Task<int> SaveChangesAsync(
             CancellationToken cancellationToken = default);
     }

@@ -1,0 +1,48 @@
+﻿@model List<CuraLink.MVC.Models.Patients.MedicalDocumentViewModel>
+@{
+    ViewData["Title"] = "Medical Records";
+    Layout = "_PatientLayout";
+}
+
+<div class="patient-section-header">
+    <h3 class="patient-section-title">Medical Records</h3>
+    <a asp-controller="Patient" asp-action="Upload" class="btn btn-primary">
+        <i class="bi bi-cloud-upload me-1"></i> Upload Document
+    </a>
+</div>
+
+@if (Model != null && Model.Any())
+{
+    foreach (var doc in Model)
+    {
+        <div class="patient-document-row">
+            <span class="patient-document-icon"><i class="bi @doc.FileIconClass"></i></span>
+            <div class="patient-document-info">
+                <p class="patient-document-name">@doc.FileName</p>
+                <span class="patient-document-meta">@doc.FileSizeDisplay &middot; Uploaded @doc.UploadedAt.ToLocalTime().ToString("MMM d, yyyy")</span>
+            </div>
+            <div class="patient-document-actions">
+                <button type="button" class="btn btn-sm btn-outline-secondary" disabled title="Coming soon">
+                    <i class="bi bi-eye"></i>
+                </button>
+                <button type="button" class="btn btn-sm btn-outline-secondary" disabled title="Coming soon">
+                    <i class="bi bi-download"></i>
+                </button>
+                <button type="button" class="btn btn-sm btn-outline-danger" disabled title="Coming soon">
+                    <i class="bi bi-trash"></i>
+                </button>
+            </div>
+        </div>
+    }
+}
+else
+{
+    <div class="patient-empty-state">
+        <div class="patient-empty-icon"><i class="bi bi-file-earmark-medical"></i></div>
+        <h4 class="patient-empty-title">You haven't uploaded any medical documents yet.</h4>
+        <p class="patient-empty-subtitle">Your medical documents will appear here once uploaded.</p>
+        <a asp-controller="Patient" asp-action="Upload" class="btn btn-primary">
+            <i class="bi bi-cloud-upload me-1"></i> Upload Your First Document
+        </a>
+    </div>
+}

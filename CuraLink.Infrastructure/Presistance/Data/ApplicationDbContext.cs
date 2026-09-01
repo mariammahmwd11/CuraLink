@@ -1,6 +1,8 @@
 ﻿using CuraLink.Application.Common.Interfaces.Presistence;
 using CuraLink.Domain.Entities.Clinics;
 using CuraLink.Domain.Entities.Doctors;
+using CuraLink.Domain.Entities.MedicalHistories;
+using CuraLink.Domain.Entities.Patients;
 using CuraLink.Infrastructure.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -18,6 +20,11 @@ namespace CuraLink.Infrastructure.Presistance.Data
         public DbSet<Doctor> Doctors { get; set; }
         public DbSet<DoctorDocument> DoctorDocuments { get; set; }
         public DbSet<Clinic> Clinics { get; set; }
+        public DbSet<Patient> Patients { get; set; }
+
+        public DbSet<MedicalHistory> MedicalHistories { get; set; }
+
+        public DbSet<MedicalDocument> MedicalDocuments { get; set; }
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
@@ -92,6 +99,64 @@ namespace CuraLink.Infrastructure.Presistance.Data
                     .HasForeignKey(c => c.DoctorId)
                     .OnDelete(DeleteBehavior.Cascade);
             });
+            builder.Entity<Patient>(entity =>
+            {
+                entity.HasKey(p => p.Id);
+
+                entity.Property(p => p.ApplicationUserId)
+                    .IsRequired();
+
+                entity.Property(p => p.BloodType)
+                    .HasMaxLength(10);
+
+                entity.HasOne<Infrastructure.Identity.ApplicationUser>()
+                    .WithOne()
+                    .HasForeignKey<Patient>(p => p.ApplicationUserId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasOne(p => p.MedicalHistory)
+                    .WithOne(m => m.Patient)
+                    .HasForeignKey<MedicalHistory>(m => m.PatientId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
+            builder.Entity<MedicalHistory>(entity =>
+            {
+                entity.HasKey(m => m.Id);
+
+                entity.Property(m => m.CreatedAt)
+                    .IsRequired();
+
+                entity.Property(m => m.UpdatedAt)
+                    .IsRequired();
+            });
+            builder.Entity<MedicalDocument>(entity =>
+            {
+                entity.HasKey(d => d.Id);
+
+                entity.Property(d => d.FileName)
+                    .IsRequired()
+                    .HasMaxLength(255);
+
+                entity.Property(d => d.ContentType)
+                    .IsRequired()
+                    .HasMaxLength(100);
+
+                entity.Property(d => d.FileSize)
+                    .IsRequired();
+
+                entity.Property(d => d.StorageKey)
+                    .IsRequired()
+                    .HasMaxLength(500);
+
+                entity.Property(d => d.UploadedAt)
+                    .IsRequired();
+
+                entity.HasOne(d => d.MedicalHistory)
+                    .WithMany(m => m.Documents)
+                    .HasForeignKey(d => d.MedicalHistoryId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
+            
 
         }
     }

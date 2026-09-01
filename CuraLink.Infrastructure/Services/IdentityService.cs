@@ -75,47 +75,54 @@ namespace CuraLink.Infrastructure.Services
                 Array.Empty<string>(),
                 user.Id);
         }
-        
 
-        public async Task<(bool Succeeded, string[] Errors)> CreatePatientAsync(string FirstName, string LastName, string email, string phone, string password)
+
+        public async Task<(bool Succeeded, string[] Errors, string UserId)> CreatePatientAsync(
+     string firstName,
+     string lastName,
+     string email,
+     string phone,
+     string password)
         {
-            var existingpatient=await userManager.FindByEmailAsync(email);
-            if (existingpatient != null)
+            var existingPatient = await userManager.FindByEmailAsync(email);
+
+            if (existingPatient != null)
             {
                 return (
-               false,
-         
-               new[] { "Email already exists." });
+                    false,
+                    new[] { "Email already exists." },
+                    string.Empty);
             }
+
             var user = new ApplicationUser
             {
-                UserName = email
-                ,
-                Email = email
-                ,
+                UserName = email,
+                Email = email,
                 PhoneNumber = phone,
-                FirstName=FirstName,
-                LastName=LastName,
-                IsActive= true
-
+                FirstName = firstName,
+                LastName = lastName,
+                IsActive = true
             };
-            var result= await userManager.CreateAsync(user,password);
+
+            var result = await userManager.CreateAsync(user, password);
+
             if (!result.Succeeded)
             {
                 return (
-                false,
-               
-                result.Errors
-                    .Select(e => e.Description)
-                    .ToArray());
+                    false,
+                    result.Errors
+                        .Select(e => e.Description)
+                        .ToArray(),
+                    string.Empty);
             }
-            await userManager.AddToRoleAsync(user, "Patient");
-            return (
-           true,
-          
-           Array.Empty<string>());
-        }
 
+            await userManager.AddToRoleAsync(user, "Patient");
+
+            return (
+                true,
+                Array.Empty<string>(),
+                user.Id);
+        }
         public async Task<(string Email, string FirstName, string LastName)?> GetUserInfoAsync(string userId)
         {
             var user = await userManager.FindByIdAsync(userId);

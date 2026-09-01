@@ -60,6 +60,7 @@ namespace CuraLink.Application.Features.Authentication.Commands.RegisterDoctor
                 stream,
                 request.LicenseDocument.FileName,
                 request.LicenseDocument.ContentType,
+                "doctors/licenses",
                 cancellationToken);
 
 

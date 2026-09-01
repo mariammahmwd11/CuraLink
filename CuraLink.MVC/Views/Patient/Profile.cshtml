@@ -1,0 +1,60 @@
+﻿@model CuraLink.MVC.Models.Patients.PatientProfileViewModel
+@using System.Linq
+@{
+    ViewData["Title"] = "My Profile";
+    Layout = "_PatientLayout";
+    var initials = Model.HasName
+        ? $"{Model.FirstName?.FirstOrDefault()}{Model.LastName?.FirstOrDefault()}".ToUpperInvariant()
+        : Model.Email.Length > 0 ? Model.Email[0].ToString().ToUpperInvariant() : "P";
+}
+
+<div class="patient-profile-card">
+
+    <div class="patient-profile-header">
+        <span class="patient-avatar">@initials</span>
+        <div>
+            <h2 class="patient-profile-name">
+                @(Model.HasName ? $"{Model.FirstName} {Model.LastName}".Trim() : Model.Email)
+            </h2>
+            <span class="patient-profile-status">
+                <i class="bi bi-check-circle-fill"></i> Active account
+            </span>
+        </div>
+    </div>
+
+    @* <div class="patient-profile-field">
+        <span class="patient-profile-label">First Name</span>
+        @if (Model.HasName)
+        {
+            <span class="patient-profile-value">@Model.FirstName</span>
+        }
+        else
+        {
+            <span class="patient-profile-value muted">Not available yet</span>
+        }
+    </div>
+
+    <div class="patient-profile-field">
+        <span class="patient-profile-label">Last Name</span>
+        @if (Model.HasName)
+        {
+            <span class="patient-profile-value">@Model.LastName</span>
+        }
+        else
+        {
+            <span class="patient-profile-value muted">Not available yet</span>
+        }
+    </div> *@
+
+    <div class="patient-profile-field">
+        <span class="patient-profile-label">Email</span>
+        <span class="patient-profile-value">@Model.Email</span>
+    </div>
+
+    <div class="mt-4">
+        <button type="button" class="btn btn-primary" disabled title="Coming soon">
+            <i class="bi bi-pencil me-1"></i> Edit Profile
+        </button>
+    </div>
+
+</div>

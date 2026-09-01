@@ -27,12 +27,13 @@ namespace CuraLink.Infrastructure.FileStorage
             Stream fileStream,
             string fileName,
             string contentType,
+            string folder ,
             CancellationToken cancellationToken = default)
         {
             var uploadParams = new RawUploadParams
             {
                 File = new FileDescription(fileName, fileStream),
-                PublicId = $"doctors/{Guid.NewGuid()}_{Path.GetFileNameWithoutExtension(fileName)}",
+                PublicId = $"{folder}/{Guid.NewGuid()}_{Path.GetFileNameWithoutExtension(fileName)}",
                   Type = "authenticated"
             };
 

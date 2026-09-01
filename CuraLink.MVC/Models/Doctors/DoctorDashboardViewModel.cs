@@ -7,8 +7,7 @@ namespace CuraLink.MVC.Models.Doctors
     {
         public string DoctorDisplayName { get; set; } = "Doctor";
 
-        // TODO: wire these to real endpoints once Appointments/Patients APIs
-        // are available for the doctor role. Left at 0 rather than faked data.
+     
         public int TotalClinics { get; set; }
         public int TodaysAppointments { get; set; }
         public int UpcomingAppointments { get; set; }

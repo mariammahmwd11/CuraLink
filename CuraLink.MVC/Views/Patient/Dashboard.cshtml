@@ -1,0 +1,59 @@
+﻿@model CuraLink.MVC.Models.Patients.PatientDashboardViewModel
+@{
+    ViewData["Title"] = "Dashboard";
+    Layout = "_PatientLayout";
+    var welcomeName = Model.Profile.HasName
+        ? $"{Model.Profile.FirstName} {Model.Profile.LastName}".Trim()
+        : Model.Profile.Email;
+}
+
+<div class="patient-welcome">
+    <h2 class="patient-welcome-title">Welcome back, @welcomeName!</h2>
+    <p class="patient-welcome-subtitle">Manage your health information and medical records in one place.</p>
+</div>
+
+<div class="patient-stats-row">
+    <div class="patient-stat-card">
+        <div class="patient-stat-top">
+            <span class="patient-stat-icon"><i class="bi bi-file-earmark-medical"></i></span>
+            <div>
+                <div class="patient-stat-value">@Model.MedicalDocumentsCount</div>
+                <div class="patient-stat-label">Medical Documents</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="patient-stat-card">
+        <div class="patient-stat-top">
+            <span class="patient-stat-icon"><i class="bi bi-calendar-check"></i></span>
+            <div>
+                <div class="patient-stat-value">@Model.UpcomingAppointmentsCount</div>
+                <div class="patient-stat-label">Upcoming Appointments</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="patient-stat-card">
+        <div class="patient-stat-top">
+            <span class="patient-stat-icon"><i class="bi bi-clock-history"></i></span>
+            <div>
+                <div class="patient-stat-label">Medical History</div>
+            </div>
+        </div>
+        <a asp-controller="Patient" asp-action="MedicalRecords" class="btn btn-outline-primary btn-sm">
+            View Medical History
+        </a>
+    </div>
+
+    <div class="patient-stat-card">
+        <div class="patient-stat-top">
+            <span class="patient-stat-icon"><i class="bi bi-person-circle"></i></span>
+            <div>
+                <div class="patient-stat-label">Profile</div>
+            </div>
+        </div>
+        <a asp-controller="Patient" asp-action="Profile" class="btn btn-outline-primary btn-sm">
+            View Profile
+        </a>
+    </div>
+</div>

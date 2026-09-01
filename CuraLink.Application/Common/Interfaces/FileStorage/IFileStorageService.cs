@@ -7,10 +7,11 @@ namespace CuraLink.Application.Common.Interfaces.FileStorage
     public interface IFileStorageService
     {
         Task<string> UploadAsync(
-       Stream fileStream,
-       string fileName,
-       string contentType,
-       CancellationToken cancellationToken = default);
+              Stream fileStream,
+              string fileName,
+              string contentType,
+              string folder,
+              CancellationToken cancellationToken = default);
 
         Task<string> GetUrlAsync(
           string storageKey,
