@@ -1,5 +1,5 @@
 ﻿using CuraLink.Application.Common.Interfaces.Presistence;
-using CuraLink.Domain.Entities.Doctor;
+using CuraLink.Domain.Entities.Doctors;
 using CuraLink.Infrastructure.Presistance.Data;
 using Microsoft.EntityFrameworkCore;
 using System;

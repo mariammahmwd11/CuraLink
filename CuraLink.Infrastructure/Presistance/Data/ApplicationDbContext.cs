@@ -1,5 +1,6 @@
 ﻿using CuraLink.Application.Common.Interfaces.Presistence;
-using CuraLink.Domain.Entities.Doctor;
+using CuraLink.Domain.Entities.Clinics;
+using CuraLink.Domain.Entities.Doctors;
 using CuraLink.Infrastructure.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -16,6 +17,7 @@ namespace CuraLink.Infrastructure.Presistance.Data
         }
         public DbSet<Doctor> Doctors { get; set; }
         public DbSet<DoctorDocument> DoctorDocuments { get; set; }
+        public DbSet<Clinic> Clinics { get; set; }
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
@@ -63,6 +65,31 @@ namespace CuraLink.Infrastructure.Presistance.Data
                 entity.HasOne(d => d.Doctor)
                     .WithMany(d => d.Documents)
                     .HasForeignKey(d => d.DoctorId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
+            builder.Entity<Clinic>(entity =>
+            {
+                entity.HasKey(c => c.Id);
+
+                entity.Property(c => c.ClinicName)
+                    .IsRequired()
+                    .HasMaxLength(200);
+
+                entity.Property(c => c.Address)
+                    .IsRequired()
+                    .HasMaxLength(500);
+
+                entity.Property(c => c.ConsultationPrice)
+                    .IsRequired()
+                    .HasColumnType("decimal(18,2)");
+
+                entity.Property(c => c.PhoneNumber)
+                    .IsRequired()
+                    .HasMaxLength(20);
+
+                entity.HasOne(c => c.Doctor)
+                    .WithMany(d => d.Clinics)
+                    .HasForeignKey(c => c.DoctorId)
                     .OnDelete(DeleteBehavior.Cascade);
             });
 

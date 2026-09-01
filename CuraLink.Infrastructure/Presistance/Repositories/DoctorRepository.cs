@@ -1,5 +1,5 @@
 ﻿using CuraLink.Application.Common.Interfaces.Presistence;
-using CuraLink.Domain.Entities.Doctor;
+using CuraLink.Domain.Entities.Doctors;
 using CuraLink.Infrastructure.Presistance.Data;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -36,7 +36,16 @@ namespace CuraLink.Infrastructure.Presistance.Repositories
                     d => d.Id == id,
                     cancellationToken);
         }
+        public async Task<Doctor?> GetByApplicationUserIdAsync(
+    string applicationUserId,
+    CancellationToken cancellationToken = default)
+        {
+            return await _context.Doctors
+                .FirstOrDefaultAsync(
+                    d => d.ApplicationUserId == applicationUserId,
+                    cancellationToken);
+        }
 
-      
+
     }
 }

@@ -1,0 +1,110 @@
+﻿@model CuraLink.MVC.Models.Doctors.DoctorDashboardViewModel
+@{
+    ViewData["Title"] = "Dashboard";
+    Layout = "_DoctorLayout";
+}
+
+<div class="doctor-welcome">
+    <h2 class="doctor-welcome-title">Good morning, Dr. @Model.DoctorDisplayName</h2>
+    <p class="doctor-welcome-subtitle">Here's what's happening with your clinics today.</p>
+</div>
+
+<div class="doctor-stats-row">
+    <div class="doctor-stat-card">
+        <span class="doctor-stat-icon"><i class="bi bi-hospital"></i></span>
+        <div>
+            <div class="doctor-stat-value">@Model.TotalClinics</div>
+            <div class="doctor-stat-label">Total Clinics</div>
+        </div>
+    </div>
+    <div class="doctor-stat-card">
+        <span class="doctor-stat-icon"><i class="bi bi-calendar-check"></i></span>
+        <div>
+            <div class="doctor-stat-value">@Model.TodaysAppointments</div>
+            <div class="doctor-stat-label">Today's Appointments</div>
+        </div>
+    </div>
+    <div class="doctor-stat-card">
+        <span class="doctor-stat-icon"><i class="bi bi-calendar-week"></i></span>
+        <div>
+            <div class="doctor-stat-value">@Model.UpcomingAppointments</div>
+            <div class="doctor-stat-label">Upcoming Appointments</div>
+        </div>
+    </div>
+    <div class="doctor-stat-card">
+        <span class="doctor-stat-icon"><i class="bi bi-people"></i></span>
+        <div>
+            <div class="doctor-stat-value">@Model.TotalPatients</div>
+            <div class="doctor-stat-label">Total Patients</div>
+        </div>
+    </div>
+</div>
+
+<section id="my-clinics">
+    <div class="doctor-section-header">
+        <h3 class="doctor-section-title">My Clinics</h3>
+        <a asp-controller="Clinic" asp-action="Create" class="btn btn-primary doctor-submit-btn">
+            <i class="bi bi-plus-lg me-1"></i> Add New Clinic
+        </a>
+    </div>
+
+    @if (Model.HasClinics)
+    {
+        <div class="doctor-clinics-grid">
+            @foreach (var clinic in Model.Clinics)
+            {
+                var statusClass = clinic.Status?.ToLowerInvariant() switch
+                {
+                    "active" => "status-active",
+                    "pending" => "status-pending",
+                    "inactive" => "status-inactive",
+                    _ => ""
+                };
+
+                <div class="clinic-card">
+                    <div class="clinic-card-header">
+                        <h4 class="clinic-card-name"><i class="bi bi-hospital"></i> @clinic.ClinicName</h4>
+                        <span class="clinic-card-status @statusClass">@clinic.Status</span>
+                    </div>
+
+                    <div class="clinic-card-meta">
+                        <div><i class="bi bi-geo-alt"></i> @clinic.Address</div>
+                        <div><i class="bi bi-telephone"></i> @clinic.PhoneNumber</div>
+                        <div><i class="bi bi-cash-coin"></i> Consultation: @clinic.ConsultationPrice.ToString("0.##") EGP</div>
+                        @if (clinic.StaffCount.HasValue)
+                        {
+                            <div><i class="bi bi-people"></i> @clinic.StaffCount staff member(s)</div>
+                        }
+                    </div>
+
+                    <!-- View/Edit/Delete actions are not wired yet — no
+                         corresponding ClinicController actions exist. Left as
+                         inert buttons so the layout matches spec without
+                         faking a route that would 404. -->
+                    <div class="clinic-card-actions">
+                        <button type="button" class="btn btn-outline-secondary" disabled title="Coming soon">
+                            <i class="bi bi-eye"></i> View
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary" disabled title="Coming soon">
+                            <i class="bi bi-pencil"></i> Edit
+                        </button>
+                        <button type="button" class="btn btn-outline-danger" disabled title="Coming soon">
+                            <i class="bi bi-trash"></i> Delete
+                        </button>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="doctor-empty-state">
+            <div class="doctor-empty-icon"><i class="bi bi-hospital"></i></div>
+            <h4 class="doctor-empty-title">No clinics yet</h4>
+            <p class="doctor-empty-subtitle">Create your first clinic to start managing your medical services.</p>
+            <a asp-controller="Clinic" asp-action="Create" class="btn btn-primary doctor-submit-btn">
+                <i class="bi bi-plus-lg me-1"></i> Create Clinic
+            </a>
+        </div>
+    }
+</section>

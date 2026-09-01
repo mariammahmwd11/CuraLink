@@ -1,0 +1,91 @@
+﻿@model CuraLink.MVC.Models.Clinics.CreateClinicViewModel
+@{
+    ViewData["Title"] = "Create Clinic";
+    Layout = "_DoctorLayout";
+}
+
+<nav class="doctor-breadcrumb">
+    <a asp-controller="Doctor" asp-action="Dashboard">Dashboard</a>
+    <span> / </span>
+    <a asp-controller="Doctor" asp-action="Dashboard" asp-fragment="my-clinics">My Clinics</a>
+    <span> / </span>
+    <span class="current">Create Clinic</span>
+</nav>
+
+<div class="doctor-card" style="max-width: 720px;">
+
+    <div class="doctor-card-header">
+        <h1 class="doctor-page-title">Set Up Your Clinic</h1>
+        <p class="doctor-page-subtitle">
+            Add your clinic details so patients can discover your clinic and the
+            services you offer.
+        </p>
+    </div>
+
+    @if (!ViewData.ModelState.IsValid)
+    {
+        <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+    }
+
+    <form asp-controller="Clinic" asp-action="Create" method="post" novalidate class="doctor-form" id="createClinicForm">
+
+        @Html.AntiForgeryToken()
+
+        <div class="mb-3">
+            <label asp-for="ClinicName" class="form-label"></label>
+            <div class="input-group doctor-input-group">
+                <span class="input-group-text"><i class="bi bi-hospital"></i></span>
+                <input asp-for="ClinicName" class="form-control" placeholder="e.g. Al Salam Medical Center"
+                       autocomplete="organization" />
+            </div>
+            <span asp-validation-for="ClinicName" class="text-danger small"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Address" class="form-label"></label>
+            <div class="input-group doctor-input-group">
+                <span class="input-group-text"><i class="bi bi-geo-alt"></i></span>
+                <input asp-for="Address" class="form-control" placeholder="Street, building, city"
+                       autocomplete="street-address" />
+            </div>
+            <span asp-validation-for="Address" class="text-danger small"></span>
+        </div>
+
+        <div class="row">
+            <div class="col-sm-6 mb-3">
+                <label asp-for="ConsultationPrice" class="form-label"></label>
+                <div class="input-group doctor-input-group">
+                    <span class="input-group-text"><i class="bi bi-cash-coin"></i></span>
+                    <input asp-for="ConsultationPrice" type="number" step="0.01" min="0" class="form-control"
+                           placeholder="e.g. 300" />
+                </div>
+                <span asp-validation-for="ConsultationPrice" class="text-danger small"></span>
+            </div>
+
+            <div class="col-sm-6 mb-3">
+                <label asp-for="PhoneNumber" class="form-label"></label>
+                <div class="input-group doctor-input-group">
+                    <span class="input-group-text"><i class="bi bi-telephone"></i></span>
+                    <input asp-for="PhoneNumber" type="tel" class="form-control"
+                           placeholder="+20 100 000 0000" autocomplete="tel" />
+                </div>
+                <span asp-validation-for="PhoneNumber" class="text-danger small"></span>
+            </div>
+        </div>
+
+        <div class="d-flex flex-column flex-sm-row gap-2 mt-4">
+            <button type="submit" class="btn btn-primary doctor-submit-btn">
+                <i class="bi bi-check-circle me-1"></i> Create Clinic
+            </button>
+            <a asp-controller="Doctor" asp-action="Dashboard" class="btn btn-outline-secondary doctor-submit-btn">
+                Cancel
+            </a>
+        </div>
+
+    </form>
+
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

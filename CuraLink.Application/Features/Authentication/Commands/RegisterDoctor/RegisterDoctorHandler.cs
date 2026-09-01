@@ -1,7 +1,7 @@
 ﻿using CuraLink.Application.Common.Interfaces.Authentication;
 using CuraLink.Application.Common.Interfaces.FileStorage;
 using CuraLink.Application.Common.Interfaces.Presistence;
-using CuraLink.Domain.Entities.Doctor;
+using CuraLink.Domain.Entities.Doctors;
 using MediatR;
 using System;
 using System.Collections.Generic;

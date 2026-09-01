@@ -1,8 +1,9 @@
-﻿using System;
+﻿using CuraLink.Domain.Entities.Clinics;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace CuraLink.Domain.Entities.Doctor
+namespace CuraLink.Domain.Entities.Doctors
 {
     public class Doctor
     {
@@ -22,6 +23,9 @@ namespace CuraLink.Domain.Entities.Doctor
 
         public ICollection<DoctorDocument> Documents { get; set; }
             = new List<DoctorDocument>();
+
+        public ICollection<Clinic> Clinics { get; set; }
+    = new List<Clinic>();
         public void Verify(Guid adminId)
         {
             Status = DoctorStatusEnum.verified;

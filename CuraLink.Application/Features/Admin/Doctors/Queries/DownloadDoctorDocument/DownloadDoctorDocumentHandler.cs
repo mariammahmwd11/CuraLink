@@ -1,7 +1,7 @@
 ﻿using CuraLink.Application.Common.Exceptions;
 using CuraLink.Application.Common.Interfaces.FileStorage;
 using CuraLink.Application.Common.Interfaces.Presistence;
-using CuraLink.Domain.Entities.Doctor;
+using CuraLink.Domain.Entities.Doctors;
 using MediatR;
 
 namespace CuraLink.Application.Features.Admin.Doctors.Queries.DownloadDoctorDocument

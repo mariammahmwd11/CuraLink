@@ -1,4 +1,4 @@
-﻿using CuraLink.Domain.Entities.Doctor;
+﻿using CuraLink.Domain.Entities.Doctors;
 using System;
 using System.Collections.Generic;
 using System.Text;

@@ -18,6 +18,10 @@ builder.Services.AddHttpClient<AdminApiClient>(client =>
 {
     client.BaseAddress = new Uri(apiBaseUrl);
 });
+builder.Services.AddHttpClient<ClinicApiClient>(client =>
+{
+    client.BaseAddress = new Uri(apiBaseUrl);
+});
 
 // Cookie authentication for the MVC app's own browser session.
 // This is separate from, and does not change, the backend's JWT

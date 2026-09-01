@@ -1,0 +1,586 @@
+﻿/* =========================================================
+   CuraLink — Doctor Dashboard
+   Scope: Views/Shared/_DoctorLayout.cshtml and every Doctor-area page
+   (Views/Doctor/*.cshtml, Views/Clinic/*.cshtml)
+
+   Tokens mirror auth.css (--cl-primary etc.) since that file is the
+   single source of truth for the CuraLink blue theme. Component class
+   names are prefixed "doctor-" (not "admin-") so this stylesheet can
+   never collide with admin.css if both ever end up cached together.
+   ========================================================= */
+
+:root {
+    --cl-primary: #2f6fed;
+    --cl-primary-dark: #1a3fae;
+    --cl-primary-light: #eaf1ff;
+    --cl-bg: #f5f7fb;
+    --cl-surface: #ffffff;
+    --cl-text: #14213d;
+    --cl-text-muted: #5b6b85;
+    --cl-border: #e2e7f2;
+    --cl-danger: #c0392b;
+    --cl-success: #1e8e5a;
+    --cl-warning: #d99e2b;
+    --cl-radius-lg: 18px;
+    --cl-radius-md: 12px;
+    --cl-radius-sm: 8px;
+    --cl-shadow-card: 0 10px 40px rgba(20, 60, 130, 0.08);
+    --doctor-sidebar-width: 250px;
+    --cl-font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+html, body {
+    overflow-x: hidden;
+    max-width: 100%;
+}
+
+.doctor-body {
+    margin: 0;
+    min-height: 100vh;
+    font-family: var(--cl-font);
+    color: var(--cl-text);
+    background: var(--cl-bg);
+    -webkit-font-smoothing: antialiased;
+}
+
+/* ---------- Layout shell ---------- */
+.doctor-wrapper {
+    display: flex;
+    min-height: 100vh;
+    width: 100%;
+}
+
+.doctor-main {
+    flex: 1 1 auto;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.doctor-content {
+    padding: 1.75rem 2rem;
+    min-width: 0;
+    width: 100%;
+}
+
+/* ---------- Sidebar ---------- */
+.doctor-sidebar {
+    flex: 0 0 var(--doctor-sidebar-width);
+    width: var(--doctor-sidebar-width);
+    background: linear-gradient(180deg, var(--cl-primary) 0%, var(--cl-primary-dark) 100%);
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    padding: 1.5rem 1rem;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    transition: transform 0.25s ease;
+    z-index: 1040;
+}
+
+.doctor-sidebar-brand {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-weight: 700;
+    font-size: 1.15rem;
+    padding: 0.5rem 0.6rem 1.75rem;
+}
+
+    .doctor-sidebar-brand .doctor-brand-mark {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 34px;
+        height: 34px;
+        border-radius: 9px;
+        background: rgba(255, 255, 255, 0.16);
+    }
+
+.doctor-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    flex: 1;
+}
+
+.doctor-nav-link {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    padding: 0.65rem 0.8rem;
+    border-radius: 9px;
+    color: rgba(255, 255, 255, 0.82);
+    text-decoration: none;
+    font-size: 0.92rem;
+    font-weight: 500;
+    transition: background-color 0.15s ease, color 0.15s ease, transform 0.15s ease;
+}
+
+    .doctor-nav-link i {
+        font-size: 1rem;
+        width: 20px;
+        text-align: center;
+    }
+
+    .doctor-nav-link:hover {
+        background: rgba(255, 255, 255, 0.12);
+        color: #fff;
+        transform: translateX(3px);
+    }
+
+    .doctor-nav-link.active {
+        background: rgba(255, 255, 255, 0.18);
+        color: #fff;
+        font-weight: 600;
+    }
+
+    .doctor-nav-link.disabled {
+        opacity: 0.55;
+        cursor: default;
+        pointer-events: none;
+    }
+
+.doctor-nav-soon {
+    margin-left: auto;
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    background: rgba(255, 255, 255, 0.18);
+    padding: 0.1rem 0.4rem;
+    border-radius: 999px;
+}
+
+.doctor-sidebar-footer {
+    border-top: 1px solid rgba(255, 255, 255, 0.15);
+    padding-top: 0.75rem;
+    margin-top: 0.75rem;
+}
+
+.doctor-logout:hover {
+    background: rgba(192, 57, 43, 0.25);
+}
+
+/* ---------- Topbar ---------- */
+.doctor-topbar {
+    display: flex;
+    align-items: center;
+    gap: 0.9rem;
+    padding: 1.1rem 2rem;
+    background: var(--cl-surface);
+    border-bottom: 1px solid var(--cl-border);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.doctor-topbar-title {
+    font-size: 1.15rem;
+    font-weight: 700;
+    margin: 0;
+    color: var(--cl-text);
+}
+
+.doctor-sidebar-toggle {
+    border: none;
+    background: var(--cl-primary-light);
+    color: var(--cl-primary);
+    width: 38px;
+    height: 38px;
+    border-radius: 9px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    transition: background-color 0.15s ease;
+}
+
+    .doctor-sidebar-toggle:hover {
+        background: var(--cl-primary);
+        color: #fff;
+    }
+
+.doctor-sidebar-backdrop {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.45);
+    z-index: 1030;
+}
+
+/* ---------- Breadcrumb ---------- */
+.doctor-breadcrumb {
+    font-size: 0.85rem;
+    color: var(--cl-text-muted);
+    margin-bottom: 1rem;
+}
+
+    .doctor-breadcrumb a {
+        color: var(--cl-text-muted);
+        text-decoration: none;
+    }
+
+        .doctor-breadcrumb a:hover {
+            color: var(--cl-primary);
+        }
+
+    .doctor-breadcrumb .current {
+        color: var(--cl-text);
+        font-weight: 600;
+    }
+
+/* ---------- Welcome header ---------- */
+.doctor-welcome-title {
+    font-size: 1.5rem;
+    font-weight: 800;
+    margin-bottom: 0.2rem;
+    color: var(--cl-text);
+}
+
+.doctor-welcome-subtitle {
+    color: var(--cl-text-muted);
+    font-size: 0.95rem;
+    margin-bottom: 1.75rem;
+}
+
+/* ---------- Stat cards ---------- */
+.doctor-stats-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.doctor-stat-card {
+    background: var(--cl-surface);
+    border: 1px solid var(--cl-border);
+    border-radius: var(--cl-radius-md);
+    padding: 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 0.9rem;
+    box-shadow: var(--cl-shadow-card);
+}
+
+.doctor-stat-icon {
+    flex: 0 0 auto;
+    width: 46px;
+    height: 46px;
+    border-radius: 12px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.3rem;
+    background: var(--cl-primary-light);
+    color: var(--cl-primary);
+}
+
+.doctor-stat-value {
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: var(--cl-text);
+    line-height: 1.1;
+}
+
+.doctor-stat-label {
+    font-size: 0.82rem;
+    color: var(--cl-text-muted);
+}
+
+/* ---------- Section header ---------- */
+.doctor-section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-bottom: 1.1rem;
+}
+
+.doctor-section-title {
+    font-size: 1.15rem;
+    font-weight: 700;
+    margin: 0;
+    color: var(--cl-text);
+}
+
+/* ---------- Clinic cards ---------- */
+.doctor-clinics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.1rem;
+}
+
+.clinic-card {
+    background: var(--cl-surface);
+    border: 1px solid var(--cl-border);
+    border-radius: var(--cl-radius-md);
+    padding: 1.25rem;
+    box-shadow: var(--cl-shadow-card);
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+    .clinic-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 14px 34px rgba(20, 60, 130, 0.12);
+    }
+
+.clinic-card-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 0.6rem;
+}
+
+.clinic-card-name {
+    font-size: 1.02rem;
+    font-weight: 700;
+    color: var(--cl-text);
+    margin: 0 0 0.15rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.clinic-card-status {
+    flex: 0 0 auto;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    padding: 0.25rem 0.55rem;
+    border-radius: 999px;
+    background: var(--cl-primary-light);
+    color: var(--cl-primary);
+}
+
+    .clinic-card-status.status-active {
+        background: rgba(30, 142, 90, 0.12);
+        color: var(--cl-success);
+    }
+
+    .clinic-card-status.status-pending {
+        background: rgba(217, 158, 43, 0.14);
+        color: var(--cl-warning);
+    }
+
+    .clinic-card-status.status-inactive {
+        background: rgba(91, 107, 133, 0.12);
+        color: var(--cl-text-muted);
+    }
+
+.clinic-card-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    font-size: 0.86rem;
+    color: var(--cl-text-muted);
+}
+
+    .clinic-card-meta li,
+    .clinic-card-meta div {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .clinic-card-meta i {
+        color: var(--cl-primary);
+        width: 16px;
+        text-align: center;
+    }
+
+.clinic-card-actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: auto;
+    padding-top: 0.6rem;
+    border-top: 1px solid var(--cl-border);
+}
+
+    .clinic-card-actions .btn {
+        flex: 1 1 0;
+        font-size: 0.83rem;
+        padding: 0.4rem 0.6rem;
+    }
+
+/* ---------- Empty state ---------- */
+.doctor-empty-state {
+    background: var(--cl-surface);
+    border: 1px dashed var(--cl-border);
+    border-radius: var(--cl-radius-lg);
+    padding: 3rem 1.5rem;
+    text-align: center;
+}
+
+.doctor-empty-icon {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: var(--cl-primary-light);
+    color: var(--cl-primary);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.8rem;
+    margin-bottom: 1rem;
+}
+
+.doctor-empty-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--cl-text);
+    margin-bottom: 0.35rem;
+}
+
+.doctor-empty-subtitle {
+    color: var(--cl-text-muted);
+    font-size: 0.92rem;
+    margin-bottom: 1.5rem;
+}
+
+/* ---------- Dashboard form card (Create Clinic) ---------- */
+.doctor-card {
+    background: var(--cl-surface);
+    border-radius: var(--cl-radius-lg);
+    padding: 2rem;
+    box-shadow: var(--cl-shadow-card);
+    border: 1px solid var(--cl-border);
+}
+
+.doctor-card-header {
+    margin-bottom: 1.5rem;
+}
+
+.doctor-page-title {
+    font-size: 1.4rem;
+    font-weight: 800;
+    margin-bottom: 0.3rem;
+    color: var(--cl-text);
+}
+
+.doctor-page-subtitle {
+    color: var(--cl-text-muted);
+    font-size: 0.92rem;
+    margin-bottom: 0;
+}
+
+/* Reuse the same input-group polish the auth pages use, scoped locally
+   so this file has no dependency on auth.css being loaded. */
+.doctor-form .form-label {
+    font-weight: 600;
+    font-size: 0.88rem;
+    color: var(--cl-text);
+    margin-bottom: 0.35rem;
+}
+
+.doctor-input-group .input-group-text {
+    background: var(--cl-surface);
+    border-right: none;
+    color: var(--cl-text-muted);
+    border-color: var(--cl-border);
+}
+
+.doctor-form .form-control {
+    border-left: none;
+    border-color: var(--cl-border);
+    padding-top: 0.6rem;
+    padding-bottom: 0.6rem;
+    font-size: 0.95rem;
+}
+
+    .doctor-form .form-control:focus {
+        border-color: var(--cl-primary);
+        box-shadow: none;
+    }
+
+.doctor-input-group:focus-within {
+    box-shadow: 0 0 0 3px rgba(47, 111, 237, 0.15);
+    border-radius: var(--cl-radius-sm);
+}
+
+.doctor-submit-btn {
+    background: var(--cl-primary);
+    border-color: var(--cl-primary);
+    font-weight: 600;
+    padding: 0.65rem 1.1rem;
+    border-radius: var(--cl-radius-sm);
+    font-size: 0.95rem;
+    transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+    .doctor-submit-btn:hover,
+    .doctor-submit-btn:focus {
+        background: var(--cl-primary-dark);
+        border-color: var(--cl-primary-dark);
+    }
+
+/* ---------- Generic content polish ---------- */
+.btn-primary {
+    background-color: var(--cl-primary);
+    border-color: var(--cl-primary);
+    transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+}
+
+    .btn-primary:hover {
+        background-color: var(--cl-primary-dark);
+        border-color: var(--cl-primary-dark);
+        transform: translateY(-1px);
+        box-shadow: 0 6px 16px rgba(47, 111, 237, 0.25);
+    }
+
+.btn:active {
+    transform: translateY(0);
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 1199.98px) {
+    .doctor-stats-row {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 991.98px) {
+    .doctor-sidebar {
+        position: fixed;
+        left: 0;
+        top: 0;
+        transform: translateX(-100%);
+        box-shadow: 0 0 30px rgba(0, 0, 0, 0.25);
+    }
+
+        .doctor-sidebar.open {
+            transform: translateX(0);
+        }
+
+    .doctor-sidebar-backdrop.open {
+        display: block;
+    }
+
+    .doctor-content {
+        padding: 1.25rem;
+    }
+
+    .doctor-card {
+        padding: 1.5rem 1.25rem;
+    }
+}
+
+@media (max-width: 575.98px) {
+    .doctor-stats-row {
+        grid-template-columns: 1fr;
+    }
+
+    .doctor-clinics-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .doctor-topbar {
+        padding: 1rem 1.25rem;
+    }
+}

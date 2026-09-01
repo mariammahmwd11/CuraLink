@@ -1,4 +1,4 @@
-﻿using CuraLink.Domain.Entities.Doctor;
+﻿using CuraLink.Domain.Entities.Doctors;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -13,7 +13,9 @@ namespace CuraLink.Application.Common.Interfaces.Presistence
         Task<Doctor?> GetByIdAsync(
             Guid id,
             CancellationToken cancellationToken = default);
+        Task<Doctor?> GetByApplicationUserIdAsync(
+            string applicationUserId,
+            CancellationToken cancellationToken = default);
 
-       
     }
 }

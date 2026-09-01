@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace CuraLink.Domain.Entities.Doctor
+namespace CuraLink.Domain.Entities.Doctors
 {
     public enum DoctorStatusEnum
     {
