@@ -4,6 +4,7 @@ using CuraLink.Infrastructure.Presistance.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace CuraLink.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260902090721_adding review and doctor availability entites")]
+    partial class addingreviewanddoctoravailabilityentites
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -112,7 +115,7 @@ namespace CuraLink.Infrastructure.Migrations
 
                     b.HasIndex("DoctorId");
 
-                    b.ToTable("DoctorAvailabilities");
+                    b.ToTable("DoctorAvailability");
                 });
 
             modelBuilder.Entity("CuraLink.Domain.Entities.Doctors.DoctorDocument", b =>
@@ -180,7 +183,7 @@ namespace CuraLink.Infrastructure.Migrations
 
                     b.HasIndex("DoctorId");
 
-                    b.ToTable("DoctorReviews", t =>
+                    b.ToTable("DoctorReview", t =>
                         {
                             t.HasCheckConstraint("CK_DoctorReview_Rating", "[Rating] >= 1 AND [Rating] <= 5");
                         });

@@ -118,6 +118,8 @@ namespace CuraLink.Infrastructure
                         ClaimTypes.Role,
                         "Admin");
                 });
+                options.AddPolicy("Patient", policy => policy.RequireRole("Patient"));
+                options.AddPolicy("Doctor", policy => policy.RequireRole("Doctor"));
             });
 
 

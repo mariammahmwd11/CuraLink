@@ -26,6 +26,10 @@ namespace CuraLink.Domain.Entities.Doctors
 
         public ICollection<Clinic> Clinics { get; set; }
     = new List<Clinic>();
+        public ICollection<DoctorReview> Reviews { get; set; }
+    = new List<DoctorReview>();
+        public ICollection<DoctorAvailability> Availabilities { get; set; }
+    = new List<DoctorAvailability>();
         public void Verify(Guid adminId)
         {
             Status = DoctorStatusEnum.verified;

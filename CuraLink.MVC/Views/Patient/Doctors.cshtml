@@ -1,0 +1,216 @@
+﻿@model CuraLink.MVC.Models.Patients.DoctorSearchViewModel
+@using System.Linq
+@{
+    ViewData["Title"] = "Find Your Doctor";
+    Layout = "_PatientLayout";
+
+    // TODO: replace with a real source (lookup table/enum endpoint) once one
+    // exists — hardcoded to unblock the UI per the spec's mockup list.
+    var specialties = new[]
+    {
+        "Cardiology", "Dermatology", "Dentistry", "Pediatrics", "Neurology", "Orthopedics"
+    };
+
+    // TODO: same as above — replace with real governorate data if/when available.
+    var governorates = new[]
+    {
+        "Cairo", "Giza", "Alexandria", "Dakahlia", "Sharqia", "Gharbia", "Qalyubia", "Mansoura"
+    };
+}
+
+<div class="pd-header">
+    <h2 class="pd-title">Find Your Doctor</h2>
+    <p class="pd-subtitle">Search and filter doctors to find the right healthcare provider for you.</p>
+</div>
+
+<form asp-controller="Patient" asp-action="Doctors" method="get" id="doctorSearchForm" class="pd-filter-card">
+
+    <div class="pd-search-row">
+        <div class="pd-search-input">
+            <i class="bi bi-search"></i>
+            <input type="text" name="doctorName" value="@Model.DoctorName"
+                   placeholder="Search doctor by name..." aria-label="Search doctor by name" />
+        </div>
+    </div>
+
+    <div class="pd-filters-row">
+        <div class="pd-filter-field">
+            <label for="specialtySelect" class="visually-hidden">Specialty</label>
+            <select id="specialtySelect" name="specialty" class="form-select">
+                <option value="">All Specialties</option>
+                @foreach (var s in specialties)
+                {
+                    <option value="@s" selected="@(Model.Specialty == s)">@s</option>
+                }
+            </select>
+        </div>
+
+        <div class="pd-filter-field">
+            <label for="governorateSelect" class="visually-hidden">Governorate</label>
+            <select id="governorateSelect" name="governorate" class="form-select">
+                <option value="">All Governorates</option>
+                @foreach (var g in governorates)
+                {
+                    <option value="@g" selected="@(Model.Governorate == g)">@g</option>
+                }
+            </select>
+        </div>
+
+        <div class="pd-filter-actions">
+            <button type="submit" class="btn btn-primary" id="applyFiltersBtn">
+                <span class="spinner-border spinner-border-sm me-1 d-none" id="searchSpinner"></span>
+                Search
+            </button>
+            <a asp-controller="Patient" asp-action="Doctors" class="btn btn-outline-secondary">
+                Clear Filters
+            </a>
+        </div>
+    </div>
+
+</form>
+
+@if (!ViewData.ModelState.IsValid)
+{
+    <div class="alert alert-warning" role="alert">
+        @Html.ValidationSummary(true, null, new { @class = "mb-0" })
+    </div>
+}
+
+@if (Model.HasResults)
+{
+    <div class="pd-grid">
+        @foreach (var doctor in Model.Doctors)
+        {
+            <div class="pd-card">
+                <div class="pd-card-top">
+                    <span class="pd-avatar"><i class="bi bi-person-fill"></i></span>
+                    <div class="min-width-0">
+                        <h3 class="pd-doctor-name">Dr. @doctor.FullName</h3>
+                        <span class="pd-specialty">@doctor.Specialty</span>
+                    </div>
+                </div>
+
+                <div class="pd-rating">
+                    @if (doctor.HasRating)
+                    {
+                        var fullStars = (int)Math.Round(doctor.Rating);
+                        <span class="pd-stars" aria-hidden="true">
+                            @for (int i = 1; i <= 5; i++)
+                            {
+                                <i class="bi @(i <= fullStars ? "bi-star-fill" : "bi-star")"></i>
+                            }
+                        </span>
+                        <span class="pd-rating-value">@doctor.Rating.ToString("0.0")</span>
+                    }
+                    else
+                    {
+                        <span class="pd-no-rating">No ratings yet</span>
+                    }
+                </div>
+
+                <div class="pd-fee">
+                    <span class="pd-fee-label">Consultation Fee</span>
+                    <span class="pd-fee-value">@doctor.ConsultationPrice.ToString("0.##") EGP</span>
+                </div>
+
+                @if (!string.IsNullOrWhiteSpace(doctor.Address) || !string.IsNullOrWhiteSpace(doctor.Governorate))
+                {
+                    <div class="pd-location">
+                        <i class="bi bi-geo-alt"></i>
+                        <span>
+                            @(string.IsNullOrWhiteSpace(doctor.Address) ? "" : doctor.Address + ", ")@doctor.Governorate
+                        </span>
+                    </div>
+                }
+
+                @if (doctor.AvailableDates.Any())
+                {
+                    <div class="pd-available">
+                        <span class="pd-available-label">Available Dates</span>
+                        <div class="pd-available-chips">
+                            @foreach (var date in doctor.AvailableDates.OrderBy(d => d).Take(4))
+                            {
+                                <span class="pd-date-chip">@date.ToString("MMM dd")</span>
+                            }
+                        </div>
+                    </div>
+                }
+
+                <!-- Not wired yet — no doctor-profile route exists in the MVC
+                     app yet. Kept as a disabled button with the id ready so
+                     wiring a real route later is a one-line change. -->
+                <button type="button" class="btn btn-primary pd-view-profile-btn"
+                        data-doctor-id="@doctor.Id" disabled title="Coming soon">
+                    View Profile
+                </button>
+            </div>
+        }
+    </div>
+
+    @if (Model.TotalPages > 1)
+    {
+        <nav aria-label="Doctors pagination" class="pd-pagination-wrap">
+            <ul class="pagination">
+                <li class="page-item @(Model.PageNumber <= 1 ? "disabled" : "")">
+                    <a class="page-link"
+                       asp-controller="Patient" asp-action="Doctors"
+                       asp-route-doctorName="@Model.DoctorName"
+                       asp-route-specialty="@Model.Specialty"
+                       asp-route-governorate="@Model.Governorate"
+                       asp-route-pageNumber="@(Model.PageNumber - 1)"
+                       asp-route-pageSize="@Model.PageSize"
+                       tabindex="@(Model.PageNumber <= 1 ? "-1" : "0")">
+                        <i class="bi bi-chevron-left"></i> Previous
+                    </a>
+                </li>
+
+                @for (int p = 1; p <= Model.TotalPages; p++)
+                {
+                    <li class="page-item @(p == Model.PageNumber ? "active" : "")">
+                        <a class="page-link"
+                           asp-controller="Patient" asp-action="Doctors"
+                           asp-route-doctorName="@Model.DoctorName"
+                           asp-route-specialty="@Model.Specialty"
+                           asp-route-governorate="@Model.Governorate"
+                           asp-route-pageNumber="@p"
+                           asp-route-pageSize="@Model.PageSize">
+                            @p
+                        </a>
+                    </li>
+                }
+
+                <li class="page-item @(Model.PageNumber >= Model.TotalPages ? "disabled" : "")">
+                    <a class="page-link"
+                       asp-controller="Patient" asp-action="Doctors"
+                       asp-route-doctorName="@Model.DoctorName"
+                       asp-route-specialty="@Model.Specialty"
+                       asp-route-governorate="@Model.Governorate"
+                       asp-route-pageNumber="@(Model.PageNumber + 1)"
+                       asp-route-pageSize="@Model.PageSize"
+                       tabindex="@(Model.PageNumber >= Model.TotalPages ? "-1" : "0")">
+                        Next <i class="bi bi-chevron-right"></i>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    }
+}
+else
+{
+    <div class="pd-empty-state">
+        <div class="pd-empty-icon"><i class="bi bi-search"></i></div>
+        <h4 class="pd-empty-title">No doctors found</h4>
+        <p class="pd-empty-subtitle">Try changing your search or filters.</p>
+        <a asp-controller="Patient" asp-action="Doctors" class="btn btn-primary">
+            Clear Filters
+        </a>
+    </div>
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/patient-doctors.css" asp-append-version="true" />
+}
+
+@section Scripts {
+    <script src="~/js/patient-doctors.js" asp-append-version="true"></script>
+}

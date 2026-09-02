@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.Reflection.Emit;
 using System.Text;
 
 namespace CuraLink.Infrastructure.Presistance.Data
@@ -25,9 +26,14 @@ namespace CuraLink.Infrastructure.Presistance.Data
         public DbSet<MedicalHistory> MedicalHistories { get; set; }
 
         public DbSet<MedicalDocument> MedicalDocuments { get; set; }
+        public DbSet<DoctorReview> DoctorReviews { get; set; }
+
+        public DbSet<DoctorAvailability> DoctorAvailabilities { get; set; }
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
+            builder.ApplyConfigurationsFromAssembly(
+      typeof(ApplicationDbContext).Assembly);
 
             builder.Entity<Doctor>(entity =>
             {

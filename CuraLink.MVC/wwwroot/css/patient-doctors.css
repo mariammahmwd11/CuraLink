@@ -1,0 +1,326 @@
+﻿/* =========================================================
+   CuraLink — Patient: Doctors Directory
+   Scope: Views/Patient/Doctors.cshtml ONLY (loaded via @section Styles,
+   not the shared _PatientLayout, so it never affects other patient pages).
+   Reuses the --cl-* tokens defined in patient-dashboard.css/doctor-dashboard.css.
+   Component classes are "pd-" prefixed to avoid any collision.
+   ========================================================= */
+
+.pd-header {
+    margin-bottom: 1.5rem;
+}
+
+.pd-title {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--cl-text);
+    margin-bottom: 0.2rem;
+}
+
+.pd-subtitle {
+    color: var(--cl-text-muted);
+    font-size: 0.95rem;
+    margin-bottom: 0;
+}
+
+/* ---------- Search / filter card ---------- */
+.pd-filter-card {
+    background: var(--cl-surface);
+    border: 1px solid var(--cl-border);
+    border-radius: var(--cl-radius-lg);
+    padding: 1.25rem 1.5rem;
+    box-shadow: var(--cl-shadow-card);
+    margin-bottom: 1.75rem;
+}
+
+.pd-search-row {
+    margin-bottom: 1rem;
+}
+
+.pd-search-input {
+    position: relative;
+    max-width: 480px;
+}
+
+    .pd-search-input i {
+        position: absolute;
+        top: 50%;
+        left: 0.9rem;
+        transform: translateY(-50%);
+        color: var(--cl-text-muted);
+    }
+
+    .pd-search-input input {
+        width: 100%;
+        border: 1px solid var(--cl-border);
+        border-radius: var(--cl-radius-sm);
+        padding: 0.6rem 0.9rem 0.6rem 2.4rem;
+        font-size: 0.95rem;
+        transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+
+        .pd-search-input input:focus {
+            outline: none;
+            border-color: var(--cl-primary);
+            box-shadow: 0 0 0 3px rgba(47, 111, 237, 0.15);
+        }
+
+.pd-filters-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+}
+
+.pd-filter-field {
+    flex: 1 1 200px;
+    min-width: 160px;
+}
+
+.pd-filter-actions {
+    display: flex;
+    gap: 0.5rem;
+    flex: 0 0 auto;
+    margin-left: auto;
+}
+
+    .pd-filter-actions .btn {
+        white-space: nowrap;
+    }
+
+/* ---------- Doctor card grid ---------- */
+.pd-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.25rem;
+    margin-bottom: 2rem;
+}
+
+.pd-card {
+    background: var(--cl-surface);
+    border: 1px solid var(--cl-border);
+    border-radius: var(--cl-radius-md);
+    padding: 1.4rem;
+    box-shadow: var(--cl-shadow-card);
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+    .pd-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 16px 36px rgba(20, 60, 130, 0.13);
+    }
+
+.pd-card-top {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+}
+
+.pd-avatar {
+    flex: 0 0 auto;
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background: var(--cl-primary-light);
+    color: var(--cl-primary);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+}
+
+.pd-doctor-name {
+    font-size: 1.02rem;
+    font-weight: 700;
+    color: var(--cl-text);
+    margin: 0 0 0.1rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.pd-specialty {
+    font-size: 0.85rem;
+    color: var(--cl-text-muted);
+}
+
+.pd-rating {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.pd-stars {
+    color: #f0ad4e;
+    font-size: 0.9rem;
+    letter-spacing: 0.05em;
+}
+
+.pd-rating-value {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--cl-text);
+}
+
+.pd-no-rating {
+    font-size: 0.82rem;
+    color: var(--cl-text-muted);
+    font-style: italic;
+}
+
+.pd-fee {
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+    padding: 0.6rem 0;
+    border-top: 1px solid var(--cl-border);
+    border-bottom: 1px solid var(--cl-border);
+}
+
+.pd-fee-label {
+    font-size: 0.75rem;
+    color: var(--cl-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+.pd-fee-value {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--cl-primary);
+}
+
+.pd-location {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.4rem;
+    font-size: 0.85rem;
+    color: var(--cl-text-muted);
+}
+
+    .pd-location i {
+        color: var(--cl-primary);
+        margin-top: 0.15rem;
+    }
+
+.pd-available-label {
+    display: block;
+    font-size: 0.75rem;
+    color: var(--cl-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    margin-bottom: 0.35rem;
+}
+
+.pd-available-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+}
+
+.pd-date-chip {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--cl-primary);
+    background: var(--cl-primary-light);
+    padding: 0.25rem 0.55rem;
+    border-radius: 999px;
+}
+
+.pd-view-profile-btn {
+    margin-top: auto;
+    width: 100%;
+}
+
+/* ---------- Pagination ---------- */
+.pd-pagination-wrap {
+    display: flex;
+    justify-content: center;
+    margin-top: 1rem;
+}
+
+    .pd-pagination-wrap .page-link {
+        color: var(--cl-primary);
+        border-color: var(--cl-border);
+    }
+
+    .pd-pagination-wrap .page-item.active .page-link {
+        background-color: var(--cl-primary);
+        border-color: var(--cl-primary);
+        color: #fff;
+    }
+
+    .pd-pagination-wrap .page-item.disabled .page-link {
+        color: var(--cl-text-muted);
+    }
+
+/* ---------- Empty state ---------- */
+.pd-empty-state {
+    background: var(--cl-surface);
+    border: 1px dashed var(--cl-border);
+    border-radius: var(--cl-radius-lg);
+    padding: 3.5rem 1.5rem;
+    text-align: center;
+}
+
+.pd-empty-icon {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: var(--cl-primary-light);
+    color: var(--cl-primary);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.8rem;
+    margin-bottom: 1rem;
+}
+
+.pd-empty-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--cl-text);
+    margin-bottom: 0.35rem;
+}
+
+.pd-empty-subtitle {
+    color: var(--cl-text-muted);
+    font-size: 0.92rem;
+    margin-bottom: 1.5rem;
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 1199.98px) {
+    .pd-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 991.98px) {
+    .pd-filters-row {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .pd-filter-actions {
+        margin-left: 0;
+        justify-content: stretch;
+    }
+
+        .pd-filter-actions .btn {
+            flex: 1 1 0;
+        }
+}
+
+@media (max-width: 575.98px) {
+    .pd-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .pd-filter-card {
+        padding: 1rem 1.1rem;
+    }
+}

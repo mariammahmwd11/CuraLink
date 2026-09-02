@@ -50,6 +50,11 @@
                     <i class="bi bi-cloud-upload"></i> Upload Documents
                 </a>
 
+                <a class="patient-nav-link @(isActive("Doctors") ? "active" : "")"
+                   asp-controller="Patient" asp-action="Doctors">
+                    <i class="bi bi-search-heart"></i> Find a Doctor
+                </a>
+
                 <!-- Not implemented yet — no backing controller/API. Left visible
                      per the target IA but inert, so nothing 404s. -->
                 <a class="patient-nav-link disabled" href="#" tabindex="-1" aria-disabled="true">
