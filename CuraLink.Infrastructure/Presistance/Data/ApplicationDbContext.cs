@@ -3,6 +3,7 @@ using CuraLink.Domain.Entities.Clinics;
 using CuraLink.Domain.Entities.Doctors;
 using CuraLink.Domain.Entities.MedicalHistories;
 using CuraLink.Domain.Entities.Patients;
+using CuraLink.Domain.Entities.Prescriptions;
 using CuraLink.Infrastructure.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -29,6 +30,11 @@ namespace CuraLink.Infrastructure.Presistance.Data
         public DbSet<DoctorReview> DoctorReviews { get; set; }
 
         public DbSet<DoctorAvailability> DoctorAvailabilities { get; set; }
+        public DbSet<Prescription> Prescriptions { get; set; }
+
+        public DbSet<PrescriptionItem> PrescriptionItems { get; set; }
+
+        public DbSet<DosageSchedule> DosageSchedules { get; set; }
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);

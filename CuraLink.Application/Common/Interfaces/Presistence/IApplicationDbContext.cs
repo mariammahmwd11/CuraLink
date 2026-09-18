@@ -2,6 +2,7 @@
 using CuraLink.Domain.Entities.Doctors;
 using CuraLink.Domain.Entities.MedicalHistories;
 using CuraLink.Domain.Entities.Patients;
+using CuraLink.Domain.Entities.Prescriptions;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -20,6 +21,12 @@ namespace CuraLink.Application.Common.Interfaces.Presistence
         DbSet<MedicalHistory> MedicalHistories { get; }
 
         DbSet<MedicalDocument> MedicalDocuments { get; }
+
+        DbSet<Prescription> Prescriptions { get; }
+
+        DbSet<PrescriptionItem> PrescriptionItems { get; }
+
+        DbSet<DosageSchedule> DosageSchedules { get; }
 
 
         Task<int> SaveChangesAsync(

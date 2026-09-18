@@ -59,6 +59,7 @@ namespace CuraLink.Infrastructure
             services.AddScoped<IPatientRepository , PatientRepository>();
             services.AddScoped<IMedicalHistoryRepository , MedicalHistoryRepository>();
             services.AddScoped<IMedicalDocumentRepository , MedicalDocumentRepository>();
+            services.AddScoped<IPrescriptionRepository, PrescriptionRepository>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
              services.AddHttpClient<IEmailService, BrevoEmailService>();
             
