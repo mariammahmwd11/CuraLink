@@ -10,5 +10,8 @@ namespace CuraLink.Application.Common.Interfaces.Presistence
         Task<UserInfoDto?> GetByIdAsync(
             string userId,
             CancellationToken cancellationToken = default);
+        Task<List<UserInfoDto>> GetByIdsAsync(
+         IEnumerable<string> userIds,
+         CancellationToken cancellationToken = default);
     }
 }

@@ -2,39 +2,55 @@
 using CuraLink.Application.Features;
 using CuraLink.Infrastructure.Identity;
 using Microsoft.AspNetCore.Identity;
-using System;
-using System.Collections.Generic;
-using System.Text;
+using Microsoft.EntityFrameworkCore;
 
-namespace CuraLink.Infrastructure.Presistance.Repositories
+namespace CuraLink.Infrastructure.Presistance.Repositories;
+
+public class UserRepository : IUserRepository
 {
-    public class UserRepository : IUserRepository
+    private readonly UserManager<ApplicationUser> _userManager;
+
+    public UserRepository(
+        UserManager<ApplicationUser> userManager)
     {
-        private readonly UserManager<ApplicationUser> _userManager;
+        _userManager = userManager;
+    }
 
-        public UserRepository(
-            UserManager<ApplicationUser> userManager)
+    public async Task<UserInfoDto?> GetByIdAsync(
+        string userId,
+        CancellationToken cancellationToken = default)
+    {
+        var user = await _userManager.FindByIdAsync(userId);
+
+        if (user is null)
+            return null;
+
+        return new UserInfoDto
         {
-            _userManager = userManager;
-        }
+            Id = user.Id,
+            FirstName = user.FirstName,
+            LastName = user.LastName,
+            Email = user.Email!,
+            PhoneNumber = user.PhoneNumber!
+        };
+    }
 
-        public async Task<UserInfoDto?> GetByIdAsync(
-            string userId,
-            CancellationToken cancellationToken = default)
-        {
-            var user = await _userManager.FindByIdAsync(userId);
+    public async Task<List<UserInfoDto>> GetByIdsAsync(
+        IEnumerable<string> userIds,
+        CancellationToken cancellationToken = default)
+    {
+        var ids = userIds.ToList();
 
-            if (user is null)
-                return null;
-
-            return new UserInfoDto
+        return await _userManager.Users
+            .Where(x => ids.Contains(x.Id))
+            .Select(x => new UserInfoDto
             {
-                Id = user.Id,
-                FirstName = user.FirstName,
-                LastName = user.LastName,
-                Email = user.Email!,
-                PhoneNumber = user.PhoneNumber!
-            };
-        }
+                Id = x.Id,
+                FirstName = x.FirstName,
+                LastName = x.LastName,
+                Email = x.Email!,
+                PhoneNumber = x.PhoneNumber!
+            })
+            .ToListAsync(cancellationToken);
     }
 }

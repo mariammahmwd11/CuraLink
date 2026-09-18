@@ -5,9 +5,10 @@ using System.Text;
 namespace CuraLink.Application.Features.Doctors.Queries.GetMyPatients
 {
     public record PatientListDto(
-     Guid PatientId,
-     string PatientUserId,
-     int Age,
-     string? BloodType
- );
+    Guid PatientId,
+    string PatientUserId,
+    string FullName,
+    int Age,
+    string? BloodType
+);
 }

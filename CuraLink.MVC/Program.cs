@@ -26,6 +26,10 @@ builder.Services.AddHttpClient<PatientApiClient>(client =>
 {
     client.BaseAddress = new Uri(apiBaseUrl); 
 });
+builder.Services.AddHttpClient<PrescriptionApiClient>(client =>
+{
+    client.BaseAddress = new Uri(apiBaseUrl); 
+});
 
 builder.Services
     .AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)

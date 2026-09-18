@@ -1,0 +1,461 @@
+﻿@model CuraLink.MVC.Models.Prescriptions.CreatePrescriptionViewModel
+@{
+    ViewData["Title"] = "Create Prescription";
+    Layout = "_DoctorLayout";
+
+    var hasPatients = Model.Patients.Any();
+}
+
+<nav class="doctor-breadcrumb">
+    <a asp-controller="Doctor" asp-action="Dashboard">Dashboard</a>
+    <span> / </span>
+    <span class="current">Create Prescription</span>
+</nav>
+
+<div class="doctor-card" style="max-width: 920px;">
+
+    <div class="doctor-card-header">
+        <h1 class="doctor-page-title">Create Prescription</h1>
+        <p class="doctor-page-subtitle">
+            Select one of your patients, set the course dates, and list the
+            medications with their dosage times.
+        </p>
+    </div>
+
+    @if (TempData["PrescriptionSuccess"] is string successMessage)
+    {
+        <div class="alert alert-success d-flex align-items-center" role="alert">
+            <i class="bi bi-check-circle me-2"></i>
+            <span>@successMessage</span>
+        </div>
+    }
+
+    @if (!ViewData.ModelState.IsValid)
+    {
+        <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+    }
+
+    @if (!hasPatients)
+    {
+        <div class="alert alert-warning d-flex align-items-center" role="alert">
+            <i class="bi bi-info-circle me-2"></i>
+            <span>
+                You have no patients yet. A patient appears here once they have a
+                confirmed visit with you.
+            </span>
+        </div>
+    }
+
+    <form asp-controller="Prescription" asp-action="Create" method="post" novalidate
+          class="doctor-form" id="createPrescriptionForm">
+
+        @Html.AntiForgeryToken()
+
+        <div class="mb-3">
+            <label asp-for="PatientUserId" class="form-label"></label>
+            <div class="input-group doctor-input-group">
+                <span class="input-group-text"><i class="bi bi-person-badge"></i></span>
+                <select asp-for="PatientUserId" class="form-select" disabled="@(!hasPatients)">
+                    <option value="">— Select a patient —</option>
+                    @foreach (var patient in Model.Patients)
+                    {
+                        <option value="@patient.PatientUserId">@patient.DisplayText</option>
+                    }
+                </select>
+            </div>
+            <span asp-validation-for="PatientUserId" class="text-danger small"></span>
+        </div>
+
+        <div class="row">
+            <div class="col-sm-6 mb-3">
+                <label asp-for="StartDate" class="form-label"></label>
+                <div class="input-group doctor-input-group">
+                    <span class="input-group-text"><i class="bi bi-calendar-event"></i></span>
+                    <input asp-for="StartDate" type="date" class="form-control" />
+                </div>
+                <span asp-validation-for="StartDate" class="text-danger small"></span>
+            </div>
+
+            <div class="col-sm-6 mb-3">
+                <label asp-for="EndDate" class="form-label"></label>
+                <div class="input-group doctor-input-group">
+                    <span class="input-group-text"><i class="bi bi-calendar-check"></i></span>
+                    <input asp-for="EndDate" type="date" class="form-control" />
+                </div>
+                <span asp-validation-for="EndDate" class="text-danger small"></span>
+            </div>
+        </div>
+
+        <div class="prescription-items-header">
+            <h2 class="prescription-section-title">Medications</h2>
+            <button type="button" class="btn btn-outline-primary btn-sm" id="addMedicationBtn">
+                <i class="bi bi-plus-lg me-1"></i> Add medication
+            </button>
+        </div>
+
+        <span asp-validation-for="Items" class="text-danger small d-block mb-2"></span>
+
+        <div id="medicationRows">
+            @for (var i = 0; i < Model.Items.Count; i++)
+            {
+                var times = Model.Items[i].DosageTimes.Count > 0
+                    ? Model.Items[i].DosageTimes
+                    : new List<string> { string.Empty };
+
+                <div class="prescription-item-row" data-medication-row>
+
+                    <div class="prescription-item-row-head">
+                        <span class="prescription-item-index">Medication <span data-row-number>@(i + 1)</span></span>
+                        <button type="button" class="btn btn-link text-danger p-0 prescription-remove-btn"
+                                data-remove-row aria-label="Remove this medication">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="Items[i].MedicationName" class="form-label"></label>
+                            <div class="input-group doctor-input-group">
+                                <span class="input-group-text"><i class="bi bi-capsule"></i></span>
+                                <input asp-for="Items[i].MedicationName" class="form-control"
+                                       placeholder="e.g. Panadol" autocomplete="off" />
+                            </div>
+                            <span asp-validation-for="Items[i].MedicationName" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="Items[i].Dosage" class="form-label"></label>
+                            <div class="input-group doctor-input-group">
+                                <span class="input-group-text"><i class="bi bi-droplet"></i></span>
+                                <input asp-for="Items[i].Dosage" class="form-control"
+                                       placeholder="e.g. 500 mg" autocomplete="off" />
+                            </div>
+                            <span asp-validation-for="Items[i].Dosage" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-12 mb-3">
+                            <label asp-for="Items[i].Instructions" class="form-label"></label>
+                            <div class="input-group doctor-input-group">
+                                <span class="input-group-text"><i class="bi bi-info-circle"></i></span>
+                                <input asp-for="Items[i].Instructions" class="form-control"
+                                       placeholder="e.g. After meal" autocomplete="off" />
+                            </div>
+                            <span asp-validation-for="Items[i].Instructions" class="text-danger small"></span>
+                        </div>
+
+                        <div class="col-12 mb-2">
+                            <div class="prescription-times-head">
+                                <label class="form-label mb-0">Dosage times</label>
+                                <button type="button" class="btn btn-link btn-sm p-0" data-add-time>
+                                    <i class="bi bi-plus-lg me-1"></i> Add time
+                                </button>
+                            </div>
+
+                            <div class="prescription-times" data-times>
+                                @for (var t = 0; t < times.Count; t++)
+                                {
+                                    <div class="prescription-time" data-time>
+                                        <input type="time" class="form-control" data-time-input
+                                               name="Items[@i].DosageTimes[@t]" value="@times[t]" />
+                                        <button type="button" class="btn btn-link text-danger p-0"
+                                                data-remove-time aria-label="Remove this time">
+                                            <i class="bi bi-x-lg"></i>
+                                        </button>
+                                    </div>
+                                }
+                            </div>
+
+                            <span asp-validation-for="Items[i].DosageTimes" class="text-danger small d-block"></span>
+                        </div>
+                    </div>
+
+                </div>
+            }
+        </div>
+
+        <div class="d-flex flex-column flex-sm-row gap-2 mt-4">
+            <button type="submit" class="btn btn-primary doctor-submit-btn" disabled="@(!hasPatients)">
+                <i class="bi bi-check-circle me-1"></i> Create Prescription
+            </button>
+            <a asp-controller="Doctor" asp-action="Dashboard" class="btn btn-outline-secondary doctor-submit-btn">
+                Cancel
+            </a>
+        </div>
+
+    </form>
+
+</div>
+
+@* Row template. %INDEX% is replaced with the real index when a row is added. *@
+<template id="medicationRowTemplate">
+    <div class="prescription-item-row" data-medication-row>
+
+        <div class="prescription-item-row-head">
+            <span class="prescription-item-index">Medication <span data-row-number></span></span>
+            <button type="button" class="btn btn-link text-danger p-0 prescription-remove-btn"
+                    data-remove-row aria-label="Remove this medication">
+                <i class="bi bi-trash"></i>
+            </button>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label class="form-label" for="Items_%INDEX%__MedicationName">Medication</label>
+                <div class="input-group doctor-input-group">
+                    <span class="input-group-text"><i class="bi bi-capsule"></i></span>
+                    <input class="form-control" id="Items_%INDEX%__MedicationName"
+                           name="Items[%INDEX%].MedicationName"
+                           data-val="true" data-val-required="Medication name is required."
+                           data-val-length="Medication name cannot exceed 200 characters."
+                           data-val-length-max="200"
+                           placeholder="e.g. Panadol" autocomplete="off" />
+                </div>
+                <span class="text-danger small field-validation-valid"
+                      data-valmsg-for="Items[%INDEX%].MedicationName" data-valmsg-replace="true"></span>
+            </div>
+
+            <div class="col-md-6 mb-3">
+                <label class="form-label" for="Items_%INDEX%__Dosage">Dosage</label>
+                <div class="input-group doctor-input-group">
+                    <span class="input-group-text"><i class="bi bi-droplet"></i></span>
+                    <input class="form-control" id="Items_%INDEX%__Dosage"
+                           name="Items[%INDEX%].Dosage"
+                           data-val="true" data-val-required="Dosage is required."
+                           data-val-length="Dosage cannot exceed 100 characters."
+                           data-val-length-max="100"
+                           placeholder="e.g. 500 mg" autocomplete="off" />
+                </div>
+                <span class="text-danger small field-validation-valid"
+                      data-valmsg-for="Items[%INDEX%].Dosage" data-valmsg-replace="true"></span>
+            </div>
+
+            <div class="col-12 mb-3">
+                <label class="form-label" for="Items_%INDEX%__Instructions">Instructions</label>
+                <div class="input-group doctor-input-group">
+                    <span class="input-group-text"><i class="bi bi-info-circle"></i></span>
+                    <input class="form-control" id="Items_%INDEX%__Instructions"
+                           name="Items[%INDEX%].Instructions"
+                           data-val="true"
+                           data-val-length="Instructions cannot exceed 500 characters."
+                           data-val-length-max="500"
+                           placeholder="e.g. After meal" autocomplete="off" />
+                </div>
+                <span class="text-danger small field-validation-valid"
+                      data-valmsg-for="Items[%INDEX%].Instructions" data-valmsg-replace="true"></span>
+            </div>
+
+            <div class="col-12 mb-2">
+                <div class="prescription-times-head">
+                    <label class="form-label mb-0">Dosage times</label>
+                    <button type="button" class="btn btn-link btn-sm p-0" data-add-time>
+                        <i class="bi bi-plus-lg me-1"></i> Add time
+                    </button>
+                </div>
+
+                <div class="prescription-times" data-times>
+                    <div class="prescription-time" data-time>
+                        <input type="time" class="form-control" data-time-input
+                               name="Items[%INDEX%].DosageTimes[0]" />
+                        <button type="button" class="btn btn-link text-danger p-0"
+                                data-remove-time aria-label="Remove this time">
+                            <i class="bi bi-x-lg"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</template>
+
+@* Move these into doctor-dashboard.css if you prefer; they only use the shared tokens. *@
+<style>
+    .prescription-items-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: .75rem;
+        margin: 1.5rem 0 .75rem;
+    }
+
+    .prescription-section-title {
+        font-size: 1.05rem;
+        font-weight: 600;
+        margin: 0;
+        color: var(--cl-text, #1f2937);
+    }
+
+    .prescription-item-row {
+        border: 1px solid var(--cl-border, #e5e7eb);
+        border-radius: var(--cl-radius, .75rem);
+        padding: 1rem 1rem .5rem;
+        margin-bottom: 1rem;
+        background: var(--cl-surface, #fff);
+    }
+
+    .prescription-item-row-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: .75rem;
+    }
+
+    .prescription-item-index {
+        font-size: .85rem;
+        font-weight: 600;
+        letter-spacing: .02em;
+        text-transform: uppercase;
+        color: var(--cl-primary, #0d6efd);
+    }
+
+    .prescription-remove-btn {
+        line-height: 1;
+        text-decoration: none;
+    }
+
+    .prescription-times-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: .75rem;
+        margin-bottom: .35rem;
+    }
+
+    .prescription-times {
+        display: flex;
+        flex-wrap: wrap;
+        gap: .5rem;
+    }
+
+    .prescription-time {
+        display: flex;
+        align-items: center;
+        gap: .25rem;
+    }
+
+        .prescription-time input[type="time"] {
+            width: auto;
+            min-width: 8.5rem;
+        }
+
+    #medicationRows .prescription-item-row:only-child .prescription-remove-btn,
+    .prescription-times .prescription-time:only-child [data-remove-time] {
+        display: none;
+    }
+</style>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        (function() {
+            var container = document.getElementById('medicationRows');
+            var addBtn = document.getElementById('addMedicationBtn');
+            var template = document.getElementById('medicationRowTemplate');
+
+            if (!container || !addBtn || !template) {
+                return;
+            }
+
+            function reindex() {
+                var rows = container.querySelectorAll('[data-medication-row]');
+
+                rows.forEach(function(row, index) {
+                    var number = row.querySelector('[data-row-number]');
+                    if (number) {
+                        number.textContent = index + 1;
+                    }
+
+                    // Scalar fields: Items[i].Field
+                    row.querySelectorAll('input:not([data-time-input]), select, textarea').forEach(function(field) {
+                        if (field.name) {
+                            field.name = field.name.replace(/^Items\[\d+\]/, 'Items[' + index + ']');
+                        }
+                        if (field.id) {
+                            field.id = field.id.replace(/^Items_\d+__/, 'Items_' + index + '__');
+                        }
+                    });
+
+                    row.querySelectorAll('label[for]').forEach(function(label) {
+                        label.htmlFor = label.htmlFor.replace(/^Items_\d+__/, 'Items_' + index + '__');
+                    });
+
+                    row.querySelectorAll('[data-valmsg-for]').forEach(function(span) {
+                        span.setAttribute(
+                            'data-valmsg-for',
+                            span.getAttribute('data-valmsg-for').replace(/^Items\[\d+\]/, 'Items[' + index + ']'));
+                    });
+
+                    // Dosage times: Items[i].DosageTimes[t] — must stay contiguous
+                    // or model binding stops at the first gap.
+                    row.querySelectorAll('[data-time-input]').forEach(function(input, t) {
+                        input.name = 'Items[' + index + '].DosageTimes[' + t + ']';
+                        input.id = 'Items_' + index + '__DosageTimes_' + t + '_';
+                    });
+                });
+
+                reparseValidation();
+            }
+
+            function reparseValidation() {
+                if (window.jQuery && jQuery.validator && jQuery.validator.unobtrusive) {
+                    var $form = jQuery('#createPrescriptionForm');
+                    $form.removeData('validator').removeData('unobtrusiveValidation');
+                    jQuery.validator.unobtrusive.parse($form);
+                }
+            }
+
+            addBtn.addEventListener('click', function() {
+                var index = container.querySelectorAll('[data-medication-row]').length;
+                var html = template.innerHTML.replace(/%INDEX%/g, index);
+
+                var wrapper = document.createElement('div');
+                wrapper.innerHTML = html.trim();
+
+                var row = wrapper.firstElementChild;
+                container.appendChild(row);
+
+                reindex();
+
+                var firstInput = row.querySelector('input');
+                if (firstInput) {
+                    firstInput.focus();
+                }
+            });
+
+            container.addEventListener('click', function(e) {
+                var removeRow = e.target.closest('[data-remove-row]');
+                if (removeRow) {
+                    if (container.querySelectorAll('[data-medication-row]').length <= 1) {
+                        return;
+                    }
+                    removeRow.closest('[data-medication-row]').remove();
+                    reindex();
+                    return;
+                }
+
+                var addTime = e.target.closest('[data-add-time]');
+                if (addTime) {
+                    var times = addTime.closest('[data-medication-row]').querySelector('[data-times]');
+                    var first = times.querySelector('[data-time]');
+                    var clone = first.cloneNode(true);
+                    clone.querySelector('input').value = '';
+                    times.appendChild(clone);
+                    reindex();
+                    clone.querySelector('input').focus();
+                    return;
+                }
+
+                var removeTime = e.target.closest('[data-remove-time]');
+                if (removeTime) {
+                    var group = removeTime.closest('[data-times]');
+                    if (group.querySelectorAll('[data-time]').length <= 1) {
+                        return;
+                    }
+                    removeTime.closest('[data-time]').remove();
+                    reindex();
+                }
+            });
+        })();
+    </script>
+}

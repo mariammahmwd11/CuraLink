@@ -41,24 +41,53 @@ public class GetMyPatientsQueryHandler
                 doctor.Id,
                 cancellationToken);
 
+        if (patients.Count == 0)
+        {
+            return new List<PatientListDto>();
+        }
+
+        var userIds = patients
+            .Select(x => x.ApplicationUserId)
+            .Distinct()
+            .ToList();
+
+        var users = await _unitOfWork.Users
+            .GetByIdsAsync(
+                userIds,
+                cancellationToken);
+
+        var usersDictionary = users
+            .ToDictionary(x => x.Id);
+
         var today = DateTime.UtcNow.Date;
 
-        return patients
-            .Select(patient =>
+        var result = new List<PatientListDto>();
+
+        foreach (var patient in patients)
+        {
+            if (!usersDictionary.TryGetValue(
+                    patient.ApplicationUserId,
+                    out var user))
             {
-                var age = today.Year - patient.DateOfBirth.Year;
+                continue;
+            }
 
-                if (patient.DateOfBirth.Date > today.AddYears(-age))
-                {
-                    age--;
-                }
+            var age = today.Year - patient.DateOfBirth.Year;
 
-                return new PatientListDto(
+            if (patient.DateOfBirth.Date > today.AddYears(-age))
+            {
+                age--;
+            }
+
+            result.Add(
+                new PatientListDto(
                     patient.Id,
                     patient.ApplicationUserId,
+                    $"{user.FirstName} {user.LastName}",
                     age,
-                    patient.BloodType);
-            })
-            .ToList();
+                    patient.BloodType));
+        }
+
+        return result;
     }
 }
