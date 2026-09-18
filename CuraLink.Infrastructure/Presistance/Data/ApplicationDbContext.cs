@@ -1,4 +1,5 @@
 ﻿using CuraLink.Application.Common.Interfaces.Presistence;
+using CuraLink.Domain.Entities;
 using CuraLink.Domain.Entities.Clinics;
 using CuraLink.Domain.Entities.Doctors;
 using CuraLink.Domain.Entities.MedicalHistories;
@@ -35,6 +36,10 @@ namespace CuraLink.Infrastructure.Presistance.Data
         public DbSet<PrescriptionItem> PrescriptionItems { get; set; }
 
         public DbSet<DosageSchedule> DosageSchedules { get; set; }
+        public DbSet<DoctorPatient> DoctorPatients { get; set; }
+
+       
+
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);

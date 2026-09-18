@@ -20,11 +20,11 @@ namespace CuraLink.Infrastructure.Presistance
        public IMedicalHistoryRepository MedicalHistories { get; }
        public IMedicalDocumentRepository MedicalDocuments { get; }
        public IPrescriptionRepository Prescriptions { get; }
-
+        public IDoctorPatientRepository DoctorPatients { get; }
         public UnitOfWork(
             ApplicationDbContext context,
             IDoctorRepository doctorRepository,
-            IUserRepository userRepository,IDoctorDocumentRepository doctorDocumentRepository,IClinicRepository clinicRepository,IPatientRepository patientRepository,IMedicalHistoryRepository medicalHistoryRepository,IMedicalDocumentRepository medicalDocumentRepository,IPrescriptionRepository prescriptionRepository)
+            IUserRepository userRepository,IDoctorDocumentRepository doctorDocumentRepository,IClinicRepository clinicRepository,IPatientRepository patientRepository,IMedicalHistoryRepository medicalHistoryRepository,IMedicalDocumentRepository medicalDocumentRepository,IPrescriptionRepository prescriptionRepository,IDoctorPatientRepository doctorPatientRepository)
         {
             _context = context;
             Doctors = doctorRepository;
@@ -35,6 +35,7 @@ namespace CuraLink.Infrastructure.Presistance
             MedicalHistories = medicalHistoryRepository;
             MedicalDocuments = medicalDocumentRepository;
             Prescriptions = prescriptionRepository;
+            DoctorPatients = doctorPatientRepository;
         }
         public async Task<int> SaveChangesAsync(
             CancellationToken cancellationToken = default)

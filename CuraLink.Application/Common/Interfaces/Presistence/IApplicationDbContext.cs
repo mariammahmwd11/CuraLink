@@ -1,4 +1,5 @@
-﻿using CuraLink.Domain.Entities.Clinics;
+﻿using CuraLink.Domain.Entities;
+using CuraLink.Domain.Entities.Clinics;
 using CuraLink.Domain.Entities.Doctors;
 using CuraLink.Domain.Entities.MedicalHistories;
 using CuraLink.Domain.Entities.Patients;
@@ -27,6 +28,7 @@ namespace CuraLink.Application.Common.Interfaces.Presistence
         DbSet<PrescriptionItem> PrescriptionItems { get; }
 
         DbSet<DosageSchedule> DosageSchedules { get; }
+        DbSet<DoctorPatient> DoctorPatients { get; }
 
 
         Task<int> SaveChangesAsync(

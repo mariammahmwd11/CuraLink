@@ -16,6 +16,7 @@ namespace CuraLink.Application.Common.Interfaces.Presistence
 
         IMedicalDocumentRepository MedicalDocuments { get; }
         IPrescriptionRepository Prescriptions { get; }
+        IDoctorPatientRepository DoctorPatients { get; }
 
         Task<int> SaveChangesAsync(
             CancellationToken cancellationToken = default);

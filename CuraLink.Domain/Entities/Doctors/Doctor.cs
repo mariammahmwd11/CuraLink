@@ -30,6 +30,8 @@ namespace CuraLink.Domain.Entities.Doctors
     = new List<DoctorReview>();
         public ICollection<DoctorAvailability> Availabilities { get; set; }
     = new List<DoctorAvailability>();
+        public ICollection<DoctorPatient> Patients { get; set; }
+    = new List<DoctorPatient>();
         public void Verify(Guid adminId)
         {
             Status = DoctorStatusEnum.verified;

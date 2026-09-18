@@ -2,6 +2,7 @@ using CuraLink.API.Endpoints.Admin;
 using CuraLink.API.Endpoints.AuthEndPoints;
 using CuraLink.API.Endpoints.Clinics;
 using CuraLink.API.Endpoints.DoctorEndpoints;
+using CuraLink.API.Endpoints.Doctors;
 using CuraLink.API.Endpoints.PatientEndpoints;
 using CuraLink.API.Endpoints.PatientEndPoints;
 using CuraLink.API.Endpoints.Patients;
@@ -75,7 +76,8 @@ app.MapGetPatientMedicalDocsEndpoint();
 app.MapSearchDoctorsEndpoint();
 //prescription api endpoints
 app.MapCreatePrescriptionEndpoint();
-
+//doctor api endpoints
+app.MapGetMyPatientsEndpoint();
 
 
 app.Run();
