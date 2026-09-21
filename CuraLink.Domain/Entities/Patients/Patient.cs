@@ -1,4 +1,5 @@
 ﻿using CuraLink.Domain.Entities.MedicalHistories;
+using CuraLink.Domain.Entities.Notifications;
 using CuraLink.Domain.Entities.Prescriptions;
 using System;
 using System.Collections.Generic;
@@ -22,5 +23,9 @@ namespace CuraLink.Domain.Entities.Patients
 
         public ICollection<Prescription> Prescriptions { get; set; }
             = new List<Prescription>();
+
+        public ICollection<PatientNotificationSubscription>NotificationSubscriptions
+        { get; set; }
+    = new List<PatientNotificationSubscription>();
     }
 }

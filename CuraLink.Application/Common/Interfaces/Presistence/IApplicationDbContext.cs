@@ -2,6 +2,7 @@
 using CuraLink.Domain.Entities.Clinics;
 using CuraLink.Domain.Entities.Doctors;
 using CuraLink.Domain.Entities.MedicalHistories;
+using CuraLink.Domain.Entities.Notifications;
 using CuraLink.Domain.Entities.Patients;
 using CuraLink.Domain.Entities.Prescriptions;
 using Microsoft.EntityFrameworkCore;
@@ -29,7 +30,7 @@ namespace CuraLink.Application.Common.Interfaces.Presistence
 
         DbSet<DosageSchedule> DosageSchedules { get; }
         DbSet<DoctorPatient> DoctorPatients { get; }
-
+        DbSet<PatientNotificationSubscription> PatientNotificationSubscriptions { get; }
 
         Task<int> SaveChangesAsync(
             CancellationToken cancellationToken = default);

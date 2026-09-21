@@ -3,6 +3,7 @@ using CuraLink.API.Endpoints.AuthEndPoints;
 using CuraLink.API.Endpoints.Clinics;
 using CuraLink.API.Endpoints.DoctorEndpoints;
 using CuraLink.API.Endpoints.Doctors;
+using CuraLink.API.Endpoints.Notifications;
 using CuraLink.API.Endpoints.PatientEndpoints;
 using CuraLink.API.Endpoints.PatientEndPoints;
 using CuraLink.API.Endpoints.Patients;
@@ -11,6 +12,7 @@ using CuraLink.API.Exceptions;
 using CuraLink.Application;
 using CuraLink.Infrastructure;
 using CuraLink.Infrastructure.Identity;
+using CuraLink.Infrastructure.Services.Notifications;
 using Microsoft.AspNetCore.Identity;
 var builder = WebApplication.CreateBuilder(args);
 
@@ -28,6 +30,8 @@ builder.Services.AddApplicationServices(
 
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();
+builder.Services.Configure<WebPushSettings>(
+    builder.Configuration.GetSection("WebPush"));
 
 var app = builder.Build();
 
@@ -56,6 +60,8 @@ app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
+
+
 //minimal API endpoints
 //authentication endpoints
 app.MapLoginEndPoint();
@@ -78,6 +84,10 @@ app.MapSearchDoctorsEndpoint();
 app.MapCreatePrescriptionEndpoint();
 //doctor api endpoints
 app.MapGetMyPatientsEndpoint();
+//notification api endpoints
+app.MapRegisterNotificationSubscriptionEndpoint();
+app.MapTestNotificationEndpoint();
+
 
 
 app.Run();

@@ -1,6 +1,7 @@
 ﻿using CuraLink.Application.Common.Interfaces.Authentication;
 using CuraLink.Application.Common.Interfaces.Email;
 using CuraLink.Application.Common.Interfaces.FileStorage;
+using CuraLink.Application.Common.Interfaces.Notifications;
 using CuraLink.Application.Common.Interfaces.Presistence;
 using CuraLink.Infrastructure.Authentication;
 using CuraLink.Infrastructure.FileStorage;
@@ -10,6 +11,7 @@ using CuraLink.Infrastructure.Presistance.Data;
 using CuraLink.Infrastructure.Presistance.Repositories;
 using CuraLink.Infrastructure.Services;
 using CuraLink.Infrastructure.Services.Email;
+using CuraLink.Infrastructure.Services.Notifications;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -63,7 +65,8 @@ namespace CuraLink.Infrastructure
             services.AddScoped<IUnitOfWork, UnitOfWork>();
              services.AddHttpClient<IEmailService, BrevoEmailService>();
             services.AddScoped<IDoctorPatientRepository,DoctorPatientRepository>();
-
+            services.AddScoped<INotificationSubscriptionRepository, NotificationSubscriptionRepository>();
+            services.AddScoped< INotificationService, WebPushNotificationService>();
 
 
             services.Configure<JwtSettings>(

@@ -1,4 +1,5 @@
 ﻿using System.Security.Claims;
+using CuraLink.MVC.Models.Notifications;
 using CuraLink.MVC.Models.Patients;
 using CuraLink.MVC.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -10,10 +11,14 @@ namespace CuraLink.MVC.Controllers
     public class PatientController : Controller
     {
         private readonly PatientApiClient _patientApiClient;
+        private readonly NotificationApiClient _notificationApiClient;
 
-        public PatientController(PatientApiClient patientApiClient)
+        public PatientController(
+            PatientApiClient patientApiClient,
+            NotificationApiClient notificationApiClient)
         {
             _patientApiClient = patientApiClient;
+            _notificationApiClient = notificationApiClient;
         }
 
         // =========================================================
@@ -54,7 +59,6 @@ namespace CuraLink.MVC.Controllers
             }
         }
 
-
         // =========================================================
         // Profile
         // =========================================================
@@ -64,7 +68,6 @@ namespace CuraLink.MVC.Controllers
         {
             return View(GetProfileFromClaims());
         }
-
 
         // =========================================================
         // Medical Records
@@ -93,7 +96,6 @@ namespace CuraLink.MVC.Controllers
                 return View(new List<MedicalDocumentViewModel>());
             }
         }
-
 
         // =========================================================
         // Doctors Directory
@@ -147,7 +149,6 @@ namespace CuraLink.MVC.Controllers
                 return View(model);
             }
         }
-
 
         // =========================================================
         // Upload Medical Document
@@ -234,6 +235,27 @@ namespace CuraLink.MVC.Controllers
             }
         }
 
+        // =========================================================
+        // Notification Subscription
+        // =========================================================
+
+        [HttpPost]
+        public async Task<IActionResult> RegisterNotificationSubscription(
+            [FromBody] RegisterNotificationSubscriptionViewModel model)
+        {
+            var success =
+                await _notificationApiClient.RegisterSubscriptionAsync(
+                    model.Endpoint,
+                    model.P256DH,
+                    model.Auth);
+
+            if (!success)
+            {
+                return BadRequest();
+            }
+
+            return Ok();
+        }
 
         // =========================================================
         // Claims

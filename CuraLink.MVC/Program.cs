@@ -30,6 +30,10 @@ builder.Services.AddHttpClient<PrescriptionApiClient>(client =>
 {
     client.BaseAddress = new Uri(apiBaseUrl); 
 });
+builder.Services.AddHttpClient<NotificationApiClient>(client =>
+{
+    client.BaseAddress = new Uri(apiBaseUrl);
+});
 
 builder.Services
     .AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)

@@ -3,6 +3,7 @@ using CuraLink.Domain.Entities;
 using CuraLink.Domain.Entities.Clinics;
 using CuraLink.Domain.Entities.Doctors;
 using CuraLink.Domain.Entities.MedicalHistories;
+using CuraLink.Domain.Entities.Notifications;
 using CuraLink.Domain.Entities.Patients;
 using CuraLink.Domain.Entities.Prescriptions;
 using CuraLink.Infrastructure.Identity;
@@ -38,7 +39,7 @@ namespace CuraLink.Infrastructure.Presistance.Data
         public DbSet<DosageSchedule> DosageSchedules { get; set; }
         public DbSet<DoctorPatient> DoctorPatients { get; set; }
 
-       
+        public DbSet<PatientNotificationSubscription>PatientNotificationSubscriptions { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {

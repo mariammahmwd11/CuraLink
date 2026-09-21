@@ -1,4 +1,5 @@
-﻿@model CuraLink.MVC.Models.Patients.PatientDashboardViewModel
+﻿@inject IConfiguration Configuration
+@model CuraLink.MVC.Models.Patients.PatientDashboardViewModel
 @{
     ViewData["Title"] = "Dashboard";
     Layout = "_PatientLayout";
@@ -21,6 +22,28 @@
                 <div class="patient-stat-label">Medical Documents</div>
             </div>
         </div>
+    </div>
+    <div class="patient-notification-card mt-4">
+        <div>
+            <div class="d-flex align-items-center gap-2 mb-2">
+                <span class="patient-stat-icon">
+                    <i class="bi bi-bell"></i>
+                </span>
+                <h5 class="mb-0">Medication Reminders</h5>
+            </div>
+
+            <p class="text-muted mb-0">
+                Enable notifications to receive reminders when it is time
+                to take your prescribed medication.
+            </p>
+        </div>
+
+        <button type="button"
+                class="btn btn-primary"
+                onclick="registerForPushNotifications()">
+            <i class="bi bi-bell me-2"></i>
+            Enable Medication Reminders
+        </button>
     </div>
 
     <div class="patient-stat-card">
@@ -57,3 +80,12 @@
         </a>
     </div>
 </div>
+@section Scripts {
+    <script>
+        window.vapidPublicKey =
+            '@Configuration["WebPush:VapidPublicKey"]';
+    </script>
+
+    <script src="~/js/patient/push-notifications.js"
+            asp-append-version="true"></script>
+}
