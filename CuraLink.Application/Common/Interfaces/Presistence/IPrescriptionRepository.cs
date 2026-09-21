@@ -10,5 +10,9 @@ namespace CuraLink.Application.Common.Interfaces.Presistence
         Task AddAsync(
             Prescription prescription,
             CancellationToken cancellationToken = default);
+
+        Task<DosageSchedule?> GetDosageScheduleWithDetailsAsync(
+       Guid dosageScheduleId,
+       CancellationToken cancellationToken = default);
     }
 }

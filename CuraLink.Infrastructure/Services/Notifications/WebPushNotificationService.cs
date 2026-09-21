@@ -1,9 +1,7 @@
-﻿using CuraLink.Application.Common.Interfaces.Notifications;
+﻿
+using CuraLink.Application.Common.Interfaces.Notifications;
 using CuraLink.Application.Common.Interfaces.Presistence;
 using Microsoft.Extensions.Options;
-using System;
-using System.Collections.Generic;
-using System.Text;
 using WebPush;
 
 namespace CuraLink.Infrastructure.Services.Notifications
@@ -65,16 +63,31 @@ namespace CuraLink.Infrastructure.Services.Notifications
 
             foreach (var subscription in subscriptions)
             {
-                var pushSubscription = new PushSubscription(
-                    subscription.Endpoint,
-                    subscription.P256DH,
-                    subscription.Auth);
+                try
+                {
+                    var pushSubscription = new PushSubscription(
+                        subscription.Endpoint,
+                        subscription.P256DH,
+                        subscription.Auth);
 
-                await webPushClient.SendNotificationAsync(
-                    pushSubscription,
-                    payload,
-                    vapidDetails);
+                    await webPushClient.SendNotificationAsync(
+                        pushSubscription,
+                        payload,
+                        vapidDetails);
+                }
+                catch (WebPushException ex)
+                    when (ex.Message.Contains(
+                        "Subscription no longer valid",
+                        StringComparison.OrdinalIgnoreCase))
+                {
+                    _unitOfWork.NotificationSubscriptions
+                        .Remove(subscription);
+                }
             }
+
+            await _unitOfWork.SaveChangesAsync(
+                cancellationToken);
         }
     }
 }
+

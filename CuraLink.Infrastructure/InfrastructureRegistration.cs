@@ -1,9 +1,11 @@
 ﻿using CuraLink.Application.Common.Interfaces.Authentication;
+using CuraLink.Application.Common.Interfaces.BackgroundJobs;
 using CuraLink.Application.Common.Interfaces.Email;
 using CuraLink.Application.Common.Interfaces.FileStorage;
 using CuraLink.Application.Common.Interfaces.Notifications;
 using CuraLink.Application.Common.Interfaces.Presistence;
 using CuraLink.Infrastructure.Authentication;
+using CuraLink.Infrastructure.BackgroundJobs;
 using CuraLink.Infrastructure.FileStorage;
 using CuraLink.Infrastructure.Identity;
 using CuraLink.Infrastructure.Presistance;
@@ -12,6 +14,7 @@ using CuraLink.Infrastructure.Presistance.Repositories;
 using CuraLink.Infrastructure.Services;
 using CuraLink.Infrastructure.Services.Email;
 using CuraLink.Infrastructure.Services.Notifications;
+using Hangfire;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -31,6 +34,14 @@ namespace CuraLink.Infrastructure
             services.AddDbContext<ApplicationDbContext>(options =>
            options.UseSqlServer(
                configuration.GetConnectionString("DefaultConnection")));
+            //hangfire configuration
+            services.AddHangfire(config =>
+            config.UseSqlServerStorage(
+            configuration.GetConnectionString("DefaultConnection")));
+
+            services.AddHangfireServer();
+
+
             services.AddIdentityCore<ApplicationUser>(options =>
             {
                 options.User.RequireUniqueEmail = true;
@@ -67,7 +78,7 @@ namespace CuraLink.Infrastructure
             services.AddScoped<IDoctorPatientRepository,DoctorPatientRepository>();
             services.AddScoped<INotificationSubscriptionRepository, NotificationSubscriptionRepository>();
             services.AddScoped< INotificationService, WebPushNotificationService>();
-
+            services.AddScoped< IDosageReminderScheduler, DosageReminderScheduler>();
 
             services.Configure<JwtSettings>(
              configuration.GetSection("Jwt"));

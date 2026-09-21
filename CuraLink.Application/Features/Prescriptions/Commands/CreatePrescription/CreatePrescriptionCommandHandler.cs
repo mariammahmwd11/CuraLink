@@ -1,4 +1,5 @@
-﻿using CuraLink.Application.Common.Interfaces.Presistence;
+﻿using CuraLink.Application.Common.Interfaces.BackgroundJobs;
+using CuraLink.Application.Common.Interfaces.Presistence;
 using CuraLink.Domain.Entities;
 using CuraLink.Domain.Entities.Doctors;
 using CuraLink.Domain.Entities.Prescriptions;
@@ -10,11 +11,14 @@ public class CreatePrescriptionCommandHandler
     : IRequestHandler<CreatePrescriptionCommand, Guid>
 {
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IDosageReminderScheduler _dosageReminderScheduler;
 
     public CreatePrescriptionCommandHandler(
-        IUnitOfWork unitOfWork)
+        IUnitOfWork unitOfWork,
+        IDosageReminderScheduler dosageReminderScheduler)
     {
         _unitOfWork = unitOfWork;
+        _dosageReminderScheduler = dosageReminderScheduler;
     }
 
     public async Task<Guid> Handle(
@@ -86,6 +90,7 @@ public class CreatePrescriptionCommandHandler
             var item = new PrescriptionItem
             {
                 Id = Guid.NewGuid(),
+                PrescriptionId = prescription.Id,
                 MedicationName = itemRequest.MedicationName,
                 Dosage = itemRequest.Dosage,
                 Instructions = itemRequest.Instructions
@@ -97,6 +102,7 @@ public class CreatePrescriptionCommandHandler
                     new DosageSchedule
                     {
                         Id = Guid.NewGuid(),
+                        PrescriptionItemId = item.Id,
                         DosageTime = dosageTime
                     });
             }
@@ -112,6 +118,50 @@ public class CreatePrescriptionCommandHandler
         await _unitOfWork.SaveChangesAsync(
             cancellationToken);
 
+        await ScheduleDosageRemindersAsync(
+            prescription,
+            cancellationToken);
+
         return prescription.Id;
+    }
+
+    private async Task ScheduleDosageRemindersAsync(
+        Prescription prescription,
+        CancellationToken cancellationToken)
+    {
+        var egyptTimeZone =
+            TimeZoneInfo.FindSystemTimeZoneById(
+                "Egypt Standard Time");
+
+        for (
+            var date = prescription.StartDate.Date;
+            date <= prescription.EndDate.Date;
+            date = date.AddDays(1))
+        {
+            foreach (var item in prescription.Items)
+            {
+                foreach (var schedule in item.Schedules)
+                {
+                    var localDateTime =
+                        date.Add(schedule.DosageTime);
+
+                    var scheduledAtUtc =
+                        TimeZoneInfo.ConvertTimeToUtc(
+                            DateTime.SpecifyKind(
+                                localDateTime,
+                                DateTimeKind.Unspecified),
+                            egyptTimeZone);
+
+                    if (scheduledAtUtc <= DateTime.UtcNow)
+                    {
+                        continue;
+                    }
+
+                    await _dosageReminderScheduler.ScheduleAsync(
+                        schedule.Id,
+                        scheduledAtUtc);
+                }
+            }
+        }
     }
 }

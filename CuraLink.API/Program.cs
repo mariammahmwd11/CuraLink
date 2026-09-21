@@ -13,6 +13,7 @@ using CuraLink.Application;
 using CuraLink.Infrastructure;
 using CuraLink.Infrastructure.Identity;
 using CuraLink.Infrastructure.Services.Notifications;
+using Hangfire;
 using Microsoft.AspNetCore.Identity;
 var builder = WebApplication.CreateBuilder(args);
 
@@ -34,6 +35,8 @@ builder.Services.Configure<WebPushSettings>(
     builder.Configuration.GetSection("WebPush"));
 
 var app = builder.Build();
+//hangfire dashboard
+app.UseHangfireDashboard("/hangfire");
 
 using (var scope = app.Services.CreateScope())
 {
