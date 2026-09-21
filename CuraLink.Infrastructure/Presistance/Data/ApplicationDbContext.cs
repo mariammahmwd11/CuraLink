@@ -38,8 +38,10 @@ namespace CuraLink.Infrastructure.Presistance.Data
 
         public DbSet<DosageSchedule> DosageSchedules { get; set; }
         public DbSet<DoctorPatient> DoctorPatients { get; set; }
+        public DbSet<Notification> Notifications { get; set; }
 
         public DbSet<PatientNotificationSubscription>PatientNotificationSubscriptions { get; set; }
+
 
         protected override void OnModelCreating(ModelBuilder builder)
         {

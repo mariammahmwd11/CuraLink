@@ -6,5 +6,6 @@
 
         public int MedicalDocumentsCount { get; set; }
         public int UpcomingAppointmentsCount { get; set; }
+        public bool NotificationsEnabled { get; set; }
     }
 }

@@ -22,11 +22,15 @@ namespace CuraLink.Infrastructure.Presistance
        public IPrescriptionRepository Prescriptions { get; }
         public IDoctorPatientRepository DoctorPatients { get; }
         public INotificationSubscriptionRepository NotificationSubscriptions { get; }
+        public INotificationRepository Notifications { get; }
 
         public UnitOfWork(
             ApplicationDbContext context,
             IDoctorRepository doctorRepository,
-            IUserRepository userRepository,IDoctorDocumentRepository doctorDocumentRepository,IClinicRepository clinicRepository,IPatientRepository patientRepository,IMedicalHistoryRepository medicalHistoryRepository,IMedicalDocumentRepository medicalDocumentRepository,IPrescriptionRepository prescriptionRepository,IDoctorPatientRepository doctorPatientRepository,INotificationSubscriptionRepository notificationSubscriptionRepository )
+            IUserRepository userRepository,IDoctorDocumentRepository doctorDocumentRepository,IClinicRepository clinicRepository
+            ,IPatientRepository patientRepository,IMedicalHistoryRepository medicalHistoryRepository,IMedicalDocumentRepository medicalDocumentRepository
+            ,IPrescriptionRepository prescriptionRepository,IDoctorPatientRepository doctorPatientRepository,INotificationSubscriptionRepository notificationSubscriptionRepository 
+            ,INotificationRepository notificationRepository)
         {
             _context = context;
             Doctors = doctorRepository;
@@ -39,6 +43,7 @@ namespace CuraLink.Infrastructure.Presistance
             Prescriptions = prescriptionRepository;
             DoctorPatients = doctorPatientRepository;
             NotificationSubscriptions = notificationSubscriptionRepository;
+            Notifications = notificationRepository;
         }
         public async Task<int> SaveChangesAsync(
             CancellationToken cancellationToken = default)

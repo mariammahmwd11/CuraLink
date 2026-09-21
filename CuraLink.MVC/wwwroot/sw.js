@@ -25,6 +25,11 @@
 self.addEventListener("notificationclick", event => {
     event.notification.close();
 
+    // Opens the patient dashboard, where the in-app notification (same
+    // title/message) is also waiting in the bell dropdown. Falls back to
+    // focusing an already-open CuraLink tab if there is one.
+    const targetUrl = "/Patient/Dashboard";
+
     event.waitUntil(
         clients.matchAll({
             type: "window",
@@ -32,12 +37,15 @@ self.addEventListener("notificationclick", event => {
         }).then(clientList => {
             for (const client of clientList) {
                 if ("focus" in client) {
+                    if ("navigate" in client) {
+                        client.navigate(targetUrl);
+                    }
                     return client.focus();
                 }
             }
 
             if (clients.openWindow) {
-                return clients.openWindow("/");
+                return clients.openWindow(targetUrl);
             }
         })
     );

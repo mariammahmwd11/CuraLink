@@ -159,6 +159,104 @@ namespace CuraLink.MVC.Services
                 ExtractErrorMessage(body, response.StatusCode));
         }
 
+        // =====================================================================
+        // GET /api/prescriptions — doctor's own prescriptions list
+        // =====================================================================
+        public async Task<List<DoctorPrescriptionListItemViewModel>> GetMyPrescriptionsAsync(
+            CancellationToken cancellationToken = default)
+        {
+            using var request = new HttpRequestMessage(
+                HttpMethod.Get, "/api/prescriptions");
+
+            request.Headers.Authorization =
+                new AuthenticationHeaderValue("Bearer", GetAccessToken());
+
+            using var response = await _httpClient.SendAsync(request, cancellationToken);
+
+            if (response.StatusCode == HttpStatusCode.Unauthorized
+                || response.StatusCode == HttpStatusCode.Forbidden)
+            {
+                throw new UnauthorizedAccessException(
+                    "The API rejected the doctor's token.");
+            }
+
+            response.EnsureSuccessStatusCode();
+
+            var json = await response.Content.ReadAsStringAsync(cancellationToken);
+
+            if (string.IsNullOrWhiteSpace(json))
+            {
+                return new List<DoctorPrescriptionListItemViewModel>();
+            }
+
+            var dtos = JsonSerializer.Deserialize<List<DoctorPrescriptionDto>>(json, JsonOptions)
+                       ?? new List<DoctorPrescriptionDto>();
+
+            return dtos
+                .Select(d => new DoctorPrescriptionListItemViewModel
+                {
+                    Id = d.Id,
+                    PatientName = d.PatientName,
+                    StartDate = d.StartDate,
+                    EndDate = d.EndDate,
+                    CreatedAt = d.CreatedAt,
+                    IsActive = d.IsActive,
+                    Medications = d.Medications
+                })
+                .OrderByDescending(p => p.CreatedAt)
+                .ToList();
+        }
+
+        // =====================================================================
+        // GET /api/prescriptions/{id}/pdf — download, do NOT navigate to it
+        // =====================================================================
+        public async Task<(byte[] Bytes, string FileName)> DownloadPrescriptionPdfAsync(
+            Guid prescriptionId,
+            CancellationToken cancellationToken = default)
+        {
+            using var request = new HttpRequestMessage(
+                HttpMethod.Get, $"/api/prescriptions/{prescriptionId}/pdf");
+
+            request.Headers.Authorization =
+                new AuthenticationHeaderValue("Bearer", GetAccessToken());
+
+            using var response = await _httpClient.SendAsync(request, cancellationToken);
+
+            if (response.StatusCode == HttpStatusCode.Unauthorized)
+            {
+                throw new UnauthorizedAccessException(
+                    "Your session has expired. Please log in again.");
+            }
+
+            if (response.StatusCode == HttpStatusCode.Forbidden)
+            {
+                throw new UnauthorizedAccessException(
+                    "You are not allowed to export this prescription.");
+            }
+
+            if (response.StatusCode == HttpStatusCode.NotFound)
+            {
+                throw new KeyNotFoundException(
+                    "This prescription could not be found.");
+            }
+
+            if (!response.IsSuccessStatusCode)
+            {
+                throw new HttpRequestException(
+                    $"The prescription PDF could not be generated " +
+                    $"(status {(int)response.StatusCode}). Please try again.");
+            }
+
+            var bytes = await response.Content.ReadAsByteArrayAsync(cancellationToken);
+
+            var fileName =
+                response.Content.Headers.ContentDisposition?.FileNameStar
+                ?? response.Content.Headers.ContentDisposition?.FileName
+                ?? $"Prescription-{prescriptionId}.pdf";
+
+            return (bytes, fileName.Trim('"'));
+        }
+
         /// <summary>
         /// Best-effort read of a ProblemDetails / ValidationProblemDetails body so
         /// the real API message reaches the form instead of a generic failure.
@@ -231,6 +329,17 @@ namespace CuraLink.MVC.Services
             public string? FullName { get; set; }
             public int Age { get; set; }
             public string? BloodType { get; set; }
+        }
+
+        private sealed class DoctorPrescriptionDto
+        {
+            public Guid Id { get; set; }
+            public string PatientName { get; set; } = string.Empty;
+            public DateTime StartDate { get; set; }
+            public DateTime EndDate { get; set; }
+            public DateTime CreatedAt { get; set; }
+            public bool IsActive { get; set; }
+            public List<string> Medications { get; set; } = new();
         }
 
         // =====================================================================

@@ -15,6 +15,66 @@ namespace CuraLink.MVC.Controllers
             _prescriptionApiClient = prescriptionApiClient;
         }
 
+        // =========================================================
+        // List — where the "Export PDF" action lives for each row
+        // =========================================================
+        [HttpGet]
+        public async Task<IActionResult> Index(CancellationToken cancellationToken)
+        {
+            try
+            {
+                var prescriptions = await _prescriptionApiClient
+                    .GetMyPrescriptionsAsync(cancellationToken);
+
+                return View(prescriptions);
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return RedirectToAction("Login", "Auth");
+            }
+            catch (HttpRequestException)
+            {
+                TempData["ErrorMessage"] =
+                    "Your prescriptions could not be loaded right now. Please refresh the page.";
+
+                return View(new List<DoctorPrescriptionListItemViewModel>());
+            }
+        }
+
+        // =========================================================
+        // Export PDF — downloads the file, never navigates to raw JSON
+        // =========================================================
+        [HttpGet]
+        public async Task<IActionResult> ExportPdf(
+            Guid id,
+            CancellationToken cancellationToken)
+        {
+            try
+            {
+                var (bytes, fileName) = await _prescriptionApiClient
+                    .DownloadPrescriptionPdfAsync(id, cancellationToken);
+
+                return File(bytes, "application/pdf", fileName);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                // Covers both "no token on principal" and API 401/403 —
+                // 403 specifically means "not this doctor's prescription".
+                TempData["ErrorMessage"] = ex.Message;
+                return RedirectToAction(nameof(Index));
+            }
+            catch (KeyNotFoundException ex)
+            {
+                TempData["ErrorMessage"] = ex.Message;
+                return RedirectToAction(nameof(Index));
+            }
+            catch (HttpRequestException ex)
+            {
+                TempData["ErrorMessage"] = ex.Message;
+                return RedirectToAction(nameof(Index));
+            }
+        }
+
         [HttpGet]
         public async Task<IActionResult> Create(CancellationToken cancellationToken)
         {

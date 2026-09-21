@@ -1,0 +1,88 @@
+@model List<CuraLink.MVC.Models.Prescriptions.DoctorPrescriptionListItemViewModel>
+@{
+    ViewData["Title"] = "My Prescriptions";
+    Layout = "_DoctorLayout";
+}
+
+<nav class="doctor-breadcrumb">
+    <a asp-controller="Doctor" asp-action="Dashboard">Dashboard</a>
+    <span> / </span>
+    <span class="current">My Prescriptions</span>
+</nav>
+
+<div class="doctor-section-header">
+    <h1 class="doctor-page-title mb-0">My Prescriptions</h1>
+    <a asp-controller="Prescription" asp-action="Create" class="btn btn-primary doctor-submit-btn">
+        <i class="bi bi-plus-lg me-1"></i> New Prescription
+    </a>
+</div>
+
+@if (TempData["ErrorMessage"] is string errorMessage)
+{
+    <div class="alert alert-danger d-flex align-items-center" role="alert">
+        <i class="bi bi-exclamation-triangle me-2"></i>
+        <span>@errorMessage</span>
+    </div>
+}
+
+<div class="doctor-card">
+    @if (Model.Count == 0)
+    {
+        <div class="doctor-empty-state">
+            <div class="doctor-empty-icon"><i class="bi bi-file-earmark-medical"></i></div>
+            <div class="doctor-empty-title">No prescriptions yet</div>
+            <div class="doctor-empty-subtitle">Prescriptions you create will show up here.</div>
+            <a asp-controller="Prescription" asp-action="Create" class="btn btn-primary doctor-submit-btn">
+                Create your first prescription
+            </a>
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table align-middle">
+                <thead>
+                    <tr>
+                        <th>Patient</th>
+                        <th>Medications</th>
+                        <th>Treatment Period</th>
+                        <th>Created</th>
+                        <th>Status</th>
+                        <th class="text-end">Export</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var prescription in Model)
+                    {
+                        <tr>
+                            <td class="fw-semibold">@prescription.PatientName</td>
+                            <td class="text-muted">@prescription.MedicationsSummary</td>
+                            <td>
+                                @prescription.StartDate.ToString("dd/MM/yyyy") -
+                                @prescription.EndDate.ToString("dd/MM/yyyy")
+                            </td>
+                            <td class="text-muted">@prescription.CreatedAt.ToString("dd/MM/yyyy")</td>
+                            <td>
+                                @if (prescription.IsActive)
+                                {
+                                    <span class="clinic-card-status status-active">Active</span>
+                                }
+                                else
+                                {
+                                    <span class="clinic-card-status status-inactive">Ended</span>
+                                }
+                            </td>
+                            <td class="text-end">
+                                <a asp-controller="Prescription" asp-action="ExportPdf"
+                                   asp-route-id="@prescription.Id"
+                                   class="btn btn-outline-primary btn-sm">
+                                    <i class="bi bi-file-earmark-pdf me-1"></i> Export PDF
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>

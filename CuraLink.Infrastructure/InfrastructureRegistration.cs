@@ -3,6 +3,7 @@ using CuraLink.Application.Common.Interfaces.BackgroundJobs;
 using CuraLink.Application.Common.Interfaces.Email;
 using CuraLink.Application.Common.Interfaces.FileStorage;
 using CuraLink.Application.Common.Interfaces.Notifications;
+using CuraLink.Application.Common.Interfaces.Prescriptions;
 using CuraLink.Application.Common.Interfaces.Presistence;
 using CuraLink.Infrastructure.Authentication;
 using CuraLink.Infrastructure.BackgroundJobs;
@@ -14,6 +15,7 @@ using CuraLink.Infrastructure.Presistance.Repositories;
 using CuraLink.Infrastructure.Services;
 using CuraLink.Infrastructure.Services.Email;
 using CuraLink.Infrastructure.Services.Notifications;
+using CuraLink.Infrastructure.Services.Prescriptions;
 using Hangfire;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
@@ -21,6 +23,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
+using QuestPDF.Infrastructure;
 using System.Security.Claims;
 using System.Text;
 
@@ -40,6 +43,8 @@ namespace CuraLink.Infrastructure
             configuration.GetConnectionString("DefaultConnection")));
 
             services.AddHangfireServer();
+            //questPDF
+            QuestPDF.Settings.License =LicenseType.Community;
 
 
             services.AddIdentityCore<ApplicationUser>(options =>
@@ -77,8 +82,10 @@ namespace CuraLink.Infrastructure
              services.AddHttpClient<IEmailService, BrevoEmailService>();
             services.AddScoped<IDoctorPatientRepository,DoctorPatientRepository>();
             services.AddScoped<INotificationSubscriptionRepository, NotificationSubscriptionRepository>();
-            services.AddScoped< INotificationService, WebPushNotificationService>();
-            services.AddScoped< IDosageReminderScheduler, DosageReminderScheduler>();
+            services.AddScoped<INotificationService, WebPushNotificationService>();
+            services.AddScoped<IDosageReminderScheduler, DosageReminderScheduler>();
+            services.AddScoped<IPrescriptionPdfService, PrescriptionPdfService>();
+            services.AddScoped<INotificationRepository, NotificationRepository>();
 
             services.Configure<JwtSettings>(
              configuration.GetSection("Jwt"));

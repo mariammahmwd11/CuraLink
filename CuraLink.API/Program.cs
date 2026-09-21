@@ -85,11 +85,18 @@ app.MapGetPatientMedicalDocsEndpoint();
 app.MapSearchDoctorsEndpoint();
 //prescription api endpoints
 app.MapCreatePrescriptionEndpoint();
+app.MapGetPrescriptionPdfEndpoint();
+app.MapGetDoctorPrescriptionsEndpoint();
 //doctor api endpoints
 app.MapGetMyPatientsEndpoint();
 //notification api endpoints
 app.MapRegisterNotificationSubscriptionEndpoint();
-app.MapTestNotificationEndpoint();
+app.MapMarkNotificationAsReadEndpoint();
+app.MapMarkAllNotificationsAsReadEndpoint();
+app.MapGetUnreadNotificationCountEndpoint();
+app.MapGetNotificationSubscriptionStatusEndpoint();
+app.MapGetMyNotificationsEndpoint();
+
 
 
 

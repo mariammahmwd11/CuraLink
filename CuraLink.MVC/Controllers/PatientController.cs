@@ -26,18 +26,26 @@ namespace CuraLink.MVC.Controllers
         // =========================================================
 
         [HttpGet]
-        public async Task<IActionResult> Dashboard()
+        public async Task<IActionResult> Dashboard(CancellationToken cancellationToken)
         {
             try
             {
                 var documents =
                     await _patientApiClient.GetMedicalDocumentsAsync();
 
+                // Server-side source of truth for "is this patient already
+                // subscribed to push?" — avoids relying only on the
+                // browser's Notification.permission, which can drift out
+                // of sync with what the backend actually has stored.
+                var notificationsEnabled = await _notificationApiClient
+                    .GetSubscriptionStatusAsync(cancellationToken);
+
                 var model = new PatientDashboardViewModel
                 {
                     Profile = GetProfileFromClaims(),
                     MedicalDocumentsCount = documents.Count,
-                    UpcomingAppointmentsCount = 0
+                    UpcomingAppointmentsCount = 0,
+                    NotificationsEnabled = notificationsEnabled
                 };
 
                 return View(model);
@@ -52,7 +60,8 @@ namespace CuraLink.MVC.Controllers
                 {
                     Profile = GetProfileFromClaims(),
                     MedicalDocumentsCount = 0,
-                    UpcomingAppointmentsCount = 0
+                    UpcomingAppointmentsCount = 0,
+                    NotificationsEnabled = false
                 };
 
                 return View(model);
@@ -236,7 +245,7 @@ namespace CuraLink.MVC.Controllers
         }
 
         // =========================================================
-        // Notification Subscription
+        // Notification Subscription (Web Push)
         // =========================================================
 
         [HttpPost]
@@ -255,6 +264,55 @@ namespace CuraLink.MVC.Controllers
             }
 
             return Ok();
+        }
+
+        // =========================================================
+        // In-app notifications (bell dropdown) — JSON endpoints
+        // consumed by wwwroot/js/patient/notifications.js.
+        // Same convention as RegisterNotificationSubscription above:
+        // this MVC action proxies to the API using the patient's
+        // stored JWT, the browser never talks to the API directly.
+        // =========================================================
+
+        [HttpGet]
+        public async Task<IActionResult> Notifications(
+            CancellationToken cancellationToken)
+        {
+            var notifications =
+                await _notificationApiClient.GetNotificationsAsync(cancellationToken);
+
+            return Json(notifications);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> UnreadNotificationCount(
+            CancellationToken cancellationToken)
+        {
+            var count =
+                await _notificationApiClient.GetUnreadCountAsync(cancellationToken);
+
+            return Json(new { count });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> MarkNotificationRead(
+            Guid id,
+            CancellationToken cancellationToken)
+        {
+            var success =
+                await _notificationApiClient.MarkAsReadAsync(id, cancellationToken);
+
+            return success ? Ok() : NotFound();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> MarkAllNotificationsRead(
+            CancellationToken cancellationToken)
+        {
+            var success =
+                await _notificationApiClient.MarkAllAsReadAsync(cancellationToken);
+
+            return success ? Ok() : NotFound();
         }
 
         // =========================================================

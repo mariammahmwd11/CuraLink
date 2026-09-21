@@ -1,6 +1,6 @@
-﻿
-using CuraLink.Application.Common.Interfaces.Notifications;
+﻿using CuraLink.Application.Common.Interfaces.Notifications;
 using CuraLink.Application.Common.Interfaces.Presistence;
+using CuraLink.Domain.Entities.Notifications;
 using Microsoft.Extensions.Options;
 using WebPush;
 
@@ -35,6 +35,22 @@ namespace CuraLink.Infrastructure.Services.Notifications
                 throw new KeyNotFoundException(
                     "Patient not found.");
             }
+
+            // Persist the in-app notification FIRST and save immediately.
+            // This guarantees it exists inside CuraLink even if the patient
+            // has no Web Push subscription at all, or every subscription
+            // turns out to be stale/invalid below.
+            var notification = new Notification
+            {
+                PatientId = patient.Id,
+                Title = title,
+                Message = message,
+                CreatedAt = DateTime.UtcNow,
+                IsRead = false
+            };
+
+            _unitOfWork.Notifications.Add(notification);
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
 
             var subscriptions =
                 await _unitOfWork.NotificationSubscriptions
@@ -90,4 +106,3 @@ namespace CuraLink.Infrastructure.Services.Notifications
         }
     }
 }
-

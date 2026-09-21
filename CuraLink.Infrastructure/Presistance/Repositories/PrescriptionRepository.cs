@@ -37,5 +37,29 @@ namespace CuraLink.Infrastructure.Presistance.Repositories
                     x => x.Id == dosageScheduleId,
                     cancellationToken);
         }
+        public async Task<Prescription?> GetByIdWithDetailsAsync(
+    Guid prescriptionId,
+    CancellationToken cancellationToken = default)
+        {
+            return await _context.Prescriptions
+                .Include(x => x.Doctor)
+                .Include(x => x.Patient)
+                .Include(x => x.Items)
+                    .ThenInclude(x => x.Schedules)
+                .FirstOrDefaultAsync(
+                    x => x.Id == prescriptionId,
+                    cancellationToken);
+        }
+        public async Task<List<Prescription>> GetByDoctorIdAsync(
+    Guid doctorId,
+    CancellationToken cancellationToken = default)
+        {
+            return await _context.Prescriptions
+                .Include(p => p.Items)
+                .Include(p => p.Patient)
+                .Where(p => p.DoctorId == doctorId)
+                .OrderByDescending(p => p.CreatedAt)
+                .ToListAsync(cancellationToken);
+        }
     }
 }
