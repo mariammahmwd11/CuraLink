@@ -15,5 +15,7 @@ namespace CuraLink.Application.Features
         public string Email { get; set; } = null!;
 
         public string PhoneNumber { get; set; } = null!;
+        public string? Bio { get; set; }
+        public string? ProfilePhoto { get; set; }
     }
 }

@@ -1,0 +1,111 @@
+﻿@model CuraLink.MVC.Models.Patients.PatientProfileViewModel
+@using System.Linq
+@{
+    ViewData["Title"] = "Edit Profile";
+    Layout = "_PatientLayout";
+    var initials = Model.HasName
+        ? $"{Model.FirstName?.FirstOrDefault()}{Model.LastName?.FirstOrDefault()}".ToUpperInvariant()
+        : Model.Email.Length > 0 ? Model.Email[0].ToString().ToUpperInvariant() : "P";
+}
+
+<div class="patient-profile-card">
+
+    <h2 class="patient-profile-name mb-4">Edit Profile</h2>
+
+    <div asp-validation-summary="All" class="text-danger mb-3"></div>
+
+    <form asp-controller="Patient" asp-action="Edit" method="post" enctype="multipart/form-data">
+
+        <input type="hidden" asp-for="ProfilePhotoUrl" />
+
+        <div class="patient-edit-photo-section mb-4">
+            <div class="patient-edit-photo-preview">
+                @if (!string.IsNullOrWhiteSpace(Model.ProfilePhotoUrl))
+                {
+                    <img src="@Model.ProfilePhotoUrl" alt="Current profile photo"
+                         id="profilePhotoPreview" class="patient-avatar-img" />
+                }
+                else
+                {
+                    <span class="patient-avatar" id="profilePhotoInitials">@initials</span>
+                    <img src="" alt="" id="profilePhotoPreview" class="patient-avatar-img d-none" />
+                }
+            </div>
+
+            <div>
+                <label asp-for="ProfilePhoto" class="form-label d-block">Profile Photo</label>
+                <input asp-for="ProfilePhoto" type="file" class="form-control" id="profilePhotoInput"
+                       accept=".jpg,.jpeg,.png,.webp" />
+                <span asp-validation-for="ProfilePhoto" class="text-danger"></span>
+                <div class="patient-photo-hint">JPG, PNG, or WebP. Max size 5 MB.</div>
+                <div class="text-danger small d-none" id="profilePhotoClientError"></div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label asp-for="FirstName" class="form-label">First Name</label>
+                <input asp-for="FirstName" class="form-control" readonly />
+            </div>
+            <div class="col-md-6 mb-3">
+                <label asp-for="LastName" class="form-label">Last Name</label>
+                <input asp-for="LastName" class="form-control" readonly />
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Email" class="form-label">Email</label>
+            <input asp-for="Email" class="form-control" readonly />
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="PhoneNumber" class="form-label">Phone Number</label>
+            <input asp-for="PhoneNumber" class="form-control" />
+            <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+        </div>
+
+        <div class="mb-4">
+            <label asp-for="Bio" class="form-label">Bio</label>
+            <textarea asp-for="Bio" class="form-control" rows="4"></textarea>
+            <span asp-validation-for="Bio" class="text-danger"></span>
+        </div>
+
+        <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-primary">
+                <i class="bi bi-check-lg me-1"></i> Save Changes
+            </button>
+            <a asp-controller="Patient" asp-action="Profile" class="btn btn-outline-secondary">Cancel</a>
+        </div>
+    </form>
+</div>
+
+<style>
+    .patient-edit-photo-section {
+        display: flex;
+        align-items: center;
+        gap: 1.25rem;
+    }
+
+    .patient-edit-photo-preview {
+        width: 84px;
+        height: 84px;
+        border-radius: 50%;
+        overflow: hidden;
+        flex: 0 0 auto;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--cl-bg, #f5f7fb);
+        border: 1px solid var(--cl-border, #e2e7f2);
+    }
+
+    .patient-photo-hint {
+        font-size: .78rem;
+        color: var(--cl-text-muted, #5b6b85);
+        margin-top: .35rem;
+    }
+</style>
+
+@section Scripts {
+    <script src="~/js/patient/profile-edit.js" asp-append-version="true"></script>
+}

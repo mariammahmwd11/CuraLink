@@ -11,7 +11,14 @@
 <div class="patient-profile-card">
 
     <div class="patient-profile-header">
-        <span class="patient-avatar">@initials</span>
+        @if (!string.IsNullOrWhiteSpace(Model.ProfilePhotoUrl))
+        {
+            <img src="@Model.ProfilePhotoUrl" alt="Profile photo" class="patient-avatar patient-avatar-img" />
+        }
+        else
+        {
+            <span class="patient-avatar">@initials</span>
+        }
         <div>
             <h2 class="patient-profile-name">
                 @(Model.HasName ? $"{Model.FirstName} {Model.LastName}".Trim() : Model.Email)
@@ -22,39 +29,40 @@
         </div>
     </div>
 
-    @* <div class="patient-profile-field">
-        <span class="patient-profile-label">First Name</span>
-        @if (Model.HasName)
-        {
-            <span class="patient-profile-value">@Model.FirstName</span>
-        }
-        else
-        {
-            <span class="patient-profile-value muted">Not available yet</span>
-        }
-    </div>
-
-    <div class="patient-profile-field">
-        <span class="patient-profile-label">Last Name</span>
-        @if (Model.HasName)
-        {
-            <span class="patient-profile-value">@Model.LastName</span>
-        }
-        else
-        {
-            <span class="patient-profile-value muted">Not available yet</span>
-        }
-    </div> *@
-
     <div class="patient-profile-field">
         <span class="patient-profile-label">Email</span>
         <span class="patient-profile-value">@Model.Email</span>
     </div>
 
+    <div class="patient-profile-field">
+        <span class="patient-profile-label">Phone Number</span>
+        <span class="patient-profile-value">@(string.IsNullOrWhiteSpace(Model.PhoneNumber) ? "Not set" : Model.PhoneNumber)</span>
+    </div>
+
+    <div class="patient-profile-field">
+        <span class="patient-profile-label">Bio</span>
+        <span class="patient-profile-value">@(string.IsNullOrWhiteSpace(Model.Bio) ? "Not set" : Model.Bio)</span>
+    </div>
+
     <div class="mt-4">
-        <button type="button" class="btn btn-primary" disabled title="Coming soon">
+        <a asp-controller="Patient" asp-action="Edit" class="btn btn-primary">
             <i class="bi bi-pencil me-1"></i> Edit Profile
-        </button>
+        </a>
     </div>
 
 </div>
+
+@* patient-avatar already renders initials via patient-dashboard.css;
+   this adds the circular-photo variant without touching that file. *@
+<style>
+    css
+    .patient-avatar-img {
+        width: 64px;
+        height: 64px;
+        object-fit: cover;
+        border-radius: 50%;
+        flex-shrink: 0;
+    }
+
+    
+</style>

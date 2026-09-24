@@ -15,10 +15,15 @@ namespace CuraLink.Application.Common.Interfaces.FileStorage
 
         Task<string> GetUrlAsync(
           string storageKey,
+           string resourceType = "raw",
           CancellationToken cancellationToken = default);
         Task<Stream> DownloadAsync(
    string storageKey,
    CancellationToken cancellationToken = default);
 
+        Task DeleteAsync(
+    string storageKey,
+    string resourceType = "raw",
+    CancellationToken cancellationToken = default);
     }
 }

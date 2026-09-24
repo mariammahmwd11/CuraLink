@@ -1,40 +1,45 @@
-﻿using CloudinaryDotNet;
+﻿
+using CloudinaryDotNet;
 using CloudinaryDotNet.Actions;
 using CuraLink.Application.Common.Interfaces.FileStorage;
 using Microsoft.Extensions.Options;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
-namespace CuraLink.Infrastructure.FileStorage
+namespace CuraLink.Infrastructure.FileStorage;
+
+public class CloudinaryFileStorageService : IFileStorageService
 {
-    public class CloudinaryFileStorageService : IFileStorageService
+    private readonly Cloudinary _cloudinary;
+
+    public CloudinaryFileStorageService(
+        IOptions<CloudinarySettings> settings)
     {
-        private readonly Cloudinary _cloudinary;
+        var account = new Account(
+            settings.Value.CloudName,
+            settings.Value.ApiKey,
+            settings.Value.ApiSecret);
 
-        public CloudinaryFileStorageService(
-            IOptions<CloudinarySettings> settings)
+        _cloudinary = new Cloudinary(account);
+    }
+
+    public async Task<string> UploadAsync(
+        Stream fileStream,
+        string fileName,
+        string contentType,
+        string folder,
+        CancellationToken cancellationToken = default)
+    {
+        var publicId =
+            $"{folder}/{Guid.NewGuid()}_{Path.GetFileNameWithoutExtension(fileName)}";
+
+        // Images are uploaded as public assets
+        // so they can be displayed directly in <img src="...">
+        if (contentType.StartsWith("image/"))
         {
-            var account = new Account(
-                settings.Value.CloudName,
-                settings.Value.ApiKey,
-                settings.Value.ApiSecret);
-
-            _cloudinary = new Cloudinary(account);
-        }
-
-        public async Task<string> UploadAsync(
-            Stream fileStream,
-            string fileName,
-            string contentType,
-            string folder ,
-            CancellationToken cancellationToken = default)
-        {
-            var uploadParams = new RawUploadParams
+            var uploadParams = new ImageUploadParams
             {
                 File = new FileDescription(fileName, fileStream),
-                PublicId = $"{folder}/{Guid.NewGuid()}_{Path.GetFileNameWithoutExtension(fileName)}",
-                  Type = "authenticated"
+                PublicId = publicId,
+                Type = "upload"
             };
 
             var result = await _cloudinary.UploadAsync(uploadParams);
@@ -42,59 +47,111 @@ namespace CuraLink.Infrastructure.FileStorage
             if (result.Error != null)
             {
                 throw new Exception(
-                    $"File upload failed: {result.Error.Message}");
+                    $"Image upload failed: {result.Error.Message}");
             }
 
             return result.PublicId;
         }
-      
-        public Task<string> GetUrlAsync(
-         string storageKey,
-        CancellationToken cancellationToken = default)
+
+        // Other files remain authenticated
+        var rawUploadParams = new RawUploadParams
         {
-            var url = _cloudinary.Api.Url
-                .ResourceType("raw")
-                .Type("authenticated")
-                .Secure(true)
-                .BuildUrl(storageKey);
+            File = new FileDescription(fileName, fileStream),
+            PublicId = publicId,
+            Type = "authenticated"
+        };
 
-            url = url.Replace("http://", "https://");
+        var rawResult = await _cloudinary.UploadAsync(rawUploadParams);
 
-            return Task.FromResult(url);
+        if (rawResult.Error != null)
+        {
+            throw new Exception(
+                $"File upload failed: {rawResult.Error.Message}");
         }
-        public async Task<Stream> DownloadAsync(
-     string storageKey,
-     CancellationToken cancellationToken = default)
+
+        return rawResult.PublicId;
+    }
+
+    public Task<string> GetUrlAsync(
+        string storageKey,
+        string resourceType = "raw",
+        CancellationToken cancellationToken = default)
+    {
+        var isImage = resourceType.Equals(
+            "image",
+            StringComparison.OrdinalIgnoreCase);
+
+        var url = _cloudinary.Api.Url
+            .ResourceType(resourceType)
+            .Type(isImage ? "upload" : "authenticated")
+            .Secure(true)
+            .BuildUrl(storageKey);
+
+        url = url.Replace("http://", "https://");
+
+        return Task.FromResult(url);
+    }
+
+    public async Task<Stream> DownloadAsync(
+        string storageKey,
+        CancellationToken cancellationToken = default)
+    {
+        var url = _cloudinary.Api.Url
+            .ResourceType("raw")
+            .Type("authenticated")
+            .Secure(true)
+            .Signed(true)
+            .BuildUrl(storageKey);
+
+        using var httpClient = new HttpClient();
+
+        var response = await httpClient.GetAsync(
+            url,
+            cancellationToken);
+
+        if (!response.IsSuccessStatusCode)
         {
-            var url = _cloudinary.Api.Url
-                .ResourceType("raw")
-                .Type("authenticated")
-                .Secure(true)
-                .Signed(true)
-                .BuildUrl(storageKey);
+            throw new Exception(
+                $"File download failed. Status code: {response.StatusCode}");
+        }
 
-            using var httpClient = new HttpClient();
+        var memoryStream = new MemoryStream();
 
-            var response = await httpClient.GetAsync(
-                url,
-                cancellationToken);
+        await response.Content.CopyToAsync(
+            memoryStream,
+            cancellationToken);
 
-            if (!response.IsSuccessStatusCode)
-            {
-                throw new Exception(
-                    $"File download failed. Status code: {response.StatusCode}");
-            }
+        memoryStream.Position = 0;
 
-            var memoryStream = new MemoryStream();
+        return memoryStream;
+    }
 
-            await response.Content.CopyToAsync(
-                memoryStream,
-                cancellationToken);
+    public async Task DeleteAsync(
+        string storageKey,
+        string resourceType = "raw",
+        CancellationToken cancellationToken = default)
+    {
+        var isImage = resourceType.Equals(
+            "image",
+            StringComparison.OrdinalIgnoreCase);
 
-            memoryStream.Position = 0;
+        var resource = isImage
+            ? CloudinaryDotNet.Actions.ResourceType.Image
+            : CloudinaryDotNet.Actions.ResourceType.Raw;
 
-            return memoryStream;
+        var deletionParams = new DeletionParams(storageKey)
+        {
+            ResourceType = resource,
+            Type = isImage ? "upload" : "authenticated"
+        };
+
+        var result = await _cloudinary.DestroyAsync(deletionParams);
+
+        if (result.Error != null)
+        {
+            throw new Exception(
+                $"File deletion failed: {result.Error.Message}");
         }
     }
 }
-  
+

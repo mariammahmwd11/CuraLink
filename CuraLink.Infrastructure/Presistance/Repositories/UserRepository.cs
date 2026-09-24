@@ -31,7 +31,9 @@ public class UserRepository : IUserRepository
             FirstName = user.FirstName,
             LastName = user.LastName,
             Email = user.Email!,
-            PhoneNumber = user.PhoneNumber!
+            PhoneNumber = user.PhoneNumber,
+            Bio = user.Bio,
+            ProfilePhoto = user.ProfilePhoto
         };
     }
 
@@ -52,5 +54,30 @@ public class UserRepository : IUserRepository
                 PhoneNumber = x.PhoneNumber!
             })
             .ToListAsync(cancellationToken);
+    }
+    public async Task<bool> UpdateProfileAsync(
+     string userId,
+     string? phoneNumber,
+     string? bio,
+     string? profilePhoto,
+     CancellationToken cancellationToken = default)
+    {
+        var user = await _userManager.FindByIdAsync(userId);
+
+        if (user is null)
+            return false;
+
+        if (!string.IsNullOrWhiteSpace(phoneNumber))
+            user.PhoneNumber = phoneNumber;
+
+        if (!string.IsNullOrWhiteSpace(bio))
+            user.Bio = bio;
+
+        if (!string.IsNullOrWhiteSpace(profilePhoto))
+            user.ProfilePhoto = profilePhoto;
+
+        var result = await _userManager.UpdateAsync(user);
+
+        return result.Succeeded;
     }
 }

@@ -44,6 +44,7 @@ namespace CuraLink.Application.Features.Admin.Doctors.Queries.GetDoctorDocument
             {
                 var url = await _fileStorageService.GetUrlAsync(
                     document.StorageKey,
+                    "raw",
                     cancellationToken);
 
                 result.Add(new DoctorDocumentResult

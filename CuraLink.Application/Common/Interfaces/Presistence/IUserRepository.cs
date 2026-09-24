@@ -13,5 +13,12 @@ namespace CuraLink.Application.Common.Interfaces.Presistence
         Task<List<UserInfoDto>> GetByIdsAsync(
          IEnumerable<string> userIds,
          CancellationToken cancellationToken = default);
+
+        Task<bool> UpdateProfileAsync(
+      string userId,
+      string? phoneNumber,
+      string? bio,
+      string? profilePhoto,
+      CancellationToken cancellationToken = default);
     }
 }

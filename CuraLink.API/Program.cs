@@ -8,6 +8,7 @@ using CuraLink.API.Endpoints.PatientEndpoints;
 using CuraLink.API.Endpoints.PatientEndPoints;
 using CuraLink.API.Endpoints.Patients;
 using CuraLink.API.Endpoints.Prescriptions;
+using CuraLink.API.Endpoints.Profile;
 using CuraLink.API.Exceptions;
 using CuraLink.Application;
 using CuraLink.Infrastructure;
@@ -96,6 +97,9 @@ app.MapMarkAllNotificationsAsReadEndpoint();
 app.MapGetUnreadNotificationCountEndpoint();
 app.MapGetNotificationSubscriptionStatusEndpoint();
 app.MapGetMyNotificationsEndpoint();
+//profile api endpoints
+app.MapUpdateProfileEndpoint();
+app.MapGetProfileEndpoint();
 
 
 

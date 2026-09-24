@@ -68,16 +68,7 @@ namespace CuraLink.MVC.Controllers
             }
         }
 
-        // =========================================================
-        // Profile
-        // =========================================================
-
-        [HttpGet]
-        public IActionResult Profile()
-        {
-            return View(GetProfileFromClaims());
-        }
-
+       
         // =========================================================
         // Medical Records
         // =========================================================
@@ -314,7 +305,120 @@ namespace CuraLink.MVC.Controllers
 
             return success ? Ok() : NotFound();
         }
+        // =========================================================
+        // Edit Profile
+        // =========================================================
 
+        [HttpGet]
+        public async Task<IActionResult> Edit(CancellationToken cancellationToken)
+        {
+            try
+            {
+                var profile = await _patientApiClient.GetProfileAsync(cancellationToken);
+                profile.Email = GetProfileFromClaims().Email;
+
+                return View(profile);
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return RedirectToAction("Login", "Auth");
+            }
+            catch (Exception)
+            {
+                return RedirectToAction(nameof(Profile));
+            }
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(
+            PatientProfileViewModel model,
+            CancellationToken cancellationToken)
+        {
+            const long maxFileSize = 5 * 1024 * 1024;
+
+            var allowedContentTypes = new[]
+            {
+        "image/jpeg",
+        "image/jpg",
+        "image/png",
+        "image/webp"
+    };
+
+            if (model.ProfilePhoto is { Length: > 0 })
+            {
+                if (model.ProfilePhoto.Length > maxFileSize)
+                {
+                    ModelState.AddModelError(string.Empty, "Profile photo must not exceed 5 MB.");
+                }
+                else if (!allowedContentTypes.Contains(model.ProfilePhoto.ContentType))
+                {
+                    ModelState.AddModelError(
+                        string.Empty,
+                        "Only JPG, JPEG, PNG, and WebP images are allowed.");
+                }
+            }
+
+            if (!ModelState.IsValid)
+            {
+                model.Email = GetProfileFromClaims().Email;
+                return View(model);
+            }
+
+            try
+            {
+                await _patientApiClient.UpdateProfileAsync(
+                    model.PhoneNumber,
+                    model.Bio,
+                    model.ProfilePhoto,
+                    cancellationToken);
+
+                TempData["SuccessMessage"] = "Your profile was updated successfully.";
+
+                // Redirect (not View) so Profile() re-fetches fresh data —
+                // same PRG pattern as Upload().
+                return RedirectToAction(nameof(Profile));
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return RedirectToAction("Login", "Auth");
+            }
+            catch (HttpRequestException ex)
+            {
+                ModelState.AddModelError(string.Empty, ex.Message);
+                model.Email = GetProfileFromClaims().Email;
+                return View(model);
+            }
+            catch (Exception)
+            {
+                ModelState.AddModelError(
+                    string.Empty,
+                    "Something went wrong while updating your profile.");
+                model.Email = GetProfileFromClaims().Email;
+                return View(model);
+            }
+        }
+        [HttpGet]
+        public async Task<IActionResult> Profile(CancellationToken cancellationToken)
+        {
+            try
+            {
+                var profile = await _patientApiClient.GetProfileAsync(cancellationToken);
+                profile.Email = GetProfileFromClaims().Email; // API doesn't return email
+
+                return View(profile);
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return RedirectToAction("Login", "Auth");
+            }
+            catch (Exception)
+            {
+                // Same defensive fallback style as Dashboard(): show what we can
+                // from claims rather than a hard error page.
+                return View(GetProfileFromClaims());
+            }
+        }
         // =========================================================
         // Claims
         // =========================================================

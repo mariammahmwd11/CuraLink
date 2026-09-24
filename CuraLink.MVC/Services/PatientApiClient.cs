@@ -1,4 +1,5 @@
-﻿using CuraLink.MVC.Models.Patients;
+﻿using CuraLink.Application.Features.Profile.Queries.GetProfile;
+using CuraLink.MVC.Models.Patients;
 using System.Linq;
 using System.Net;
 using System.Net.Http.Headers;
@@ -275,7 +276,122 @@ namespace CuraLink.MVC.Services
 
             return token;
         }
+        // =========================================================
+        // Profile
+        // =========================================================
 
+        public async Task<PatientProfileViewModel> GetProfileAsync(
+            CancellationToken cancellationToken = default)
+        {
+            var token = GetToken();
+
+            using var request = new HttpRequestMessage(HttpMethod.Get, "/api/profile");
+
+            request.Headers.Authorization =
+                new AuthenticationHeaderValue("Bearer", token);
+
+            var response = await _httpClient.SendAsync(request, cancellationToken);
+
+            if (response.IsSuccessStatusCode)
+            {
+                var jsonOptions = new JsonSerializerOptions
+                {
+                    PropertyNameCaseInsensitive = true
+                };
+
+                var apiResult = await response.Content
+                    .ReadFromJsonAsync<GetProfileResponse>(jsonOptions, cancellationToken);
+
+                return new PatientProfileViewModel
+                {
+                    UserId = apiResult?.UserId,
+                    FirstName = apiResult?.FirstName,
+                    LastName = apiResult?.LastName,
+                    PhoneNumber = apiResult?.PhoneNumber,
+                    Bio = apiResult?.Bio,
+                    ProfilePhotoUrl = apiResult?.ProfilePhotoUrl
+                };
+            }
+
+            var errorMessage = await response.Content.ReadAsStringAsync(cancellationToken);
+
+            if (response.StatusCode == HttpStatusCode.Unauthorized)
+            {
+                throw new UnauthorizedAccessException(
+                    "You are not authorized to view this profile.");
+            }
+
+            throw new HttpRequestException(
+                $"Failed to get profile. Status: {response.StatusCode}. Error: {errorMessage}");
+        }
+
+        public async Task UpdateProfileAsync(
+            string? phoneNumber,
+            string? bio,
+            IFormFile? profilePhoto,
+            CancellationToken cancellationToken = default)
+        {
+            var token = GetToken();
+
+            using var content = new MultipartFormDataContent();
+
+            content.Add(new StringContent(phoneNumber ?? string.Empty), "phoneNumber");
+            content.Add(new StringContent(bio ?? string.Empty), "bio");
+
+            Stream? fileStream = null;
+
+            if (profilePhoto is { Length: > 0 })
+            {
+                fileStream = profilePhoto.OpenReadStream();
+
+                var streamContent = new StreamContent(fileStream);
+                streamContent.Headers.ContentType =
+                    new MediaTypeHeaderValue(profilePhoto.ContentType);
+
+                content.Add(streamContent, "profilePhoto", profilePhoto.FileName);
+            }
+
+            try
+            {
+                using var request = new HttpRequestMessage(HttpMethod.Put, "/api/profile")
+                {
+                    Content = content
+                };
+
+                request.Headers.Authorization =
+                    new AuthenticationHeaderValue("Bearer", token);
+
+                var response = await _httpClient.SendAsync(request, cancellationToken);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    return;
+                }
+
+                var errorMessage = await response.Content.ReadAsStringAsync(cancellationToken);
+
+                if (response.StatusCode == HttpStatusCode.Unauthorized)
+                {
+                    throw new UnauthorizedAccessException(
+                        "You are not authorized to update this profile.");
+                }
+
+                if (response.StatusCode == HttpStatusCode.BadRequest)
+                {
+                    throw new HttpRequestException(
+                        string.IsNullOrWhiteSpace(errorMessage)
+                            ? "Invalid profile data."
+                            : errorMessage);
+                }
+
+                throw new HttpRequestException(
+                    $"Failed to update profile. Status: {response.StatusCode}. Error: {errorMessage}");
+            }
+            finally
+            {
+                fileStream?.Dispose();
+            }
+        }
 
         // =========================================================
         // API Response Models
