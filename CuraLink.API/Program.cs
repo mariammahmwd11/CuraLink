@@ -92,6 +92,7 @@ app.MapGetDoctorPrescriptionsEndpoint();
 app.MapGetMyPatientsEndpoint();
 app.MapUpdateDoctorScheduleEndpoint();
 app.MapGetDoctorScheduleEndpoint();
+app.MapGetAvailableDoctorSlotsEndpoint(); 
 //notification api endpoints
 app.MapRegisterNotificationSubscriptionEndpoint();
 app.MapMarkNotificationAsReadEndpoint();

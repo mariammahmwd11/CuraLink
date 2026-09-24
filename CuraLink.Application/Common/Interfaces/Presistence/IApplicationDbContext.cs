@@ -1,4 +1,5 @@
 ﻿using CuraLink.Domain.Entities;
+using CuraLink.Domain.Entities.Appointments;
 using CuraLink.Domain.Entities.Clinics;
 using CuraLink.Domain.Entities.Doctors;
 using CuraLink.Domain.Entities.MedicalHistories;
@@ -32,6 +33,7 @@ namespace CuraLink.Application.Common.Interfaces.Presistence
         DbSet<DoctorPatient> DoctorPatients { get; }
         DbSet<PatientNotificationSubscription> PatientNotificationSubscriptions { get; }
         DbSet<DoctorAvailability> DoctorAvailabilities { get; }
+        DbSet<Appointment> Appointments { get; }
 
         Task<int> SaveChangesAsync(
             CancellationToken cancellationToken = default);

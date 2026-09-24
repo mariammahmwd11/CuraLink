@@ -1,5 +1,6 @@
 ﻿using CuraLink.Application.Common.Interfaces.Presistence;
 using CuraLink.Domain.Entities;
+using CuraLink.Domain.Entities.Appointments;
 using CuraLink.Domain.Entities.Clinics;
 using CuraLink.Domain.Entities.Doctors;
 using CuraLink.Domain.Entities.MedicalHistories;
@@ -41,6 +42,8 @@ namespace CuraLink.Infrastructure.Presistance.Data
         public DbSet<Notification> Notifications { get; set; }
 
         public DbSet<PatientNotificationSubscription>PatientNotificationSubscriptions { get; set; }
+      
+         public DbSet<Appointment> Appointments => Set<Appointment>();
 
 
         protected override void OnModelCreating(ModelBuilder builder)
