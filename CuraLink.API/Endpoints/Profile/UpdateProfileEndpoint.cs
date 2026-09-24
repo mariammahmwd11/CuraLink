@@ -15,9 +15,7 @@ public static class UpdateProfileEndpoint
             "/api/profile",
             async (
                 ClaimsPrincipal user,
-                [FromForm] string? phoneNumber,
-                [FromForm] string? bio,
-                [FromForm] IFormFile? profilePhoto,
+                [FromForm] UpdateProfileRequest request,
                 ISender sender,
                 CancellationToken cancellationToken) =>
             {
@@ -30,18 +28,18 @@ public static class UpdateProfileEndpoint
 
                 FileUpload? fileUpload = null;
 
-                if (profilePhoto is not null)
+                if (request.ProfilePhoto is not null)
                 {
                     fileUpload = new FileUpload(
-                        profilePhoto.OpenReadStream(),
-                        profilePhoto.FileName,
-                        profilePhoto.ContentType);
+                        request.ProfilePhoto.OpenReadStream(),
+                        request.ProfilePhoto.FileName,
+                        request.ProfilePhoto.ContentType);
                 }
 
                 var command = new UpdateProfileCommand(
                     userId,
-                    phoneNumber,
-                    bio,
+                    request.PhoneNumber,
+                    request.Bio,
                     fileUpload);
 
                 var result = await sender.Send(

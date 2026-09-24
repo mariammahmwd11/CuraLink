@@ -31,6 +31,7 @@ namespace CuraLink.Application.Common.Interfaces.Presistence
         DbSet<DosageSchedule> DosageSchedules { get; }
         DbSet<DoctorPatient> DoctorPatients { get; }
         DbSet<PatientNotificationSubscription> PatientNotificationSubscriptions { get; }
+        DbSet<DoctorAvailability> DoctorAvailabilities { get; }
 
         Task<int> SaveChangesAsync(
             CancellationToken cancellationToken = default);

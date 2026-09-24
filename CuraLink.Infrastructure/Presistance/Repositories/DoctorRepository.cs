@@ -103,68 +103,61 @@ namespace CuraLink.Infrastructure.Presistance.Repositories
                 cancellationToken);
 
             var doctors = await query
-                .OrderBy(d => d.Id)
-                .Skip((pageNumber - 1) * pageSize)
-                .Take(pageSize)
-                .Select(d => new
-                {
-                    d.Id,
-                    d.Specialty,
+     .OrderBy(d => d.Id)
+     .Skip((pageNumber - 1) * pageSize)
+     .Take(pageSize)
+     .Select(d => new
+     {
+         d.Id,
+         d.Specialty,
 
-                    FirstName = _context.Users
-                        .Where(u => u.Id == d.ApplicationUserId)
-                        .Select(u => u.FirstName)
-                        .FirstOrDefault(),
+         FirstName = _context.Users
+             .Where(u => u.Id == d.ApplicationUserId)
+             .Select(u => u.FirstName)
+             .FirstOrDefault(),
 
-                    LastName = _context.Users
-                        .Where(u => u.Id == d.ApplicationUserId)
-                        .Select(u => u.LastName)
-                        .FirstOrDefault(),
+         LastName = _context.Users
+             .Where(u => u.Id == d.ApplicationUserId)
+             .Select(u => u.LastName)
+             .FirstOrDefault(),
 
-                    Clinic = d.Clinics
-                        .OrderBy(c => c.ConsultationPrice)
-                        .Select(c => new
-                        {
-                            c.Address,
-                            c.ConsultationPrice
-                        })
-                        .FirstOrDefault(),
+         Clinic = d.Clinics
+             .OrderBy(c => c.ConsultationPrice)
+             .Select(c => new
+             {
+                 c.Address,
+                 c.ConsultationPrice
+             })
+             .FirstOrDefault(),
 
-                    Rating = d.Reviews
-                        .Select(r => (double?)r.Rating)
-                        .Average() ?? 0,
-
-                    AvailableDates = d.Availabilities
-                        .Where(a =>
-                            a.AvailableDate.Date >= DateTime.UtcNow.Date)
-                        .OrderBy(a => a.AvailableDate)
-                        .Select(a => a.AvailableDate)
-                        .ToList()
-                })
-                .ToListAsync(cancellationToken);
+         Rating = d.Reviews
+             .Select(r => (double?)r.Rating)
+             .Average() ?? 0
+     })
+     .ToListAsync(cancellationToken);
 
             var items = doctors
-                .Select(d => new DoctorSearchDto
-                {
-                    Id = d.Id,
+      .Select(d => new DoctorSearchDto
+      {
+          Id = d.Id,
 
-                    FullName = $"{d.FirstName} {d.LastName}".Trim(),
+          FullName = $"{d.FirstName} {d.LastName}".Trim(),
 
-                    Specialty = d.Specialty,
+          Specialty = d.Specialty,
 
-                    Address = d.Clinic?.Address ?? string.Empty,
+          Address = d.Clinic?.Address ?? string.Empty,
 
-                    Governorate = ExtractGovernorate(
-                        d.Clinic?.Address),
+          Governorate = ExtractGovernorate(
+              d.Clinic?.Address),
 
-                    ConsultationPrice =
-                        d.Clinic?.ConsultationPrice ?? 0,
+          ConsultationPrice =
+              d.Clinic?.ConsultationPrice ?? 0,
 
-                    Rating = Math.Round(d.Rating, 1),
+          Rating = Math.Round(d.Rating, 1),
 
-                    AvailableDates = d.AvailableDates
-                })
-                .ToList();
+          AvailableDates = new List<DateTime>()
+      })
+      .ToList();
 
             return new PagedResult<DoctorSearchDto>
             {

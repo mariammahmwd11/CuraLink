@@ -10,7 +10,13 @@ namespace CuraLink.Domain.Entities.Doctors
 
         public Guid DoctorId { get; set; }
 
-        public DateTime AvailableDate { get; set; }
+        public DayOfWeek DayOfWeek { get; set; }
+
+        public TimeSpan StartTime { get; set; }
+
+        public TimeSpan EndTime { get; set; }
+
+        public int SlotDurationMinutes { get; set; }
 
         public Doctor Doctor { get; set; } = null!;
     }

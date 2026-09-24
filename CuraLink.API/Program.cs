@@ -90,6 +90,8 @@ app.MapGetPrescriptionPdfEndpoint();
 app.MapGetDoctorPrescriptionsEndpoint();
 //doctor api endpoints
 app.MapGetMyPatientsEndpoint();
+app.MapUpdateDoctorScheduleEndpoint();
+app.MapGetDoctorScheduleEndpoint();
 //notification api endpoints
 app.MapRegisterNotificationSubscriptionEndpoint();
 app.MapMarkNotificationAsReadEndpoint();
@@ -100,8 +102,5 @@ app.MapGetMyNotificationsEndpoint();
 //profile api endpoints
 app.MapUpdateProfileEndpoint();
 app.MapGetProfileEndpoint();
-
-
-
 
 app.Run();
