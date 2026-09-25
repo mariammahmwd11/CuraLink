@@ -1,0 +1,158 @@
+﻿@model CuraLink.MVC.Models.Patients.DoctorBookingViewModel
+@{
+    ViewData["Title"] = "Book Appointment";
+    Layout = "_PatientLayout";
+}
+
+<div class="patient-profile-card" id="doctorInfoCard"
+     data-doctor-id="@Model.DoctorId"
+     data-doctor-name="@Model.DoctorName">
+
+    <div class="patient-profile-header">
+        <span class="patient-avatar">@Model.DoctorName.Substring(0, 1).ToUpperInvariant()</span>
+        <div>
+            <h2 class="patient-profile-name">@Model.DoctorName</h2>
+            @if (!string.IsNullOrWhiteSpace(Model.Specialty))
+            {
+                <span class="patient-profile-status"><i class="bi bi-briefcase-fill"></i> @Model.Specialty</span>
+            }
+        </div>
+    </div>
+
+    @if (!string.IsNullOrWhiteSpace(Model.Address) || !string.IsNullOrWhiteSpace(Model.Governorate))
+    {
+        <div class="patient-profile-field">
+            <span class="patient-profile-label">Location</span>
+            <span class="patient-profile-value">@Model.Address @(string.IsNullOrWhiteSpace(Model.Governorate) ? "" : $", {Model.Governorate}")</span>
+        </div>
+    }
+
+    @if (Model.ConsultationPrice > 0)
+    {
+        <div class="patient-profile-field">
+            <span class="patient-profile-label">Consultation Price</span>
+            <span class="patient-profile-value">@Model.ConsultationPrice.ToString("C")</span>
+        </div>
+    }
+</div>
+
+<div class="patient-profile-card mt-3">
+    <h3 class="patient-profile-name mb-3" style="font-size:1.1rem;">Book an Appointment</h3>
+
+    <div class="mb-3" style="max-width:220px;">
+        <label for="appointmentDate" class="form-label fw-semibold">Select Date</label>
+        <input type="date" id="appointmentDate" class="form-control" />
+    </div>
+
+    <div id="slotsContainer" class="slots-grid"></div>
+
+    <div id="slotsEmptyState" class="booking-empty-state d-none">
+        <i class="bi bi-calendar-x"></i>
+        <p>No available slots for this date. Try another day.</p>
+    </div>
+
+    <div id="slotsErrorState" class="alert alert-danger d-none mt-3"></div>
+
+    <div id="confirmSection" class="confirm-section d-none">
+        <div class="confirm-summary">
+            Booking <strong id="confirmSlotLabel"></strong> on <strong id="confirmDateLabel"></strong>
+            with <strong>@Model.DoctorName</strong>
+        </div>
+        <button type="button" class="btn btn-primary" id="confirmBookingBtn">
+            <span id="confirmBtnText"><i class="bi bi-check-lg me-1"></i> Confirm Booking</span>
+            <span id="confirmBtnSpinner" class="spinner-border spinner-border-sm d-none" role="status"></span>
+        </button>
+        <button type="button" class="btn btn-outline-secondary" id="cancelSelectionBtn">Cancel</button>
+    </div>
+
+    <div id="bookingErrorState" class="alert alert-danger d-none mt-3"></div>
+</div>
+
+<div id="confirmationCard" class="patient-profile-card mt-3 d-none">
+    <div class="text-center">
+        <i class="bi bi-check-circle-fill text-success" style="font-size:2.5rem;"></i>
+        <h3 class="mt-2">Appointment Confirmed</h3>
+    </div>
+    <div class="patient-profile-field">
+        <span class="patient-profile-label">Doctor</span>
+        <span class="patient-profile-value">@Model.DoctorName</span>
+    </div>
+    <div class="patient-profile-field">
+        <span class="patient-profile-label">Date</span>
+        <span class="patient-profile-value" id="confirmationDate"></span>
+    </div>
+    <div class="patient-profile-field">
+        <span class="patient-profile-label">Time</span>
+        <span class="patient-profile-value" id="confirmationTime"></span>
+    </div>
+    <div class="patient-profile-field">
+        <span class="patient-profile-label">Appointment ID</span>
+        <span class="patient-profile-value" id="confirmationId"></span>
+    </div>
+    <div class="patient-profile-field">
+        <span class="patient-profile-label">Status</span>
+        <span class="patient-profile-value">Confirmed</span>
+    </div>
+</div>
+
+<style>
+    .slots-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+        gap: .6rem;
+        margin-top: 1rem;
+    }
+
+    .slot-btn {
+        border: 1px solid var(--cl-border, #e2e7f2);
+        background: var(--cl-surface, #fff);
+        border-radius: var(--cl-radius-sm, 8px);
+        padding: .55rem .5rem;
+        font-size: .88rem;
+        font-weight: 600;
+        color: var(--cl-text, #14213d);
+        transition: background-color .12s ease, border-color .12s ease;
+    }
+
+        .slot-btn:hover {
+            border-color: var(--cl-primary, #2f6fed);
+        }
+
+        .slot-btn.selected {
+            background: var(--cl-primary, #2f6fed);
+            border-color: var(--cl-primary, #2f6fed);
+            color: #fff;
+        }
+
+    .booking-empty-state {
+        text-align: center;
+        padding: 2rem 1rem;
+        color: var(--cl-text-muted, #5b6b85);
+    }
+
+        .booking-empty-state i {
+            font-size: 2rem;
+            display: block;
+            margin-bottom: .5rem;
+        }
+
+    .confirm-section {
+        margin-top: 1.25rem;
+        padding-top: 1rem;
+        border-top: 1px solid var(--cl-border, #e2e7f2);
+        display: flex;
+        align-items: center;
+        gap: .75rem;
+        flex-wrap: wrap;
+    }
+
+    .confirm-summary {
+        flex: 1 1 260px;
+        font-size: .92rem;
+        color: var(--cl-text-muted, #5b6b85);
+    }
+</style>
+
+@section Scripts {
+    <script src="~/js/patient/booking.js" asp-append-version="true"></script>
+}

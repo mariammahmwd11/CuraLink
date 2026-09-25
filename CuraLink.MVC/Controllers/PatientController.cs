@@ -13,12 +13,16 @@ namespace CuraLink.MVC.Controllers
         private readonly PatientApiClient _patientApiClient;
         private readonly NotificationApiClient _notificationApiClient;
 
+        private readonly AppointmentApiClient _appointmentApiClient;
+
         public PatientController(
             PatientApiClient patientApiClient,
-            NotificationApiClient notificationApiClient)
+            NotificationApiClient notificationApiClient,
+            AppointmentApiClient appointmentApiClient)
         {
             _patientApiClient = patientApiClient;
             _notificationApiClient = notificationApiClient;
+            _appointmentApiClient = appointmentApiClient;
         }
 
         // =========================================================
@@ -418,6 +422,109 @@ namespace CuraLink.MVC.Controllers
                 // from claims rather than a hard error page.
                 return View(GetProfileFromClaims());
             }
+        }
+        // =========================================================
+        // Doctor Details / Appointment Booking
+        // =========================================================
+
+        // NOTE: no GET-by-id doctor endpoint exists yet, so the doctor's
+        // display info is carried here as query values from the Doctors
+        // search results page rather than re-fetched. Once a real
+        // "get doctor by id" endpoint exists, replace this with a call to it.
+        [HttpGet]
+        public IActionResult DoctorDetails(
+            Guid id,
+            string? doctorName,
+            string? specialty,
+            string? address,
+            string? governorate,
+            decimal consultationPrice,
+            double rating)
+        {
+            var model = new DoctorBookingViewModel
+            {
+                DoctorId = id,
+                DoctorName = string.IsNullOrWhiteSpace(doctorName) ? "Doctor" : doctorName,
+                Specialty = specialty,
+                Address = address,
+                Governorate = governorate,
+                ConsultationPrice = consultationPrice,
+                Rating = rating
+            };
+
+            return View(model);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> AvailableSlots(
+            Guid doctorId,
+            DateOnly date,
+            CancellationToken cancellationToken)
+        {
+            try
+            {
+                var slots = await _appointmentApiClient.GetAvailableSlotsAsync(doctorId, date, cancellationToken);
+
+                return Json(new
+                {
+                    success = true,
+                    slots = slots.Select(s => new
+                    {
+                        startTime = s.StartTime.ToString(@"hh\:mm"),
+                        endTime = s.EndTime.ToString(@"hh\:mm")
+                    })
+                });
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return Json(new { success = false, error = "Your session has expired. Please log in again." });
+            }
+            catch (HttpRequestException ex)
+            {
+                return Json(new { success = false, error = ex.Message });
+            }
+            catch (Exception)
+            {
+                return Json(new { success = false, error = "We couldn't load available slots right now." });
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> BookAppointment(
+            [FromBody] BookAppointmentRequest request,
+            CancellationToken cancellationToken)
+        {
+            try
+            {
+                var appointmentId = await _appointmentApiClient.BookAppointmentAsync(
+                    request.DoctorId,
+                    request.Date,
+                    request.StartTime,
+                    request.EndTime,
+                    cancellationToken);
+
+                return Json(new { success = true, appointmentId });
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return Json(new { success = false, error = "Your session has expired. Please log in again." });
+            }
+            catch (HttpRequestException ex)
+            {
+                return Json(new { success = false, error = ex.Message });
+            }
+            catch (Exception)
+            {
+                return Json(new { success = false, error = "Something went wrong while booking your appointment." });
+            }
+        }
+
+        public class BookAppointmentRequest
+        {
+            public Guid DoctorId { get; set; }
+            public DateOnly Date { get; set; }
+            public TimeSpan StartTime { get; set; }
+            public TimeSpan EndTime { get; set; }
         }
         // =========================================================
         // Claims

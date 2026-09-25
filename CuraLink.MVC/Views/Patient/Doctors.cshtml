@@ -136,13 +136,20 @@
                     </div>
                 }
 
-                <!-- Not wired yet — no doctor-profile route exists in the MVC
-                     app yet. Kept as a disabled button with the id ready so
-                     wiring a real route later is a one-line change. -->
-                <button type="button" class="btn btn-primary pd-view-profile-btn"
-                        data-doctor-id="@doctor.Id" disabled title="Coming soon">
-                    View Profile
-                </button>
+              
+                <div class="pd-card-actions">
+
+                    <a class="btn btn-primary pd-view-profile-btn"
+                       asp-controller="Patient"
+                       asp-action="DoctorDetails"
+                       asp-route-id="@doctor.Id">
+                        <i class="bi bi-calendar-plus me-1"></i>
+                        Book Appointment
+                    </a>
+
+                </div>
+              
+
             </div>
         }
     </div>

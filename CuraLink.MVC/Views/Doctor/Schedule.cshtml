@@ -1,0 +1,120 @@
+﻿@model CuraLink.MVC.Models.Doctors.DoctorScheduleViewModel
+@{
+    ViewData["Title"] = "Schedule";
+    Layout = "_DoctorLayout";
+
+    var dayLabels = new[] { "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday" };
+}
+
+<div class="doctor-card">
+    <div class="doctor-card-header">
+        <h2 class="doctor-page-title">Availability / Schedule</h2>
+        <p class="doctor-page-subtitle">
+            Enable the days you consult and set your working hours. Patients will only see slots inside these windows.
+        </p>
+    </div>
+
+    <div asp-validation-summary="All" class="text-danger mb-3"></div>
+
+    <form asp-controller="Doctor" asp-action="Schedule" method="post" id="scheduleForm">
+
+        @for (var i = 0; i < Model.Days.Count; i++)
+        {
+            <input type="hidden" asp-for="Days[i].DayOfWeek" />
+
+            <div class="schedule-day-row">
+                <div class="schedule-day-toggle">
+                    <div class="form-check form-switch">
+                        <input class="form-check-input schedule-day-checkbox" type="checkbox"
+                               asp-for="Days[i].IsEnabled" data-day-index="@i" />
+                        <label class="form-check-label schedule-day-name" asp-for="Days[i].IsEnabled">
+                            @dayLabels[(int)Model.Days[i].DayOfWeek]
+                        </label>
+                    </div>
+                </div>
+
+                <div class="schedule-day-fields" id="scheduleFields_@i">
+                    <div class="schedule-field">
+                        <label asp-for="Days[i].StartTime" class="form-label">Start Time</label>
+                        <input asp-for="Days[i].StartTime" type="time" class="form-control" />
+                    </div>
+                    <div class="schedule-field">
+                        <label asp-for="Days[i].EndTime" class="form-label">End Time</label>
+                        <input asp-for="Days[i].EndTime" type="time" class="form-control" />
+                    </div>
+                    <div class="schedule-field">
+                        <label asp-for="Days[i].SlotDurationMinutes" class="form-label">Slot Duration</label>
+                        <select asp-for="Days[i].SlotDurationMinutes" class="form-select">
+                            <option value="15">15 minutes</option>
+                            <option value="20">20 minutes</option>
+                            <option value="30">30 minutes</option>
+                            <option value="45">45 minutes</option>
+                            <option value="60">60 minutes</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        }
+
+        <div class="mt-4 d-flex align-items-center gap-3">
+            <button type="submit" class="btn btn-primary doctor-submit-btn" id="saveScheduleBtn">
+                <span id="saveScheduleBtnText"><i class="bi bi-check-lg me-1"></i> Save Schedule</span>
+                <span id="saveScheduleSpinner" class="spinner-border spinner-border-sm d-none" role="status"></span>
+            </button>
+        </div>
+    </form>
+</div>
+
+<style>
+    .schedule-day-row {
+        display: flex;
+        align-items: flex-start;
+        gap: 1.5rem;
+        padding: 1rem 0;
+        border-bottom: 1px solid var(--cl-border, #e2e7f2);
+        flex-wrap: wrap;
+    }
+
+        .schedule-day-row:last-of-type {
+            border-bottom: none;
+        }
+
+    .schedule-day-toggle {
+        flex: 0 0 160px;
+    }
+
+    .schedule-day-name {
+        font-weight: 600;
+        color: var(--cl-text, #14213d);
+    }
+
+    .schedule-day-fields {
+        display: flex;
+        gap: 1rem;
+        flex: 1 1 auto;
+        flex-wrap: wrap;
+        opacity: 0.45;
+        pointer-events: none;
+        transition: opacity .15s ease;
+    }
+
+        .schedule-day-fields.enabled {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+    .schedule-field {
+        min-width: 150px;
+    }
+
+        .schedule-field .form-label {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--cl-text-muted, #5b6b85);
+            margin-bottom: 0.25rem;
+        }
+</style>
+
+@section Scripts {
+    <script src="~/js/doctor/schedule.js" asp-append-version="true"></script>
+}
