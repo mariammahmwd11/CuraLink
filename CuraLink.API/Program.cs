@@ -1,4 +1,5 @@
 using CuraLink.API.Endpoints.Admin;
+using CuraLink.API.Endpoints.Appointments;
 using CuraLink.API.Endpoints.AuthEndPoints;
 using CuraLink.API.Endpoints.Clinics;
 using CuraLink.API.Endpoints.DoctorEndpoints;
@@ -103,5 +104,7 @@ app.MapGetMyNotificationsEndpoint();
 //profile api endpoints
 app.MapUpdateProfileEndpoint();
 app.MapGetProfileEndpoint();
+//appointment api endpoints
+app.MapBookAppointmentEndpoint();
 
 app.Run();

@@ -41,7 +41,8 @@ public class AppointmentConfiguration : IEntityTypeConfiguration<Appointment>
             x.DoctorId,
             x.AppointmentDate,
             x.StartTime
-        });
+        })
+            .IsUnique();
     }
 }
 
