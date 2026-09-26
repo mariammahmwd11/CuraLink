@@ -1,4 +1,5 @@
 ﻿
+using CuraLink.Application.Common.Interfaces.Notifications;
 using CuraLink.Application.Common.Interfaces.Presistence;
 using CuraLink.Domain.Entities.Appointments;
 using CuraLink.Domain.Entities.Doctors;
@@ -13,15 +14,18 @@ public class BookAppointmentCommandHandler
     private readonly IPatientRepository _patientRepository;
     private readonly IDoctorRepository _doctorRepository;
     private readonly IApplicationDbContext _context;
+    private readonly INotificationService _notificationService;
 
     public BookAppointmentCommandHandler(
-        IPatientRepository patientRepository,
-        IDoctorRepository doctorRepository,
-        IApplicationDbContext context)
+    IPatientRepository patientRepository,
+    IDoctorRepository doctorRepository,
+    IApplicationDbContext context,
+    INotificationService notificationService)
     {
         _patientRepository = patientRepository;
         _doctorRepository = doctorRepository;
         _context = context;
+        _notificationService = notificationService;
     }
 
     public async Task<int> Handle(
@@ -105,7 +109,11 @@ public class BookAppointmentCommandHandler
             cancellationToken);
 
         await _context.SaveChangesAsync(cancellationToken);
-
+        await _notificationService.SendAsync(
+    request.ApplicationUserId,
+    "Appointment Booked",
+    "Your appointment has been booked and is pending confirmation.",
+    cancellationToken);
         return appointment.Id;
     }
 }

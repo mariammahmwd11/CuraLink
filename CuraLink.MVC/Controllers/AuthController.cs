@@ -258,5 +258,18 @@ namespace CuraLink.MVC.Controllers
             // If API returned plain text
             return error;
         }
+        [HttpGet]
+        public IActionResult GetAccessToken()
+        {
+            var accessToken = User.FindFirst("AccessToken")?.Value;
+
+            if (string.IsNullOrEmpty(accessToken))
+                return Unauthorized();
+
+            return Ok(new
+            {
+                accessToken
+            });
+        }
     }
 }

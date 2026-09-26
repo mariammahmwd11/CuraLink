@@ -1,4 +1,6 @@
-﻿using CuraLink.Application.Common.Interfaces.Authentication;
+﻿using CloudinaryDotNet;
+using CuraLink.API.Infrastructure.SignalR;
+using CuraLink.Application.Common.Interfaces.Authentication;
 using CuraLink.Application.Common.Interfaces.BackgroundJobs;
 using CuraLink.Application.Common.Interfaces.Email;
 using CuraLink.Application.Common.Interfaces.FileStorage;
@@ -16,9 +18,11 @@ using CuraLink.Infrastructure.Services;
 using CuraLink.Infrastructure.Services.Email;
 using CuraLink.Infrastructure.Services.Notifications;
 using CuraLink.Infrastructure.Services.Prescriptions;
+using CuraLink.Infrastructure.SignalR;
 using Hangfire;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -82,14 +86,23 @@ namespace CuraLink.Infrastructure
              services.AddHttpClient<IEmailService, BrevoEmailService>();
             services.AddScoped<IDoctorPatientRepository,DoctorPatientRepository>();
             services.AddScoped<INotificationSubscriptionRepository, NotificationSubscriptionRepository>();
-            services.AddScoped<INotificationService, WebPushNotificationService>();
+            services.AddScoped<INotificationService, NotificationService>();
             services.AddScoped<IDosageReminderScheduler, DosageReminderScheduler>();
             services.AddScoped<IPrescriptionPdfService, PrescriptionPdfService>();
             services.AddScoped<INotificationRepository, NotificationRepository>();
 
+
+           services.AddSignalR();
+
+            services.AddSingleton<IUserIdProvider, UserIdProvider>();
+
+            services.AddScoped<
+                IRealtimeNotificationService,
+                RealtimeNotificationService>();
             services.Configure<JwtSettings>(
              configuration.GetSection("Jwt"));
 
+         
 
             services.Configure<CloudinarySettings>(
                     configuration.GetSection("CloudinarySettings"));
@@ -114,8 +127,6 @@ namespace CuraLink.Infrastructure
                         .GetSection("Jwt")
                         .Get<JwtSettings>()!;
 
-            
-
                     options.TokenValidationParameters = new TokenValidationParameters
                     {
                         ValidateIssuer = true,
@@ -129,6 +140,24 @@ namespace CuraLink.Infrastructure
                         ValidateIssuerSigningKey = true,
                         IssuerSigningKey = new SymmetricSecurityKey(
                             Encoding.UTF8.GetBytes(jwtSettings.SecretKey))
+                    };
+
+                    options.Events = new JwtBearerEvents
+                    {
+                        OnMessageReceived = context =>
+                        {
+                            var accessToken = context.Request.Query["access_token"];
+
+                            var path = context.HttpContext.Request.Path;
+
+                            if (!string.IsNullOrEmpty(accessToken) &&
+                                path.StartsWithSegments("/hubs/notifications"))
+                            {
+                                context.Token = accessToken;
+                            }
+
+                            return Task.CompletedTask;
+                        }
                     };
                 });
 
@@ -144,6 +173,17 @@ namespace CuraLink.Infrastructure
                 options.AddPolicy("Doctor", policy => policy.RequireRole("Doctor"));
             });
 
+            services.AddCors(options =>
+            {
+                options.AddPolicy("MvcClient", policy =>
+                {
+                    policy
+                        .WithOrigins("https://localhost:7051")
+                        .AllowAnyHeader()
+                        .AllowAnyMethod()
+                        .AllowCredentials();
+                });
+            });
 
             return services;
         }

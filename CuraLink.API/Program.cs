@@ -11,12 +11,16 @@ using CuraLink.API.Endpoints.Patients;
 using CuraLink.API.Endpoints.Prescriptions;
 using CuraLink.API.Endpoints.Profile;
 using CuraLink.API.Exceptions;
+
+using CuraLink.API.Infrastructure.SignalR;
 using CuraLink.Application;
 using CuraLink.Infrastructure;
 using CuraLink.Infrastructure.Identity;
 using CuraLink.Infrastructure.Services.Notifications;
+using CuraLink.Infrastructure.SignalR;
 using Hangfire;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.SignalR;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -61,11 +65,13 @@ if (app.Environment.IsDevelopment())
 app.UseExceptionHandler();
 
 app.UseHttpsRedirection();
+app.UseCors("MvcClient");
 
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 
+app.MapHub<NotificationHub>("/hubs/notifications");
 
 //minimal API endpoints
 //authentication endpoints
@@ -101,6 +107,7 @@ app.MapMarkAllNotificationsAsReadEndpoint();
 app.MapGetUnreadNotificationCountEndpoint();
 app.MapGetNotificationSubscriptionStatusEndpoint();
 app.MapGetMyNotificationsEndpoint();
+
 //profile api endpoints
 app.MapUpdateProfileEndpoint();
 app.MapGetProfileEndpoint();

@@ -1,22 +1,28 @@
 ﻿using CuraLink.Application.Common.Interfaces.Notifications;
 using CuraLink.Application.Common.Interfaces.Presistence;
 using CuraLink.Domain.Entities.Notifications;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using WebPush;
 
 namespace CuraLink.Infrastructure.Services.Notifications
 {
-    public class WebPushNotificationService : INotificationService
+    public class NotificationService : INotificationService
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly WebPushSettings _settings;
-
-        public WebPushNotificationService(
+        private readonly IRealtimeNotificationService _realtimeNotificationService;
+        private readonly ILogger<NotificationService> _logger;
+        public NotificationService(
             IUnitOfWork unitOfWork,
-            IOptions<WebPushSettings> options)
+            IOptions<WebPushSettings> options
+            , IRealtimeNotificationService realtimeNotificationService
+            , ILogger<NotificationService> logger)
         {
             _unitOfWork = unitOfWork;
             _settings = options.Value;
+            _realtimeNotificationService = realtimeNotificationService;
+            _logger = logger;
         }
 
         public async Task SendAsync(
@@ -51,7 +57,20 @@ namespace CuraLink.Infrastructure.Services.Notifications
 
             _unitOfWork.Notifications.Add(notification);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
-
+            try
+            {
+                await _realtimeNotificationService.SendAsync(
+                    userId,
+                    title,
+                    message);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(
+                    ex,
+                    "Failed to send real-time notification to user {UserId}",
+                    userId);
+            }
             var subscriptions =
                 await _unitOfWork.NotificationSubscriptions
                     .GetByPatientIdAsync(
