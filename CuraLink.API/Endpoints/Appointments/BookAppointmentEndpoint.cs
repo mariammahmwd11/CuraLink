@@ -27,6 +27,7 @@ public static class BookAppointmentEndpoint
                 var appointmentId = await sender.Send(
                     new BookAppointmentCommand(
                         request.DoctorId,
+                        request.clinicId,
                         request.Date,
                         request.StartTime,
                         request.EndTime,

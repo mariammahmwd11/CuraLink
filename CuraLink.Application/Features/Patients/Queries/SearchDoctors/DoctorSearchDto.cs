@@ -3,6 +3,7 @@
     public class DoctorSearchDto
     {
         public Guid Id { get; set; }
+        public Guid ClinicId { get; set; }
 
         public string FullName { get; set; } = null!;
 

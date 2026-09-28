@@ -5,6 +5,7 @@ using CuraLink.Domain.Entities.Doctors;
 using CuraLink.Domain.Entities.MedicalHistories;
 using CuraLink.Domain.Entities.Notifications;
 using CuraLink.Domain.Entities.Patients;
+using CuraLink.Domain.Entities.Payments;
 using CuraLink.Domain.Entities.Prescriptions;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -34,6 +35,8 @@ namespace CuraLink.Application.Common.Interfaces.Presistence
         DbSet<PatientNotificationSubscription> PatientNotificationSubscriptions { get; }
         DbSet<DoctorAvailability> DoctorAvailabilities { get; }
         DbSet<Appointment> Appointments { get; }
+        DbSet<Payment> Payments { get; }
+        
 
         Task<int> SaveChangesAsync(
             CancellationToken cancellationToken = default);

@@ -233,6 +233,7 @@ namespace CuraLink.MVC.Services
                     .Select(dto => new DoctorListItemViewModel
                     {
                         Id = dto.Id,
+                        ClinicId = dto.ClinicId,
                         FullName = dto.FullName,
                         Specialty = dto.Specialty,
                         Address = dto.Address,
@@ -421,6 +422,7 @@ namespace CuraLink.MVC.Services
         private class DoctorApiDto
         {
             public Guid Id { get; set; }
+            public Guid ClinicId { get; set; }
 
             public string FullName { get; set; }
                 = string.Empty;

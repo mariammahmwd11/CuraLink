@@ -434,6 +434,7 @@ namespace CuraLink.MVC.Controllers
         [HttpGet]
         public IActionResult DoctorDetails(
             Guid id,
+              Guid clinicId,
             string? doctorName,
             string? specialty,
             string? address,
@@ -444,6 +445,7 @@ namespace CuraLink.MVC.Controllers
             var model = new DoctorBookingViewModel
             {
                 DoctorId = id,
+                ClinicId = clinicId,
                 DoctorName = string.IsNullOrWhiteSpace(doctorName) ? "Doctor" : doctorName,
                 Specialty = specialty,
                 Address = address,
@@ -491,37 +493,115 @@ namespace CuraLink.MVC.Controllers
 
         [HttpPost]
         public async Task<IActionResult> BookAppointment(
-            [FromBody] BookAppointmentRequest request,
-            CancellationToken cancellationToken)
+     [FromBody] BookAppointmentRequest request,
+     CancellationToken cancellationToken)
         {
             try
             {
-                var appointmentId = await _appointmentApiClient.BookAppointmentAsync(
-                    request.DoctorId,
-                    request.Date,
-                    request.StartTime,
-                    request.EndTime,
-                    cancellationToken);
+                // ========================================================
+                // 1. Create Pending Appointment
+                // ========================================================
 
-                return Json(new { success = true, appointmentId });
+                var appointmentId =
+                    await _appointmentApiClient.BookAppointmentAsync(
+                        request.DoctorId,
+                        request.ClinicId,
+                        request.Date,
+                        request.StartTime,
+                        request.EndTime,
+                        cancellationToken);
+
+                // ========================================================
+                // 2. Create Stripe Checkout Session
+                // ========================================================
+
+                string checkoutUrl;
+
+                try
+                {
+                    checkoutUrl =
+                        await _appointmentApiClient
+                            .CreateCheckoutSessionAsync(
+                                appointmentId,
+                                cancellationToken);
+                }
+                catch
+                {
+                    // Payment session failed.
+                    // Cancel the pending appointment so the slot
+                    // becomes available again.
+
+                    try
+                    {
+                        await _appointmentApiClient
+                            .CancelPendingAppointmentAsync(
+                                appointmentId,
+                                CancellationToken.None);
+                    }
+                    catch
+                    {
+                        // Best effort.
+                    }
+
+                    throw;
+                }
+
+                // ========================================================
+                // 3. Return Stripe URL to JavaScript
+                // ========================================================
+
+                return Json(new
+                {
+                    success = true,
+                    appointmentId,
+                    checkoutUrl
+                });
             }
             catch (UnauthorizedAccessException)
             {
-                return Json(new { success = false, error = "Your session has expired. Please log in again." });
+                return Json(new
+                {
+                    success = false,
+                    error = "Your session has expired. Please log in again."
+                });
             }
             catch (HttpRequestException ex)
             {
-                return Json(new { success = false, error = ex.Message });
+                return Json(new
+                {
+                    success = false,
+                    error = ex.Message
+                });
             }
-            catch (Exception)
+            catch (KeyNotFoundException ex)
             {
-                return Json(new { success = false, error = "Something went wrong while booking your appointment." });
+                return Json(new
+                {
+                    success = false,
+                    error = ex.Message
+                });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return Json(new
+                {
+                    success = false,
+                    error = ex.Message
+                });
+            }
+            catch (Exception ex)
+            {
+                return Json(new
+                {
+                    success = false,
+                    error = "Something went wrong while booking your appointment."
+                });
             }
         }
-
         public class BookAppointmentRequest
         {
             public Guid DoctorId { get; set; }
+            public Guid ClinicId { get; set; }
             public DateOnly Date { get; set; }
             public TimeSpan StartTime { get; set; }
             public TimeSpan EndTime { get; set; }

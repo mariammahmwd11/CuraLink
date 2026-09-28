@@ -6,6 +6,7 @@ using CuraLink.Domain.Entities.Doctors;
 using CuraLink.Domain.Entities.MedicalHistories;
 using CuraLink.Domain.Entities.Notifications;
 using CuraLink.Domain.Entities.Patients;
+using CuraLink.Domain.Entities.Payments;
 using CuraLink.Domain.Entities.Prescriptions;
 using CuraLink.Infrastructure.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
@@ -42,9 +43,11 @@ namespace CuraLink.Infrastructure.Presistance.Data
         public DbSet<Notification> Notifications { get; set; }
 
         public DbSet<PatientNotificationSubscription>PatientNotificationSubscriptions { get; set; }
-      
-         public DbSet<Appointment> Appointments => Set<Appointment>();
+        public DbSet<Payment> Payments => Set<Payment>();
 
+        public DbSet<Appointment> Appointments => Set<Appointment>();
+
+        
 
         protected override void OnModelCreating(ModelBuilder builder)
         {

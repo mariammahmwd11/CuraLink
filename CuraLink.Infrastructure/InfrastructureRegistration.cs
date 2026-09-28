@@ -4,9 +4,11 @@ using CuraLink.Application.Common.Interfaces.Authentication;
 using CuraLink.Application.Common.Interfaces.BackgroundJobs;
 using CuraLink.Application.Common.Interfaces.Email;
 using CuraLink.Application.Common.Interfaces.FileStorage;
+using CuraLink.Application.Common.Interfaces.Identity;
 using CuraLink.Application.Common.Interfaces.Notifications;
 using CuraLink.Application.Common.Interfaces.Prescriptions;
 using CuraLink.Application.Common.Interfaces.Presistence;
+using CuraLink.Application.Features.Payments;
 using CuraLink.Infrastructure.Authentication;
 using CuraLink.Infrastructure.BackgroundJobs;
 using CuraLink.Infrastructure.FileStorage;
@@ -28,6 +30,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using QuestPDF.Infrastructure;
+using System.Configuration;
 using System.Security.Claims;
 using System.Text;
 
@@ -90,6 +93,7 @@ namespace CuraLink.Infrastructure
             services.AddScoped<IDosageReminderScheduler, DosageReminderScheduler>();
             services.AddScoped<IPrescriptionPdfService, PrescriptionPdfService>();
             services.AddScoped<INotificationRepository, NotificationRepository>();
+            services.AddScoped<IUserNameProvider, UserNameProvider>();
 
 
            services.AddSignalR();
@@ -185,6 +189,9 @@ namespace CuraLink.Infrastructure
                 });
             });
 
+            services.Configure<StripeSettings>(
+    
+                configuration.GetSection("Stripe"));
             return services;
         }
     }                   

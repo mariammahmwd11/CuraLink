@@ -142,7 +142,14 @@
                     <a class="btn btn-primary pd-view-profile-btn"
                        asp-controller="Patient"
                        asp-action="DoctorDetails"
-                       asp-route-id="@doctor.Id">
+                       asp-route-id="@doctor.Id"
+                       asp-route-clinicId="@doctor.ClinicId"
+                       asp-route-doctorName="@doctor.FullName"
+                       asp-route-specialty="@doctor.Specialty"
+                       asp-route-address="@doctor.Address"
+                       asp-route-governorate="@doctor.Governorate"
+                       asp-route-consultationPrice="@doctor.ConsultationPrice"
+                       asp-route-rating="@doctor.Rating">
                         <i class="bi bi-calendar-plus me-1"></i>
                         Book Appointment
                     </a>

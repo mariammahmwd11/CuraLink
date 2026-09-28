@@ -1,5 +1,6 @@
 ﻿
 using CuraLink.Domain.Entities.Appointments;
+using CuraLink.Domain.Entities.Payments;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -36,13 +37,20 @@ public class AppointmentConfiguration : IEntityTypeConfiguration<Appointment>
             .HasForeignKey(x => x.PatientId)
             .OnDelete(DeleteBehavior.Restrict);
 
+
+        builder.HasOne(x => x.Payment)
+    .WithOne(x => x.Appointment)
+    .HasForeignKey<Payment>(x => x.AppointmentId)
+    .OnDelete(DeleteBehavior.Cascade);
+
         builder.HasIndex(x => new
         {
             x.DoctorId,
             x.AppointmentDate,
             x.StartTime
         })
-            .IsUnique();
+    .IsUnique()
+    .HasFilter("[Status] <> 3");
     }
 }
 

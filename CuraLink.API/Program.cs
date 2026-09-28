@@ -8,6 +8,7 @@ using CuraLink.API.Endpoints.Notifications;
 using CuraLink.API.Endpoints.PatientEndpoints;
 using CuraLink.API.Endpoints.PatientEndPoints;
 using CuraLink.API.Endpoints.Patients;
+using CuraLink.API.Endpoints.Payments;
 using CuraLink.API.Endpoints.Prescriptions;
 using CuraLink.API.Endpoints.Profile;
 using CuraLink.API.Exceptions;
@@ -113,5 +114,10 @@ app.MapUpdateProfileEndpoint();
 app.MapGetProfileEndpoint();
 //appointment api endpoints
 app.MapBookAppointmentEndpoint();
+app.MapCancelPendingAppointmentEndpoint();
+app.MapGetMyAppointmentEndpoint();
+//payment api endpoints
+app.MapCreateCheckoutSessionEndpoint();
+app.MapStripeWebhookEndpoint();
 
 app.Run();

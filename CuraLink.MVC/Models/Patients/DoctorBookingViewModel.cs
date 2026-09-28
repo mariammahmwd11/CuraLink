@@ -3,6 +3,7 @@
     public class DoctorBookingViewModel
     {
         public Guid DoctorId { get; set; }
+        public Guid ClinicId { get; set; }
         public string DoctorName { get; set; } = "Doctor";
         public string? Specialty { get; set; }
         public string? Address { get; set; }

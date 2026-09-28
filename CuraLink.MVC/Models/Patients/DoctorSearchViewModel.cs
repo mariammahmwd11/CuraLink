@@ -28,6 +28,7 @@ namespace CuraLink.MVC.Models.Patients
     public class DoctorListItemViewModel
     {
         public Guid Id { get; set; }
+        public Guid ClinicId { get; set; }
         public string FullName { get; set; } = string.Empty;
         public string Specialty { get; set; } = string.Empty;
         public string Address { get; set; } = string.Empty;

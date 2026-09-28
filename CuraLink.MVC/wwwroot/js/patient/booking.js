@@ -1,5 +1,6 @@
 ﻿(function () {
     'use strict';
+    
 
     var infoCard = document.getElementById('doctorInfoCard');
     if (!infoCard) {
@@ -7,7 +8,7 @@
     }
 
     var doctorId = infoCard.getAttribute('data-doctor-id');
-    var doctorName = infoCard.getAttribute('data-doctor-name');
+    var clinicId = infoCard.getAttribute('data-clinic-id');
 
     var dateInput = document.getElementById('appointmentDate');
     var slotsContainer = document.getElementById('slotsContainer');
@@ -21,10 +22,10 @@
     var confirmBtnSpinner = document.getElementById('confirmBtnSpinner');
     var cancelBtn = document.getElementById('cancelSelectionBtn');
     var bookingErrorState = document.getElementById('bookingErrorState');
-    var confirmationCard = document.getElementById('confirmationCard');
 
     var selectedSlot = null; // { startTime, endTime }
     var isBooking = false;
+    var redirecting = false;
 
     // Default to today, don't allow past dates.
     var today = new Date().toISOString().split('T')[0];
@@ -38,8 +39,23 @@
 
     cancelBtn.addEventListener('click', clearSelection);
     confirmBtn.addEventListener('click', confirmBooking);
+   
+    window.addEventListener('pageshow', function (e) {
+        if (e.persisted) {
+            redirecting = false;
+            resetButton();
+            loadSlots();
+        }
+    });
 
     loadSlots();
+
+    function resetButton() {
+        isBooking = false;
+        confirmBtn.disabled = false;
+        confirmBtnText.classList.remove('d-none');
+        confirmBtnSpinner.classList.add('d-none');
+    }
 
     function clearSelection() {
         selectedSlot = null;
@@ -107,6 +123,7 @@
     }
 
     function confirmBooking() {
+      
         if (isBooking || !selectedSlot) {
             return;
         }
@@ -122,6 +139,7 @@
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 doctorId: doctorId,
+                clinicId: clinicId,
                 date: dateInput.value,
                 startTime: selectedSlot.startTime + ':00',
                 endTime: selectedSlot.endTime + ':00'
@@ -129,38 +147,30 @@
         })
             .then(function (res) { return res.json(); })
             .then(function (data) {
-                if (!data.success) {
-                    bookingErrorState.textContent = data.error ||
-                        'The selected slot is no longer available. Please choose another slot.';
-                    bookingErrorState.classList.remove('d-none');
+                if (data.success && data.checkoutUrl) {
 
-                    // Slot may have just been taken by someone else — refresh the list.
-                    loadSlots();
+                    window.location.href = data.checkoutUrl;
                     return;
                 }
 
-                showConfirmation(data.appointmentId);
-                confirmSection.classList.add('d-none');
-                loadSlots(); // booked slot disappears from the list
+                bookingErrorState.textContent = data.success
+                    ? 'Payment page could not be opened.'
+                    : (data.error ||
+                        'The selected slot is no longer available. Please choose another slot.');
+                bookingErrorState.classList.remove('d-none');
+
+              
+                loadSlots();
             })
             .catch(function () {
                 bookingErrorState.textContent = 'Something went wrong while booking your appointment.';
                 bookingErrorState.classList.remove('d-none');
             })
             .finally(function () {
-                isBooking = false;
-                confirmBtn.disabled = false;
-                confirmBtnText.classList.remove('d-none');
-                confirmBtnSpinner.classList.add('d-none');
+                if (redirecting) {
+                    return; 
+                }
+                resetButton();
             });
-    }
-
-    function showConfirmation(appointmentId) {
-        document.getElementById('confirmationDate').textContent = dateInput.value;
-        document.getElementById('confirmationTime').textContent =
-            selectedSlot.startTime + ' - ' + selectedSlot.endTime;
-        document.getElementById('confirmationId').textContent = '#' + appointmentId;
-        confirmationCard.classList.remove('d-none');
-        confirmationCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
 })();

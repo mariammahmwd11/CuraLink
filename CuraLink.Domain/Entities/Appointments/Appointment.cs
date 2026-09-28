@@ -1,6 +1,8 @@
 ﻿
+using CuraLink.Domain.Entities.Clinics;
 using CuraLink.Domain.Entities.Doctors;
 using CuraLink.Domain.Entities.Patients;
+using CuraLink.Domain.Entities.Payments;
 
 namespace CuraLink.Domain.Entities.Appointments;
 
@@ -25,5 +27,9 @@ public class Appointment
     public Doctor Doctor { get; set; } = null!;
 
     public Patient Patient { get; set; } = null!;
+    public Guid ClinicId { get; set; }
+
+    public Clinic Clinic { get; set; } = null!;
+    public Payment? Payment { get; set; }
 }
 

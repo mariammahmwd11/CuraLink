@@ -33,6 +33,9 @@ namespace CuraLink.Infrastructure.Migrations
                     b.Property<DateTime>("AppointmentDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<Guid>("ClinicId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
@@ -53,10 +56,13 @@ namespace CuraLink.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("ClinicId");
+
                     b.HasIndex("PatientId");
 
                     b.HasIndex("DoctorId", "AppointmentDate", "StartTime")
-                        .IsUnique();
+                        .IsUnique()
+                        .HasFilter("[Status] <> 3");
 
                     b.ToTable("Appointments");
                 });
@@ -410,6 +416,54 @@ namespace CuraLink.Infrastructure.Migrations
                     b.ToTable("Patients");
                 });
 
+            modelBuilder.Entity("CuraLink.Domain.Entities.Payments.Payment", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<decimal>("Amount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("AppointmentId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Currency")
+                        .IsRequired()
+                        .HasMaxLength(3)
+                        .HasColumnType("nvarchar(3)");
+
+                    b.Property<DateTime?>("PaidAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<string>("StripeSessionId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("TransactionId")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AppointmentId")
+                        .IsUnique();
+
+                    b.HasIndex("TransactionId")
+                        .IsUnique()
+                        .HasFilter("[TransactionId] IS NOT NULL");
+
+                    b.ToTable("Payments");
+                });
+
             modelBuilder.Entity("CuraLink.Domain.Entities.Prescriptions.DosageSchedule", b =>
                 {
                     b.Property<Guid>("Id")
@@ -709,6 +763,12 @@ namespace CuraLink.Infrastructure.Migrations
 
             modelBuilder.Entity("CuraLink.Domain.Entities.Appointments.Appointment", b =>
                 {
+                    b.HasOne("CuraLink.Domain.Entities.Clinics.Clinic", "Clinic")
+                        .WithMany()
+                        .HasForeignKey("ClinicId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("CuraLink.Domain.Entities.Doctors.Doctor", "Doctor")
                         .WithMany()
                         .HasForeignKey("DoctorId")
@@ -720,6 +780,8 @@ namespace CuraLink.Infrastructure.Migrations
                         .HasForeignKey("PatientId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.Navigation("Clinic");
 
                     b.Navigation("Doctor");
 
@@ -838,6 +900,17 @@ namespace CuraLink.Infrastructure.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("CuraLink.Domain.Entities.Payments.Payment", b =>
+                {
+                    b.HasOne("CuraLink.Domain.Entities.Appointments.Appointment", "Appointment")
+                        .WithOne("Payment")
+                        .HasForeignKey("CuraLink.Domain.Entities.Payments.Payment", "AppointmentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Appointment");
+                });
+
             modelBuilder.Entity("CuraLink.Domain.Entities.Prescriptions.DosageSchedule", b =>
                 {
                     b.HasOne("CuraLink.Domain.Entities.Prescriptions.PrescriptionItem", "PrescriptionItem")
@@ -928,6 +1001,11 @@ namespace CuraLink.Infrastructure.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("CuraLink.Domain.Entities.Appointments.Appointment", b =>
+                {
+                    b.Navigation("Payment");
                 });
 
             modelBuilder.Entity("CuraLink.Domain.Entities.Doctors.Doctor", b =>

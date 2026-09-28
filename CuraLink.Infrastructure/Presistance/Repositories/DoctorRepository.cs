@@ -122,14 +122,14 @@ namespace CuraLink.Infrastructure.Presistance.Repositories
              .FirstOrDefault(),
 
          Clinic = d.Clinics
-             .OrderBy(c => c.ConsultationPrice)
-             .Select(c => new
-             {
-                 c.Address,
-                 c.ConsultationPrice
-             })
-             .FirstOrDefault(),
-
+    .OrderBy(c => c.ConsultationPrice)
+    .Select(c => new
+    {
+        c.Id,
+        c.Address,
+        c.ConsultationPrice
+    })
+    .FirstOrDefault(),
          Rating = d.Reviews
              .Select(r => (double?)r.Rating)
              .Average() ?? 0
@@ -137,27 +137,29 @@ namespace CuraLink.Infrastructure.Presistance.Repositories
      .ToListAsync(cancellationToken);
 
             var items = doctors
-      .Select(d => new DoctorSearchDto
-      {
-          Id = d.Id,
+     .Select(d => new DoctorSearchDto
+     {
+         Id = d.Id,
 
-          FullName = $"{d.FirstName} {d.LastName}".Trim(),
+         ClinicId = d.Clinic?.Id ?? Guid.Empty,
 
-          Specialty = d.Specialty,
+         FullName = $"{d.FirstName} {d.LastName}".Trim(),
 
-          Address = d.Clinic?.Address ?? string.Empty,
+         Specialty = d.Specialty,
 
-          Governorate = ExtractGovernorate(
-              d.Clinic?.Address),
+         Address = d.Clinic?.Address ?? string.Empty,
 
-          ConsultationPrice =
-              d.Clinic?.ConsultationPrice ?? 0,
+         Governorate = ExtractGovernorate(
+             d.Clinic?.Address),
 
-          Rating = Math.Round(d.Rating, 1),
+         ConsultationPrice =
+             d.Clinic?.ConsultationPrice ?? 0,
 
-          AvailableDates = new List<DateTime>()
-      })
-      .ToList();
+         Rating = Math.Round(d.Rating, 1),
+
+         AvailableDates = new List<DateTime>()
+     })
+     .ToList();
 
             return new PagedResult<DoctorSearchDto>
             {

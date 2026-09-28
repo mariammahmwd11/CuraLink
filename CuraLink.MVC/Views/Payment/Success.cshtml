@@ -1,0 +1,78 @@
+﻿@model CuraLink.MVC.Models.Patients.AppointmentDetailsViewModel
+@{
+    ViewData["Title"] = "Payment Successful";
+    var badgeClass = Model.IsPaid ? "bg-success" : "bg-warning text-dark";
+}
+
+<div class="container py-5">
+    <div class="text-center">
+        @if (Model.IsPaid)
+        {
+            <div class="mb-4">
+                <i class="bi bi-check-circle-fill text-success" style="font-size: 80px;"></i>
+            </div>
+            <h1 class="fw-bold">Payment Successful!</h1>
+            <p class="text-muted mt-3">Your appointment has been paid successfully.</p>
+        }
+        else
+        {
+            <div class="mb-4">
+                <i class="bi bi-hourglass-split text-warning" style="font-size: 80px;"></i>
+            </div>
+            <h1 class="fw-bold">Confirming your payment…</h1>
+            <p class="text-muted mt-3">
+                We're waiting for the payment confirmation. This page will refresh automatically.
+            </p>
+        }
+    </div>
+
+    <div class="card shadow-sm mx-auto mt-4" style="max-width: 480px;">
+        <div class="card-body">
+            <dl class="row mb-0">
+                <dt class="col-5">Doctor</dt>
+                <dd class="col-7">@Model.DoctorName</dd>
+
+                @if (!string.IsNullOrWhiteSpace(Model.ClinicName))
+                {
+                    <dt class="col-5">Clinic</dt>
+                    <dd class="col-7">@Model.ClinicName</dd>
+                }
+
+                <dt class="col-5">Date</dt>
+                <dd class="col-7">@Model.AppointmentDate.ToString("yyyy-MM-dd")</dd>
+
+                <dt class="col-5">Time</dt>
+                <dd class="col-7">@Model.StartTime.ToString(@"hh\:mm") - @Model.EndTime.ToString(@"hh\:mm")</dd>
+
+                <dt class="col-5">Appointment ID</dt>
+                <dd class="col-7">#@Model.AppointmentId</dd>
+
+                <dt class="col-5">Consultation Fee</dt>
+                <dd class="col-7">@Model.ConsultationPrice.ToString("C")</dd>
+
+                <dt class="col-5">Status</dt>
+                <dd class="col-7"><span class="badge @badgeClass">@Model.AppointmentStatus</span></dd>
+            </dl>
+        </div>
+    </div>
+
+    <div class="text-center">
+        <a asp-controller="Patient" asp-action="Dashboard" class="btn btn-primary mt-4">
+            Back to Patient Dashboard
+        </a>
+    </div>
+</div>
+
+@if (!Model.IsPaid)
+{
+    <script>
+        // الـ webhook ممكن يوصل بعد الـ redirect بثواني، فبنعيد قراءة الحالة الحقيقية من الـ backend.
+        (function () {
+            var key = 'paymentPoll_@Model.AppointmentId';
+            var attempts = parseInt(sessionStorage.getItem(key) || '0', 10);
+            if (attempts >= 10) return;
+            sessionStorage.setItem(key, String(attempts + 1));
+            setTimeout(function () { window.location.reload(); }, 3000);
+        })();
+    </script>
+}

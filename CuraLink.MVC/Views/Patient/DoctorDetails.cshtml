@@ -6,6 +6,7 @@
 
 <div class="patient-profile-card" id="doctorInfoCard"
      data-doctor-id="@Model.DoctorId"
+     data-clinic-id="@Model.ClinicId"
      data-doctor-name="@Model.DoctorName">
 
     <div class="patient-profile-header">
@@ -68,32 +69,7 @@
     <div id="bookingErrorState" class="alert alert-danger d-none mt-3"></div>
 </div>
 
-<div id="confirmationCard" class="patient-profile-card mt-3 d-none">
-    <div class="text-center">
-        <i class="bi bi-check-circle-fill text-success" style="font-size:2.5rem;"></i>
-        <h3 class="mt-2">Appointment Confirmed</h3>
-    </div>
-    <div class="patient-profile-field">
-        <span class="patient-profile-label">Doctor</span>
-        <span class="patient-profile-value">@Model.DoctorName</span>
-    </div>
-    <div class="patient-profile-field">
-        <span class="patient-profile-label">Date</span>
-        <span class="patient-profile-value" id="confirmationDate"></span>
-    </div>
-    <div class="patient-profile-field">
-        <span class="patient-profile-label">Time</span>
-        <span class="patient-profile-value" id="confirmationTime"></span>
-    </div>
-    <div class="patient-profile-field">
-        <span class="patient-profile-label">Appointment ID</span>
-        <span class="patient-profile-value" id="confirmationId"></span>
-    </div>
-    <div class="patient-profile-field">
-        <span class="patient-profile-label">Status</span>
-        <span class="patient-profile-value">Confirmed</span>
-    </div>
-</div>
+
 
 <style>
     .slots-grid {
