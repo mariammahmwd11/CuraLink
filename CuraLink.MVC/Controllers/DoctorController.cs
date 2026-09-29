@@ -1,8 +1,9 @@
-﻿using System.Security.Claims;
-using CuraLink.MVC.Models.Doctors;
+﻿using CuraLink.MVC.Models.Doctors;
+using CuraLink.MVC.Models.Patients;
 using CuraLink.MVC.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace CuraLink.MVC.Controllers
 {
@@ -11,13 +12,15 @@ namespace CuraLink.MVC.Controllers
     {
         private readonly ClinicApiClient _clinicApiClient;
         private readonly DoctorScheduleApiClient _scheduleApiClient;
+        private readonly AppointmentApiClient _appointmentApiClient;
 
         public DoctorController(
             ClinicApiClient clinicApiClient,
-            DoctorScheduleApiClient scheduleApiClient)
+            DoctorScheduleApiClient scheduleApiClient,AppointmentApiClient appointmentApiClient)
         {
             _clinicApiClient = clinicApiClient;
             _scheduleApiClient = scheduleApiClient;
+            _appointmentApiClient = appointmentApiClient;
         }
 
         [HttpGet]
@@ -25,7 +28,24 @@ namespace CuraLink.MVC.Controllers
         {
             return RedirectToAction(nameof(Dashboard));
         }
-
+        [HttpGet]
+        public async Task<IActionResult> Appointments(CancellationToken cancellationToken)
+        {
+            try
+            {
+                var appointments = await _appointmentApiClient.GetMyAppointmentsAsync(cancellationToken);
+                return View(appointments);
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return RedirectToAction("Login", "Auth");
+            }
+            catch (HttpRequestException)
+            {
+                TempData["ErrorMessage"] = "Unable to load your appointments. Please try again.";
+                return View(new List<MyAppointmentViewModel>());
+            }
+        }
         [HttpGet]
         public async Task<IActionResult> Dashboard()
         {

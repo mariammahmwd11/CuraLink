@@ -2,45 +2,43 @@
 using MediatR;
 using System.Security.Claims;
 
-namespace CuraLink.API.Endpoints.Chat
+namespace CuraLink.API.Endpoints.Chat;
+
+public static class SendChatMessageEndpoint
 {
-    public static class SendChatMessageEndpoint
+    public static void MapSendChatMessageEndpoint(
+        this WebApplication app)
     {
-        public static void MapSendChatMessageEndpoint(
-            this WebApplication app)
-        {
-            app.MapPost(
-                "/api/chat/{appointmentId:int}/messages",
-                async (
-                    int appointmentId,
-                    SendChatMessageRequest request,
-                    ClaimsPrincipal user,
-                    ISender sender,
-                    CancellationToken cancellationToken) =>
+        app.MapPost(
+            "/api/chat/{appointmentId:int}/messages",
+            async (
+                int appointmentId,
+                SendChatMessageRequest request,
+                ClaimsPrincipal user,
+                ISender sender,
+                CancellationToken cancellationToken) =>
+            {
+                var userId = user.FindFirstValue("UserId");
+
+                if (string.IsNullOrEmpty(userId))
                 {
-                    var userId = user.FindFirstValue(
-                        ClaimTypes.NameIdentifier);
+                    return Results.Unauthorized();
+                }
 
-                    if (string.IsNullOrEmpty(userId))
-                    {
-                        return Results.Unauthorized();
-                    }
+                var command = new SendChatMessageCommand(
+                    appointmentId,
+                    request.Content,
+                    userId);
 
-                    var command = new SendChatMessageCommand(
-                        appointmentId,
-                        request.Content,
-                        userId);
+                var result = await sender.Send(
+                    command,
+                    cancellationToken);
 
-                    var result = await sender.Send(
-                        command,
-                        cancellationToken);
-
-                    return Results.Ok(result);
-                })
-                .RequireAuthorization();
-        }
+                return Results.Ok(result);
+            })
+            .RequireAuthorization();
     }
-
-    public record SendChatMessageRequest(
-        string Content);
 }
+
+public record SendChatMessageRequest(
+    string Content);

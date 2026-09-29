@@ -38,6 +38,7 @@ namespace CuraLink.Application.Common.Interfaces.Presistence
         DbSet<Appointment> Appointments { get; }
         DbSet<Payment> Payments { get; }
         DbSet<ChatMessage> ChatMessages { get; }
+
         
 
         Task<int> SaveChangesAsync(

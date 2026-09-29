@@ -1,0 +1,98 @@
+﻿@{
+    ViewData["Title"] = "Consultation Chat";
+    var appointmentId = (int)ViewBag.AppointmentId;
+ 
+    Layout = User.IsInRole("Doctor") ? "~/Views/Shared/_DoctorLayout.cshtml"
+                                     : "~/Views/Shared/_PatientLayout.cshtml";
+
+}
+
+<link rel="stylesheet" href="~/css/chat.css" asp-append-version="true" />
+
+@Html.AntiForgeryToken()
+
+<div class="chat-page">
+    <div class="chat-card" id="chatCard">
+
+        <!-- Header -->
+        <div class="chat-header">
+            <a href="javascript:history.back()" class="chat-back" aria-label="Back">
+                <i class="bi bi-arrow-left"></i><span aria-hidden="true">&larr;</span>
+            </a>
+            <div class="chat-header-avatar" aria-hidden="true">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" /></svg>
+            </div>
+            <div class="chat-header-info">
+                <div class="chat-title">Consultation Chat</div>
+                <div class="chat-subtitle">Appointment #@appointmentId</div>
+            </div>
+            <div class="chat-status" id="chatStatus" title="Realtime status">
+                <span class="chat-status-dot" id="chatStatusDot"></span>
+                <span class="chat-status-text" id="chatStatusText">Connecting</span>
+            </div>
+        </div>
+
+        <!-- Error banner -->
+        <div class="chat-banner" id="chatBanner" role="alert" hidden>
+            <span id="chatBannerText"></span>
+            <button type="button" class="chat-banner-close" id="chatBannerClose" aria-label="Dismiss">&times;</button>
+        </div>
+
+        <!-- Messages -->
+        <div class="chat-messages" id="chatMessages" aria-live="polite">
+            <div class="chat-state" id="chatLoading">
+                <div class="chat-spinner"></div>
+                <div class="chat-state-title">Loading conversation...</div>
+            </div>
+
+            <div class="chat-state" id="chatError" hidden>
+                <div class="chat-state-icon chat-state-icon--error">!</div>
+                <div class="chat-state-title">Unable to load the conversation.</div>
+                <div class="chat-state-text">Please try again.</div>
+                <button type="button" class="chat-retry" id="chatRetry">Try again</button>
+            </div>
+
+            <div class="chat-state" id="chatEmpty" hidden>
+                <div class="chat-state-icon">
+                    <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" /><path d="M12 7v6M9 10h6" /></svg>
+                </div>
+                <div class="chat-state-title">No messages yet</div>
+                <div class="chat-state-text">Start the conversation with your doctor.</div>
+            </div>
+        </div>
+
+        <!-- Composer -->
+        <div class="chat-composer">
+            <div class="chat-composer-row">
+                <textarea id="chatInput" rows="1" maxlength="2000"
+                          placeholder="Type your message..." aria-label="Message"></textarea>
+                <button type="button" id="chatSend" class="chat-send" aria-label="Send message" disabled>
+                    <span class="chat-send-label">Send</span>
+                    <svg class="chat-send-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13" /><polygon points="22 2 15 22 11 13 2 9 22 2" /></svg>
+                </button>
+            </div>
+            <div class="chat-composer-meta">
+                <span class="chat-hint">Enter to send &middot; Shift+Enter for new line</span>
+                <span class="chat-counter" id="chatCounter">0 / 2000</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        window.chatConfig = @Json.Serialize(new
+            {
+                        appointmentId = appointmentId,
+                        currentUserId = (string?)ViewBag.CurrentUserId,
+                        maxLength = 2000,
+                        urls = new
+                {
+                                messages = Url.Action("Messages", "Chat"),
+                                send = Url.Action("Send", "Chat"),
+                                markRead = Url.Action("MarkRead", "Chat")
+                }
+            });
+    </script>
+    <script src="~/js/chat.js" asp-append-version="true"></script>
+}

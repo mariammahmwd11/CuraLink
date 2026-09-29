@@ -283,7 +283,22 @@ public class AppointmentApiClient
                 "You are not authorized to cancel this appointment.");
         }
     }
+    public async Task<List<MyAppointmentViewModel>> GetMyAppointmentsAsync(
+    CancellationToken cancellationToken = default)
+{
+    using var request = CreateRequest(HttpMethod.Get, "/api/appointments/my");
 
+    var response = await _httpClient.SendAsync(request, cancellationToken);
+
+    if (response.StatusCode == HttpStatusCode.Unauthorized)
+        throw new UnauthorizedAccessException("You are not authorized to view your appointments.");
+
+    response.EnsureSuccessStatusCode();
+
+    return await response.Content
+        .ReadFromJsonAsync<List<MyAppointmentViewModel>>(JsonOptions, cancellationToken)
+        ?? [];
+}
     // ============================================================
     // REQUEST HELPER
     // ============================================================

@@ -12,6 +12,9 @@
 
     bool isClinicsActive =
         currentController.Equals("Clinic", StringComparison.OrdinalIgnoreCase);
+    bool isAppointmentsActive =
+currentController.Equals("Doctor", StringComparison.OrdinalIgnoreCase)
+&& currentAction.Equals("Appointments", StringComparison.OrdinalIgnoreCase);
 }
 
 <!DOCTYPE html>
@@ -75,17 +78,12 @@
                 </a>
 
                 <!-- Appointments -->
-                <a class="doctor-nav-link disabled"
-                   href="#"
-                   tabindex="-1"
-                   aria-disabled="true">
+                <a class="doctor-nav-link @(isAppointmentsActive ? "active" : "")"
+                   asp-controller="Doctor"
+                   asp-action="Appointments">
 
                     <i class="bi bi-calendar-check"></i>
                     Appointments
-
-                    <span class="doctor-nav-soon">
-                        Soon
-                    </span>
                 </a>
 
                 <!-- Patients -->
@@ -214,6 +212,8 @@
     </script>
 
     @await RenderSectionAsync("Scripts", required: false)
+    <script src="~/lib/signalr/signalr.js"></script>
+    <script src="~/js/realtime.js" asp-append-version="true"></script>
 
 </body>
 </html>

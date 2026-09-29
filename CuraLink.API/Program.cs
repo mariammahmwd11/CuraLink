@@ -116,10 +116,14 @@ app.MapGetProfileEndpoint();
 app.MapBookAppointmentEndpoint();
 app.MapCancelPendingAppointmentEndpoint();
 app.MapGetMyAppointmentEndpoint();
+app.MapGetMyAppointmentsEndpoint();
+
 //payment api endpoints
 app.MapCreateCheckoutSessionEndpoint();
 app.MapStripeWebhookEndpoint();
 //chat api endpoints
 app.MapSendChatMessageEndpoint();
+app.MapGetChatHistoryEndpoint();
+app.MapMarkMessagesAsReadEndpoint();
 
 app.Run();

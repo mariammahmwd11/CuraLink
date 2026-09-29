@@ -71,8 +71,26 @@ namespace CuraLink.MVC.Controllers
                 return View(model);
             }
         }
+        [HttpGet]
+        public async Task<IActionResult> Appointments(CancellationToken cancellationToken)
+        {
+            try
+            {
+                var appointments = await _appointmentApiClient.GetMyAppointmentsAsync(cancellationToken);
+                return View(appointments);
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return RedirectToAction("Login", "Auth");
+            }
+            catch (HttpRequestException)
+            {
+                TempData["ErrorMessage"] = "Unable to load your appointments. Please try again.";
+                return View(new List<MyAppointmentViewModel>());
+            }
+        }
 
-       
+
         // =========================================================
         // Medical Records
         // =========================================================

@@ -185,9 +185,9 @@
 
                 <!-- Not implemented yet — no backing controller/API. Left visible
                      per the target IA but inert, so nothing 404s. -->
-                <a class="patient-nav-link disabled" href="#" tabindex="-1" aria-disabled="true">
+                <a class="patient-nav-link @(isActive("Appointments") ? "active" : "")"
+                   asp-controller="Patient" asp-action="Appointments">
                     <i class="bi bi-calendar-check"></i> Appointments
-                    <span class="patient-nav-soon">Soon</span>
                 </a>
             </nav>
 
