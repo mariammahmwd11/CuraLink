@@ -1,6 +1,7 @@
 ﻿using CuraLink.Application.Common.Interfaces.Presistence;
 using CuraLink.Domain.Entities;
 using CuraLink.Domain.Entities.Appointments;
+using CuraLink.Domain.Entities.ChatMessages;
 using CuraLink.Domain.Entities.Clinics;
 using CuraLink.Domain.Entities.Doctors;
 using CuraLink.Domain.Entities.MedicalHistories;
@@ -46,6 +47,7 @@ namespace CuraLink.Infrastructure.Presistance.Data
         public DbSet<Payment> Payments => Set<Payment>();
 
         public DbSet<Appointment> Appointments => Set<Appointment>();
+        public DbSet<ChatMessage> ChatMessages => Set<ChatMessage>();
 
         
 
@@ -182,7 +184,37 @@ namespace CuraLink.Infrastructure.Presistance.Data
                     .HasForeignKey(d => d.MedicalHistoryId)
                     .OnDelete(DeleteBehavior.Cascade);
             });
-            
+            builder.Entity<ChatMessage>(entity =>
+            {
+                entity.HasKey(x => x.Id);
+
+                entity.Property(x => x.SenderId)
+                    .IsRequired();
+
+                entity.Property(x => x.ReceiverId)
+                    .IsRequired();
+
+                entity.Property(x => x.Content)
+                    .IsRequired()
+                    .HasMaxLength(2000);
+
+                entity.Property(x => x.SentAt)
+                    .IsRequired();
+
+                entity.Property(x => x.IsRead)
+                    .IsRequired();
+
+                entity.HasOne(x => x.Appointment)
+                    .WithMany(x => x.ChatMessages)
+                    .HasForeignKey(x => x.AppointmentId)
+                    .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasIndex(x => new
+                {
+                    x.AppointmentId,
+                    x.SentAt
+                });
+            });
 
         }
     }

@@ -1,6 +1,7 @@
 using CuraLink.API.Endpoints.Admin;
 using CuraLink.API.Endpoints.Appointments;
 using CuraLink.API.Endpoints.AuthEndPoints;
+using CuraLink.API.Endpoints.Chat;
 using CuraLink.API.Endpoints.Clinics;
 using CuraLink.API.Endpoints.DoctorEndpoints;
 using CuraLink.API.Endpoints.Doctors;
@@ -108,7 +109,6 @@ app.MapMarkAllNotificationsAsReadEndpoint();
 app.MapGetUnreadNotificationCountEndpoint();
 app.MapGetNotificationSubscriptionStatusEndpoint();
 app.MapGetMyNotificationsEndpoint();
-
 //profile api endpoints
 app.MapUpdateProfileEndpoint();
 app.MapGetProfileEndpoint();
@@ -119,5 +119,7 @@ app.MapGetMyAppointmentEndpoint();
 //payment api endpoints
 app.MapCreateCheckoutSessionEndpoint();
 app.MapStripeWebhookEndpoint();
+//chat api endpoints
+app.MapSendChatMessageEndpoint();
 
 app.Run();

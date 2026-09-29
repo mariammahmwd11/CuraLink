@@ -2,6 +2,7 @@
 using CuraLink.API.Infrastructure.SignalR;
 using CuraLink.Application.Common.Interfaces.Authentication;
 using CuraLink.Application.Common.Interfaces.BackgroundJobs;
+using CuraLink.Application.Common.Interfaces.Chat;
 using CuraLink.Application.Common.Interfaces.Email;
 using CuraLink.Application.Common.Interfaces.FileStorage;
 using CuraLink.Application.Common.Interfaces.Identity;
@@ -94,9 +95,9 @@ namespace CuraLink.Infrastructure
             services.AddScoped<IPrescriptionPdfService, PrescriptionPdfService>();
             services.AddScoped<INotificationRepository, NotificationRepository>();
             services.AddScoped<IUserNameProvider, UserNameProvider>();
+            services.AddScoped<IChatRealtimeService, ChatRealtimeService>();
 
-
-           services.AddSignalR();
+            services.AddSignalR();
 
             services.AddSingleton<IUserIdProvider, UserIdProvider>();
 

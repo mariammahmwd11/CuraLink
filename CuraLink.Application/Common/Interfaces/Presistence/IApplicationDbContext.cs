@@ -1,5 +1,6 @@
 ﻿using CuraLink.Domain.Entities;
 using CuraLink.Domain.Entities.Appointments;
+using CuraLink.Domain.Entities.ChatMessages;
 using CuraLink.Domain.Entities.Clinics;
 using CuraLink.Domain.Entities.Doctors;
 using CuraLink.Domain.Entities.MedicalHistories;
@@ -36,6 +37,7 @@ namespace CuraLink.Application.Common.Interfaces.Presistence
         DbSet<DoctorAvailability> DoctorAvailabilities { get; }
         DbSet<Appointment> Appointments { get; }
         DbSet<Payment> Payments { get; }
+        DbSet<ChatMessage> ChatMessages { get; }
         
 
         Task<int> SaveChangesAsync(

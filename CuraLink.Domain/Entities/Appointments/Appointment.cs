@@ -1,4 +1,5 @@
 ﻿
+using CuraLink.Domain.Entities.ChatMessages;
 using CuraLink.Domain.Entities.Clinics;
 using CuraLink.Domain.Entities.Doctors;
 using CuraLink.Domain.Entities.Patients;
@@ -31,5 +32,7 @@ public class Appointment
 
     public Clinic Clinic { get; set; } = null!;
     public Payment? Payment { get; set; }
+    public ICollection<ChatMessage> ChatMessages { get; set; }
+    = new List<ChatMessage>();
 }
 
