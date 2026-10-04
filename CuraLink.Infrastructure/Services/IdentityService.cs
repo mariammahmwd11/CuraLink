@@ -136,6 +136,126 @@ namespace CuraLink.Infrastructure.Services
                 user.LastName
             );
         }
+        public async Task<string?> GetUserIdByEmailAsync(string email)
+        {
+            var user = await userManager.FindByEmailAsync(email);
+
+            return user?.Id;
         }
+
+        public async Task<bool> IsUserInRoleAsync(
+            string userId,
+            string role)
+        {
+            var user = await userManager.FindByIdAsync(userId);
+
+            if (user == null)
+                return false;
+
+            return await userManager.IsInRoleAsync(user, role);
+        }
+
+        public async Task<(bool Succeeded, string[] Errors)>
+            AddUserToRoleAsync(
+                string userId,
+                string role)
+        {
+            var user = await userManager.FindByIdAsync(userId);
+
+            if (user == null)
+            {
+                return (
+                    false,
+                    new[] { "User not found." });
+            }
+
+            if (await userManager.IsInRoleAsync(user, role))
+            {
+                return (
+                    true,
+                    Array.Empty<string>());
+            }
+
+            var result = await userManager.AddToRoleAsync(
+                user,
+                role);
+
+            if (!result.Succeeded)
+            {
+                return (
+                    false,
+                    result.Errors
+                        .Select(e => e.Description)
+                        .ToArray());
+            }
+
+            return (
+                true,
+                Array.Empty<string>());
+        }
+        public async Task<(bool Succeeded, string[] Errors, string UserId)>
+    CreateReceptionistAsync(
+        string firstName,
+        string lastName,
+        string email,
+        string phone,
+        string password)
+        {
+            var existingUser = await userManager.FindByEmailAsync(email);
+
+            if (existingUser != null)
+            {
+                return (
+                    false,
+                    new[] { "Email already exists." },
+                    string.Empty);
+            }
+
+            var user = new ApplicationUser
+            {
+                UserName = email,
+                Email = email,
+                PhoneNumber = phone,
+                FirstName = firstName,
+                LastName = lastName,
+                IsActive = true
+            };
+
+            var result = await userManager.CreateAsync(
+                user,
+                password);
+
+            if (!result.Succeeded)
+            {
+                return (
+                    false,
+                    result.Errors
+                        .Select(e => e.Description)
+                        .ToArray(),
+                    string.Empty);
+            }
+
+            var roleResult = await userManager.AddToRoleAsync(
+                user,
+                "Receptionist");
+
+            if (!roleResult.Succeeded)
+            {
+                await userManager.DeleteAsync(user);
+
+                return (
+                    false,
+                    roleResult.Errors
+                        .Select(e => e.Description)
+                        .ToArray(),
+                    string.Empty);
+            }
+
+            return (
+                true,
+                Array.Empty<string>(),
+                user.Id);
+        }
+    }
     }
 

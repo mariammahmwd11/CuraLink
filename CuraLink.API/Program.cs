@@ -2,6 +2,7 @@ using CuraLink.API.Endpoints.Admin;
 using CuraLink.API.Endpoints.Appointments;
 using CuraLink.API.Endpoints.AuthEndPoints;
 using CuraLink.API.Endpoints.Chat;
+using CuraLink.API.Endpoints.ClinicAssistants;
 using CuraLink.API.Endpoints.Clinics;
 using CuraLink.API.Endpoints.DoctorEndpoints;
 using CuraLink.API.Endpoints.Doctors;
@@ -13,10 +14,10 @@ using CuraLink.API.Endpoints.Patients;
 using CuraLink.API.Endpoints.Payments;
 using CuraLink.API.Endpoints.Prescriptions;
 using CuraLink.API.Endpoints.Profile;
-using CuraLink.API.Endpoints.ClinicAssistants;
 using CuraLink.API.Exceptions;
 using CuraLink.Application;
 using CuraLink.Application.Common.Interfaces.AI;
+using CuraLink.Application.Features.ClinicAssistants.Commands.AcceptClinicAssistantInvitation;
 using CuraLink.Infrastructure;
 using CuraLink.Infrastructure.Identity;
 using CuraLink.Infrastructure.Services.AI;
@@ -140,5 +141,8 @@ app.MapMarkMessagesAsReadEndpoint();
 app.MapAskDrugAssistantEndpoint();
 //clinic assistant api endpoints
 app.MapInviteClinicAssistantEndpoint();
+app.MapGetClinicAssistantInvitationEndpoint();
+app.MapRegisterClinicAssistantEndpoint();
+app.MapAcceptClinicAssistantInvitationEndpoint();
 
 app.Run();
