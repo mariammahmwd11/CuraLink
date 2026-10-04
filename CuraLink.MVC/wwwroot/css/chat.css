@@ -1,14 +1,14 @@
 ﻿:root {
-    --chat-primary: #0d9488;
-    --chat-primary-dark: #0f766e;
-    --chat-primary-soft: #e6f6f4;
-    --chat-bg: #f4f7f9;
-    --chat-surface: #ffffff;
-    --chat-border: #e3e9ee;
-    --chat-text: #1f2d3a;
-    --chat-muted: #7a8b99;
-    --chat-in-bg: #ffffff;
-    --chat-danger: #dc3545;
+    --chat-primary: var(--cl-primary, #2f6fed);
+    --chat-primary-dark: var(--cl-primary-dark, #1a3fae);
+    --chat-primary-soft: var(--cl-primary-light, #eaf1ff);
+    --chat-bg: var(--cl-bg, #f5f7fb);
+    --chat-surface: var(--cl-surface, #ffffff);
+    --chat-border: var(--cl-border, #e2e7f2);
+    --chat-text: var(--cl-text, #14213d);
+    --chat-muted: var(--cl-text-muted, #5b6b85);
+    --chat-in-bg: var(--cl-surface, #ffffff);
+    --chat-danger: var(--cl-danger, #c0392b);
     --chat-offset: 170px; /* layout navbar + footer allowance */
 }
 
@@ -216,7 +216,7 @@
 }
 
 .chat-ticks--read {
-    color: #b9f5ee;
+    color: #cfe0ff;
     font-weight: 600;
 }
 
@@ -323,7 +323,7 @@
 
     #chatInput:focus {
         border-color: var(--chat-primary);
-        box-shadow: 0 0 0 3px rgba(13, 148, 136, .15);
+        box-shadow: 0 0 0 3px rgba(47, 111, 237, .15);
         background: #fff;
     }
 

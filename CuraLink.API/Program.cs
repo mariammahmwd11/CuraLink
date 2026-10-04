@@ -5,6 +5,7 @@ using CuraLink.API.Endpoints.Chat;
 using CuraLink.API.Endpoints.Clinics;
 using CuraLink.API.Endpoints.DoctorEndpoints;
 using CuraLink.API.Endpoints.Doctors;
+using CuraLink.API.Endpoints.DrugAssistant;
 using CuraLink.API.Endpoints.Notifications;
 using CuraLink.API.Endpoints.PatientEndpoints;
 using CuraLink.API.Endpoints.PatientEndPoints;
@@ -13,16 +14,17 @@ using CuraLink.API.Endpoints.Payments;
 using CuraLink.API.Endpoints.Prescriptions;
 using CuraLink.API.Endpoints.Profile;
 using CuraLink.API.Exceptions;
-
-using CuraLink.API.Infrastructure.SignalR;
 using CuraLink.Application;
+using CuraLink.Application.Common.Interfaces.AI;
 using CuraLink.Infrastructure;
 using CuraLink.Infrastructure.Identity;
+using CuraLink.Infrastructure.Services.AI;
+using CuraLink.Infrastructure.Services.AI.DrugData.OpenFDA;
+using CuraLink.Infrastructure.Services.AI.Gemini;
 using CuraLink.Infrastructure.Services.Notifications;
 using CuraLink.Infrastructure.SignalR;
 using Hangfire;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.SignalR;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -41,6 +43,14 @@ builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();
 builder.Services.Configure<WebPushSettings>(
     builder.Configuration.GetSection("WebPush"));
+
+
+//ai
+builder.Services.Configure<GeminiOptions>(
+    builder.Configuration.GetSection(GeminiOptions.SectionName));
+
+builder.Services.AddHttpClient<GeminiService>();
+builder.Services.AddHttpClient<OpenFDAService>();
 
 var app = builder.Build();
 //hangfire dashboard
@@ -125,5 +135,7 @@ app.MapStripeWebhookEndpoint();
 app.MapSendChatMessageEndpoint();
 app.MapGetChatHistoryEndpoint();
 app.MapMarkMessagesAsReadEndpoint();
+//drug assistant api endpoints
+app.MapAskDrugAssistantEndpoint();
 
 app.Run();

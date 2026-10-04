@@ -1,5 +1,6 @@
 ﻿using CloudinaryDotNet;
 using CuraLink.API.Infrastructure.SignalR;
+using CuraLink.Application.Common.Interfaces.AI;
 using CuraLink.Application.Common.Interfaces.Authentication;
 using CuraLink.Application.Common.Interfaces.BackgroundJobs;
 using CuraLink.Application.Common.Interfaces.Chat;
@@ -18,6 +19,7 @@ using CuraLink.Infrastructure.Presistance;
 using CuraLink.Infrastructure.Presistance.Data;
 using CuraLink.Infrastructure.Presistance.Repositories;
 using CuraLink.Infrastructure.Services;
+using CuraLink.Infrastructure.Services.AI;
 using CuraLink.Infrastructure.Services.Email;
 using CuraLink.Infrastructure.Services.Notifications;
 using CuraLink.Infrastructure.Services.Prescriptions;
@@ -96,6 +98,7 @@ namespace CuraLink.Infrastructure
             services.AddScoped<INotificationRepository, NotificationRepository>();
             services.AddScoped<IUserNameProvider, UserNameProvider>();
             services.AddScoped<IChatRealtimeService, ChatRealtimeService>();
+            services.AddScoped<IDrugAssistantService, DrugAssistantService>();
 
             services.AddSignalR();
 

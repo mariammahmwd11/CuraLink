@@ -1,0 +1,244 @@
+﻿/* Builds on chat.css (card, header, composer, states) but uses the
+   CuraLink dashboard theme (--cl-* tokens from patient/doctor dashboard css). */
+
+/* Theme: re-point chat.css variables to the dashboard blue palette */
+.da-page {
+    --chat-primary: var(--cl-primary, #2f6fed);
+    --chat-primary-dark: var(--cl-primary-dark, #1a3fae);
+    --chat-primary-soft: var(--cl-primary-light, #eaf1ff);
+    --chat-bg: var(--cl-bg, #f5f7fb);
+    --chat-surface: var(--cl-surface, #ffffff);
+    --chat-border: var(--cl-border, #e2e7f2);
+    --chat-text: var(--cl-text, #14213d);
+    --chat-muted: var(--cl-text-muted, #5b6b85);
+    --chat-danger: var(--cl-danger, #c0392b);
+    --chat-offset: 135px; /* topbar + content padding of the dashboard layouts */
+}
+
+/* Full-size: fill the whole content area instead of a narrow centered box */
+.chat-page.da-page {
+    max-width: none;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+.da-page .chat-card {
+    border-radius: var(--cl-radius-lg, 18px);
+    box-shadow: var(--cl-shadow-card, 0 10px 40px rgba(20, 60, 130, .08));
+}
+
+.da-page .da-body {
+    padding: 1.25rem 1.5rem;
+}
+
+.da-page .da-result,
+.da-page .da-notice {
+    width: 100%;
+    max-width: 980px;
+    margin: 0 auto;
+}
+
+@media (max-width: 991.98px) {
+    .da-page {
+        --chat-offset: 115px;
+    }
+}
+
+@media (max-width: 575.98px) {
+    .da-page .da-body {
+        padding: 1rem;
+    }
+}
+
+/* Composer textarea (chat.css styles #chatInput by id, so repeat it for #daInput) */
+#daInput {
+    flex: 1;
+    resize: none;
+    border: 1px solid var(--chat-border);
+    border-radius: 12px;
+    padding: .6rem .85rem;
+    font-size: .95rem;
+    line-height: 1.4;
+    max-height: 140px;
+    outline: none;
+    background: #fbfcfd;
+    transition: border-color .15s, box-shadow .15s;
+}
+
+    #daInput:focus {
+        border-color: var(--chat-primary);
+        box-shadow: 0 0 0 3px rgba(47, 111, 237, .15);
+        background: #fff;
+    }
+
+.da-body {
+    gap: .75rem;
+}
+
+.da-examples {
+    display: flex;
+    flex-direction: column;
+    gap: .5rem;
+    margin-top: .9rem;
+}
+
+.da-example {
+    background: var(--chat-surface);
+    border: 1px solid var(--chat-border);
+    color: var(--chat-primary-dark);
+    border-radius: 10px;
+    padding: .5rem .8rem;
+    font-size: .88rem;
+    cursor: pointer;
+    transition: border-color .15s, background .15s;
+}
+
+    .da-example:hover {
+        border-color: var(--chat-primary);
+        background: var(--chat-primary-soft);
+    }
+
+.da-result[hidden], .da-notice[hidden], .da-block[hidden] {
+    display: none;
+}
+
+.da-result {
+    display: flex;
+    flex-direction: column;
+    gap: .75rem;
+}
+
+.da-asked {
+    font-size: .82rem;
+    color: var(--chat-muted);
+    padding: 0 .25rem;
+}
+
+.da-block {
+    background: var(--chat-surface);
+    border: 1px solid var(--chat-border);
+    border-radius: 12px;
+    padding: .85rem 1rem;
+}
+
+.da-label {
+    font-size: .8rem;
+    font-weight: 600;
+    color: var(--chat-muted);
+    margin-bottom: .4rem;
+}
+
+.da-label--outside {
+    padding: 0 .25rem;
+}
+
+.da-medication {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--chat-text);
+}
+
+.da-text {
+    color: var(--chat-text);
+    line-height: 1.5;
+    font-size: .95rem;
+}
+
+.da-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .4rem;
+}
+
+.da-chip {
+    background: var(--chat-primary-soft);
+    color: var(--chat-primary-dark);
+    border-radius: 999px;
+    padding: .25rem .75rem;
+    font-size: .85rem;
+    font-weight: 500;
+}
+
+.da-list {
+    margin: 0;
+    padding-left: 1.2rem;
+    color: var(--chat-text);
+    font-size: .93rem;
+    line-height: 1.5;
+}
+
+    .da-list li + li {
+        margin-top: .3rem;
+    }
+
+#daInteractions {
+    display: flex;
+    flex-direction: column;
+    gap: .5rem;
+}
+
+.da-interaction {
+    background: #fff7e8;
+    border: 1px solid #f1dca8;
+    border-left: 4px solid #e0a21b;
+    border-radius: 12px;
+    padding: .8rem 1rem;
+    color: #3d2b00;
+}
+
+.da-interaction-label {
+    font-size: .78rem;
+    font-weight: 600;
+    color: #8a5a00;
+}
+
+.da-interaction-drug {
+    font-size: 1.05rem;
+    font-weight: 600;
+    margin-bottom: .25rem;
+}
+
+.da-interaction p {
+    margin: 0;
+    font-size: .93rem;
+    line-height: 1.45;
+}
+
+.da-notice {
+    border-radius: 12px;
+    padding: .85rem 1rem;
+    font-size: .93rem;
+    line-height: 1.45;
+    background: #eaf3fb;
+    border: 1px solid #cfe2f3;
+    color: #1d4e7a;
+}
+
+.da-notice--warning {
+    background: #fff7e8;
+    border-color: #f1dca8;
+    color: #7a4b00;
+}
+
+.da-disclaimer {
+    background: #eef2f5;
+    border-radius: 12px;
+    padding: .75rem 1rem;
+    font-size: .82rem;
+    color: var(--chat-muted);
+    line-height: 1.45;
+}
+
+.da-send-spinner {
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(255,255,255,.4);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: chat-spin .8s linear infinite;
+}
+
+    .da-send-spinner[hidden] {
+        display: none;
+    }

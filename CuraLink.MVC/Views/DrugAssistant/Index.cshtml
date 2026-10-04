@@ -1,0 +1,122 @@
+﻿@{
+    ViewData["Title"] = "AI Drug Assistant";
+
+    Layout = User.IsInRole("Doctor") ? "~/Views/Shared/_DoctorLayout.cshtml"
+                                     : "~/Views/Shared/_PatientLayout.cshtml";
+}
+
+<link rel="stylesheet" href="~/css/chat.css" asp-append-version="true" />
+<link rel="stylesheet" href="~/css/drug-assistant.css" asp-append-version="true" />
+
+@Html.AntiForgeryToken()
+
+<div class="chat-page da-page">
+    <div class="chat-card" id="daCard">
+
+        <!-- Header -->
+        <div class="chat-header">
+            <a href="javascript:history.back()" class="chat-back" aria-label="Back"><span aria-hidden="true">&larr;</span></a>
+            <div class="chat-header-avatar" aria-hidden="true">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.5 20.5 3.5 13.5a4.95 4.95 0 0 1 7-7l7 7a4.95 4.95 0 0 1-7 7z" /><path d="m8.5 8.5 7 7" /></svg>
+            </div>
+            <div class="chat-header-info">
+                <div class="chat-title">AI Drug Assistant</div>
+                <div class="chat-subtitle">Medication information, dosage, side effects and interactions</div>
+            </div>
+        </div>
+
+        <!-- Error banner -->
+        <div class="chat-banner" id="daBanner" role="alert" hidden>
+            <span id="daBannerText"></span>
+            <button type="button" class="chat-banner-close" id="daBannerClose" aria-label="Dismiss">&times;</button>
+        </div>
+
+        <!-- Body -->
+        <div class="chat-messages da-body" id="daBody" aria-live="polite">
+
+            <div class="chat-state" id="daIntro">
+                <div class="chat-state-icon">
+                    <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10.5 20.5 3.5 13.5a4.95 4.95 0 0 1 7-7l7 7a4.95 4.95 0 0 1-7 7z" /><path d="m8.5 8.5 7 7" /></svg>
+                </div>
+                <div class="chat-state-title">Ask about a medication</div>
+                <div class="chat-state-text">Try one of these examples:</div>
+                <div class="da-examples">
+                    <button type="button" class="da-example">Can I take warfarin with aspirin?</button>
+                    <button type="button" class="da-example">What are the side effects of ibuprofen?</button>
+                    <button type="button" class="da-example">What is the usual dosage of metformin?</button>
+                </div>
+            </div>
+
+            <div class="chat-state" id="daLoading" hidden>
+                <div class="chat-spinner"></div>
+                <div class="chat-state-title">Analyzing your question...</div>
+            </div>
+
+            <div class="da-notice" id="daNotice" hidden></div>
+
+            <div class="da-result" id="daResult" hidden>
+                <div class="da-asked" id="daAsked"></div>
+
+                <div class="da-block">
+                    <div class="da-label">Medication</div>
+                    <div class="da-medication" id="daMedication"></div>
+                </div>
+
+                <div class="da-block" id="daIngredientsBlock" hidden>
+                    <div class="da-label">Active ingredients</div>
+                    <div class="da-chips" id="daIngredients"></div>
+                </div>
+
+                <div class="da-block" id="daDosageBlock" hidden>
+                    <div class="da-label">Dosage information</div>
+                    <div class="da-text" id="daDosage"></div>
+                </div>
+
+                <div class="da-block" id="daSideEffectsBlock" hidden>
+                    <div class="da-label">Common side effects</div>
+                    <ul class="da-list" id="daSideEffects"></ul>
+                </div>
+
+                <div id="daInteractionsBlock" hidden>
+                    <div class="da-label da-label--outside">Interaction warnings</div>
+                    <div id="daInteractions"></div>
+                </div>
+
+                <div class="da-block" id="daWarningsBlock" hidden>
+                    <div class="da-label">Important warnings</div>
+                    <ul class="da-list" id="daWarnings"></ul>
+                </div>
+
+                <div class="da-disclaimer" id="daDisclaimer"></div>
+            </div>
+        </div>
+
+        <!-- Composer -->
+        <div class="chat-composer">
+            <div class="chat-composer-row">
+                <textarea id="daInput" rows="1" maxlength="500"
+                          placeholder="Ask about a medication or drug interaction..." aria-label="Question"></textarea>
+                <button type="button" id="daSend" class="chat-send" disabled>
+                    <span class="da-send-spinner" id="daSendSpinner" hidden></span>
+                    <span id="daSendLabel">Ask Assistant</span>
+                </button>
+            </div>
+            <div class="chat-composer-meta">
+                <span class="chat-hint">Enter to send &middot; Shift+Enter for new line</span>
+                <span class="chat-counter" id="daCounter">0 / 500</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        window.drugAssistantConfig = @Json.Serialize(new
+            {
+                            maxLength = 500,
+                            urls = new { query = Url.Action("Query", "DrugAssistant") },
+                            loginUrl = Url.Action("Login", "Account")
+            });
+    </script>
+    <script src="~/js/drug-assistant.js" asp-append-version="true"></script>
+}
