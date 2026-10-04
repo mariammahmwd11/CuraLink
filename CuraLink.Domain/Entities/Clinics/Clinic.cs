@@ -1,4 +1,5 @@
-﻿using CuraLink.Domain.Entities.Doctors;
+﻿using CuraLink.Domain.Entities.ClinicAssistants;
+using CuraLink.Domain.Entities.Doctors;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -19,5 +20,10 @@ namespace CuraLink.Domain.Entities.Clinics
 
         public string PhoneNumber { get; set; } = null!;
         public Doctor Doctor { get; set; } = null!;
+        public ICollection<ClinicAssistant> Assistants { get; set; }
+    = new List<ClinicAssistant>();
+
+        public ICollection<ClinicAssistantInvitation> AssistantInvitations { get; set; }
+            = new List<ClinicAssistantInvitation>();
     }
 }

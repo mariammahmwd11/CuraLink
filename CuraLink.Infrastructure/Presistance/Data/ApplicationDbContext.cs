@@ -2,6 +2,7 @@
 using CuraLink.Domain.Entities;
 using CuraLink.Domain.Entities.Appointments;
 using CuraLink.Domain.Entities.ChatMessages;
+using CuraLink.Domain.Entities.ClinicAssistants;
 using CuraLink.Domain.Entities.Clinics;
 using CuraLink.Domain.Entities.Doctors;
 using CuraLink.Domain.Entities.MedicalHistories;
@@ -48,8 +49,10 @@ namespace CuraLink.Infrastructure.Presistance.Data
 
         public DbSet<Appointment> Appointments => Set<Appointment>();
         public DbSet<ChatMessage> ChatMessages => Set<ChatMessage>();
+        public DbSet<ClinicAssistant> ClinicAssistants { get; set; }
 
-        
+        public DbSet<ClinicAssistantInvitation> ClinicAssistantInvitations { get; set; }
+
 
         protected override void OnModelCreating(ModelBuilder builder)
         {

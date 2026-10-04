@@ -11,8 +11,13 @@ namespace CuraLink.Application.Common.Interfaces.Email
             string doctorName);
 
         Task SendDoctorRejectionEmailAsync(
-        string email,
-        string doctorName,
-        string rejectionReason);
+            string email,
+            string doctorName,
+            string rejectionReason);
+
+        Task SendAssistantInvitationEmailAsync(
+      string email,
+      string clinicName,
+      string token);
     }
 }

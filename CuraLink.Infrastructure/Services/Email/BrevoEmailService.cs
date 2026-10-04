@@ -257,6 +257,131 @@ namespace CuraLink.Infrastructure.Services.Email
                     $"Error: {error}");
             }
         }
+        public async Task SendAssistantInvitationEmailAsync(
+    string email,
+    string clinicName,
+    string token)
+        {
+            var invitationLink =
+                $"{_settings.AssistantInvitationUrl}?token={Uri.EscapeDataString(token)}";
 
+            var request = new HttpRequestMessage(
+                HttpMethod.Post,
+                "https://api.brevo.com/v3/smtp/email");
+
+            request.Headers.Add(
+                "api-key",
+                _settings.ApiKey);
+
+            var body = new
+            {
+                sender = new
+                {
+                    name = _settings.FromName,
+                    email = _settings.FromEmail
+                },
+
+                to = new[]
+                {
+            new
+            {
+                email = email
+            }
+        },
+
+                subject = "CuraLink - Clinic Assistant Invitation",
+
+                textContent = $"""
+            Hello,
+
+            You have been invited to join {clinicName}
+            as a clinic assistant on CuraLink.
+
+            Click the link below to accept the invitation:
+
+            {invitationLink}
+
+            This invitation will expire in 48 hours.
+
+            CuraLink Team
+            """,
+
+                htmlContent = $"""
+            <div style="
+                font-family: Arial, sans-serif;
+                max-width: 600px;
+                margin: 0 auto;
+                padding: 30px;
+                color: #333;
+                background-color: #ffffff;
+            ">
+
+                <h2 style="color: #198754;">
+                    CuraLink - Clinic Assistant Invitation
+                </h2>
+
+                <p>
+                    Hello,
+                </p>
+
+                <p>
+                    You have been invited to join
+                    <strong>{clinicName}</strong>
+                    as a clinic assistant on CuraLink.
+                </p>
+
+                <p>
+                    As a clinic assistant, you will be able to help
+                    manage appointment bookings and check-in patients.
+                </p>
+
+                <div style="text-align: center; margin: 30px 0;">
+                    <a href="{invitationLink}"
+                       style="
+                            display: inline-block;
+                            padding: 14px 28px;
+                            background-color: #198754;
+                            color: #ffffff;
+                            text-decoration: none;
+                            font-size: 16px;
+                            font-weight: bold;
+                            border-radius: 6px;
+                       ">
+                        Accept Invitation
+                    </a>
+                </div>
+
+                <p>
+                    This invitation will expire in
+                    <strong>48 hours</strong>.
+                </p>
+
+                <p style="margin-top: 30px;">
+                    <strong>CuraLink Team</strong>
+                </p>
+
+            </div>
+            """
+            };
+
+            var json = JsonSerializer.Serialize(body);
+
+            request.Content = new StringContent(
+                json,
+                Encoding.UTF8,
+                "application/json");
+
+            var response = await _httpClient.SendAsync(request);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = await response.Content.ReadAsStringAsync();
+
+                throw new Exception(
+                    $"Failed to send assistant invitation email. " +
+                    $"Status: {response.StatusCode}. " +
+                    $"Error: {error}");
+            }
+        }
     }
     }

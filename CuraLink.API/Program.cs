@@ -13,6 +13,7 @@ using CuraLink.API.Endpoints.Patients;
 using CuraLink.API.Endpoints.Payments;
 using CuraLink.API.Endpoints.Prescriptions;
 using CuraLink.API.Endpoints.Profile;
+using CuraLink.API.Endpoints.ClinicAssistants;
 using CuraLink.API.Exceptions;
 using CuraLink.Application;
 using CuraLink.Application.Common.Interfaces.AI;
@@ -137,5 +138,7 @@ app.MapGetChatHistoryEndpoint();
 app.MapMarkMessagesAsReadEndpoint();
 //drug assistant api endpoints
 app.MapAskDrugAssistantEndpoint();
+//clinic assistant api endpoints
+app.MapInviteClinicAssistantEndpoint();
 
 app.Run();
