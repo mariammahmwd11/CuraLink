@@ -1,0 +1,22 @@
+﻿@model CuraLink.MVC.Models.InvitationAcceptedViewModel
+@{
+    ViewData["Title"] = "Invitation Accepted";
+}
+
+<link rel="stylesheet" href="~/css/clinic-assistant.css" asp-append-version="true" />
+
+<div class="ca-page">
+    <div class="ca-card">
+        <div class="ca-brand">
+            <span class="ca-brand-mark">+</span>
+            <span class="ca-brand-name">CuraLink</span>
+        </div>
+
+        <div class="ca-icon ca-icon--ok">&#10003;</div>
+        <h1 class="ca-title">Invitation Accepted Successfully</h1>
+        <p class="ca-text">You are now a receptionist at <strong>@Model.ClinicName</strong>.</p>
+        <p class="ca-note">For your new permissions to take effect, please sign in again.</p>
+
+        <a class="ca-btn ca-btn--primary" asp-controller="Auth" asp-action="Login">Go to Dashboard</a>
+    </div>
+</div>

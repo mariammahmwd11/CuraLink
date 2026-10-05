@@ -42,6 +42,7 @@ builder.Services.AddHttpClient<AppointmentApiClient>(client =>
 {
     client.BaseAddress = new Uri(apiBaseUrl);
 });
+builder.Services.AddScoped<ClinicAssistantApiService>();
 
 builder.Services
     .AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)

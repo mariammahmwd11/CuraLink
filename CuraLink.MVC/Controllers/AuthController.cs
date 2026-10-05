@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
 using System.Security.Claims;
+using System.Text;
 using System.Text.Json;
 
 namespace CuraLink.MVC.Controllers
@@ -23,10 +24,8 @@ namespace CuraLink.MVC.Controllers
         // =========================
 
         [HttpGet]
-        public IActionResult Login()
-        {
-            return View();
-        }
+        public IActionResult Login(string? invitationToken, string? returnUrl)
+            => View(new LoginViewModel { InvitationToken = invitationToken, ReturnUrl = returnUrl });
 
         [HttpPost]
         public async Task<IActionResult> Login(LoginViewModel model)
@@ -70,6 +69,12 @@ namespace CuraLink.MVC.Controllers
                     return View(model);
                 }
 
+                // A user can have several roles (e.g. Patient + Receptionist), so read them
+                // all from the JWT. Falls back to the single Role returned by the API.
+                var roles = ExtractRoles(loginResponse.AccessToken);
+                if (roles.Count == 0 && !string.IsNullOrEmpty(loginResponse.User.Role))
+                    roles.Add(loginResponse.User.Role);
+
                 var claims = new List<Claim>
                 {
                     new Claim(
@@ -85,10 +90,6 @@ namespace CuraLink.MVC.Controllers
                         loginResponse.User.Email),
 
                     new Claim(
-                        ClaimTypes.Role,
-                        loginResponse.User.Role),
-
-                    new Claim(
                         "AccessToken",
                         loginResponse.AccessToken),
 
@@ -97,15 +98,30 @@ namespace CuraLink.MVC.Controllers
                         loginResponse.RefreshToken)
                 };
 
+                foreach (var role in roles)
+                    claims.Add(new Claim(ClaimTypes.Role, role));
+
                 var identity = new ClaimsIdentity(
                     claims,
                     CookieAuthenticationDefaults.AuthenticationScheme);
 
                 var principal = new ClaimsPrincipal(identity);
 
+                // Sign in FIRST, then redirect.
                 await HttpContext.SignInAsync(
                     CookieAuthenticationDefaults.AuthenticationScheme,
                     principal);
+
+                // Clinic invitation: go back to the invitation page (now signed in -> Accept button).
+                if (!string.IsNullOrEmpty(model.InvitationToken))
+                    return RedirectToAction("Invitation", "ClinicAssistant", new { token = model.InvitationToken });
+
+                if (!string.IsNullOrEmpty(model.ReturnUrl) && Url.IsLocalUrl(model.ReturnUrl))
+                    return LocalRedirect(model.ReturnUrl);
+
+                // Clinic assistants (Receptionist, not Doctor/Admin) land on their dashboard.
+                if (roles.Contains("Receptionist") && !roles.Contains("Doctor") && !roles.Contains("Admin"))
+                    return RedirectToAction("Index", "Assistant");
 
                 return RedirectToAction("Index", "Home");
             }
@@ -258,6 +274,40 @@ namespace CuraLink.MVC.Controllers
             // If API returned plain text
             return error;
         }
+
+        // Reads every role claim from the JWT payload (no signature validation needed here:
+        // the API already issued the token and validates it on every call).
+        private static List<string> ExtractRoles(string jwt)
+        {
+            var roles = new List<string>();
+            try
+            {
+                var parts = jwt.Split('.');
+                if (parts.Length < 2) return roles;
+
+                var payload = parts[1].Replace('-', '+').Replace('_', '/');
+                payload = payload.PadRight(payload.Length + (4 - payload.Length % 4) % 4, '=');
+                using var doc = JsonDocument.Parse(Encoding.UTF8.GetString(Convert.FromBase64String(payload)));
+
+                foreach (var name in new[] { "role", "roles", ClaimTypes.Role })
+                {
+                    if (!doc.RootElement.TryGetProperty(name, out var value)) continue;
+
+                    if (value.ValueKind == JsonValueKind.String)
+                        roles.Add(value.GetString()!);
+                    else if (value.ValueKind == JsonValueKind.Array)
+                        roles.AddRange(value.EnumerateArray()
+                            .Where(e => e.ValueKind == JsonValueKind.String)
+                            .Select(e => e.GetString()!));
+                }
+            }
+            catch (Exception)
+            {
+                // Malformed token: caller falls back to the Role returned by the API.
+            }
+            return roles.Distinct().ToList();
+        }
+
         [HttpGet]
         public IActionResult GetAccessToken()
         {

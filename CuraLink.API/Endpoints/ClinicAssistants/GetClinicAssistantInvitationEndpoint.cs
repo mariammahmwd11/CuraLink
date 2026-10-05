@@ -9,7 +9,7 @@ public static class GetClinicAssistantInvitationEndpoint
         this WebApplication app)
     {
         app.MapGet(
-            "/api/clinic-assistants/invitations/{token}",
+            "/api/clinic-assistants/invitations",
             async (
                 string token,
                 ISender sender,

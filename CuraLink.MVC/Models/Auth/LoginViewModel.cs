@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace CuraLink.MVC.Models.Auth
 {
@@ -17,5 +18,7 @@ namespace CuraLink.MVC.Models.Auth
        
         [Display(Name = "Remember me")]
         public bool RememberMe { get; set; }
+        [JsonIgnore] public string? InvitationToken { get; set; }
+        [JsonIgnore] public string? ReturnUrl { get; set; }
     }
 }

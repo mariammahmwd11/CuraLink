@@ -1,0 +1,103 @@
+﻿@model CuraLink.MVC.Models.RegisterInvitationViewModel
+@{
+    ViewData["Title"] = "Create Account";
+}
+
+<link rel="stylesheet" href="~/css/clinic-assistant.css" asp-append-version="true" />
+
+<div class="ca-page">
+    <div class="ca-card ca-card--wide">
+        <div class="ca-brand">
+            <span class="ca-brand-mark">+</span>
+            <span class="ca-brand-name">CuraLink</span>
+        </div>
+
+        <h1 class="ca-title">Create your account</h1>
+        <p class="ca-text">Join <strong>@Model.ClinicName</strong> as a receptionist.</p>
+
+        @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+        {
+            <div class="ca-alert" role="alert">@Model.ErrorMessage</div>
+        }
+
+        <form asp-action="Register" method="post" id="registerForm" novalidate>
+            <input type="hidden" asp-for="Token" />
+            <input type="hidden" asp-for="ClinicName" />
+            <input type="hidden" asp-for="Email" />
+
+            <div class="ca-field">
+                <label>Email</label>
+                <input type="email" value="@Model.Email" readonly disabled />
+                <small>This email comes from your invitation and can't be changed.</small>
+            </div>
+
+            <div class="ca-row">
+                <div class="ca-field">
+                    <label asp-for="FirstName"></label>
+                    <input asp-for="FirstName" autocomplete="given-name" />
+                    <span asp-validation-for="FirstName" class="ca-error"></span>
+                </div>
+                <div class="ca-field">
+                    <label asp-for="LastName"></label>
+                    <input asp-for="LastName" autocomplete="family-name" />
+                    <span asp-validation-for="LastName" class="ca-error"></span>
+                </div>
+            </div>
+
+            <div class="ca-field">
+                <label asp-for="Phone"></label>
+                <input asp-for="Phone" type="tel" autocomplete="tel" placeholder="01000000000" />
+                <span asp-validation-for="Phone" class="ca-error"></span>
+            </div>
+
+            <div class="ca-field">
+                <label asp-for="Password"></label>
+                <input asp-for="Password" autocomplete="new-password" />
+                <span asp-validation-for="Password" class="ca-error"></span>
+            </div>
+
+            <div class="ca-field">
+                <label asp-for="ConfirmPassword"></label>
+                <input asp-for="ConfirmPassword" autocomplete="new-password" />
+                <span asp-validation-for="ConfirmPassword" class="ca-error"></span>
+            </div>
+
+            <button type="submit" class="ca-btn ca-btn--primary ca-btn--block" id="registerBtn">
+                <span class="ca-spinner" id="registerSpinner" hidden></span>
+                <span id="registerLabel">Create Account</span>
+            </button>
+        </form>
+
+        <p class="ca-note ca-note--center">
+            Already have an account?
+            <a asp-controller="Auth" asp-action="Login" asp-route-invitationToken="@Model.Token"
+               asp-route-returnUrl="@Url.Action("Invitation", "ClinicAssistant", new { token = Model.Token })">Log in</a>
+        </p>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        (function() {
+            var form = document.getElementById('registerForm');
+            form.addEventListener('submit', function(e) {
+                var btn = document.getElementById('registerBtn');
+                if (btn.disabled) { e.preventDefault(); return; }
+
+                // Quick client-side check; the server validates again.
+                var pw = form.querySelector('[name="Password"]').value;
+                var cf = form.querySelector('[name="ConfirmPassword"]').value;
+                if (pw !== cf) {
+                    e.preventDefault();
+                    var span = form.querySelector('[data-valmsg-for="ConfirmPassword"]');
+                    if (span) span.textContent = 'Passwords do not match.';
+                    return;
+                }
+
+                btn.disabled = true;
+                document.getElementById('registerSpinner').hidden = false;
+                document.getElementById('registerLabel').textContent = 'Creating account...';
+            });
+        })();
+    </script>
+}

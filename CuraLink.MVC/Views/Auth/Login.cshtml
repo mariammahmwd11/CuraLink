@@ -1,7 +1,8 @@
 ﻿@model CuraLink.MVC.Models.Auth.LoginViewModel
 @{
-    ViewData["Title"] = "Patient Login";
+    ViewData["Title"] = "Login";
     Layout = "_AuthLayout";
+    var hasInvitation = !string.IsNullOrEmpty(Model.InvitationToken);
 }
 
 <div class="auth-card">
@@ -11,12 +12,28 @@
         <p class="auth-subtitle">Log in to manage your appointments and health records.</p>
     </div>
 
+    @if (TempData["InvitationMessage"] is string invitationMessage)
+    {
+        <div class="alert alert-success auth-alert" role="alert">@invitationMessage</div>
+    }
+
+    @if (hasInvitation)
+    {
+        <div class="alert alert-info auth-alert" role="alert">
+            Log in with the email address that received the clinic invitation to accept it.
+        </div>
+    }
+
     @if (!ViewData.ModelState.IsValid)
     {
         <div asp-validation-summary="ModelOnly" class="alert alert-danger auth-alert" role="alert"></div>
     }
 
     <form asp-controller="Auth" asp-action="Login" method="post" novalidate class="auth-form">
+
+        @* Carried through the POST so the invitation token is never lost *@
+        <input type="hidden" asp-for="InvitationToken" />
+        <input type="hidden" asp-for="ReturnUrl" />
 
         <div class="mb-3">
             <label asp-for="Email" class="form-label"></label>

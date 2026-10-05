@@ -1,0 +1,94 @@
+﻿@model CuraLink.MVC.Models.InvitationViewModel
+@{
+    ViewData["Title"] = "Clinic Invitation";
+    var loginReturnUrl = Url.Action("Invitation", "ClinicAssistant", new { token = Model.Token });
+}
+
+<link rel="stylesheet" href="~/css/clinic-assistant.css" asp-append-version="true" />
+
+<div class="ca-page">
+    <div class="ca-card">
+        <div class="ca-brand">
+            <span class="ca-brand-mark">+</span>
+            <span class="ca-brand-name">CuraLink</span>
+        </div>
+
+        @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+        {
+            <div class="ca-icon ca-icon--error">!</div>
+            <h1 class="ca-title">Invitation unavailable</h1>
+            <p class="ca-text">@Model.ErrorMessage</p>
+
+            @if (!string.IsNullOrEmpty(Model.Token) && Model.IsRegistered && !Model.IsAuthenticated)
+            {
+                <a class="ca-btn ca-btn--primary" asp-controller="Auth" asp-action="Login"
+                   asp-route-invitationToken="@Model.Token" asp-route-returnUrl="@loginReturnUrl">Login</a>
+            }
+            <a class="ca-btn ca-btn--ghost" href="/">Back to CuraLink</a>
+        }
+        else
+        {
+            <div class="ca-icon">&#9993;</div>
+            <h1 class="ca-title">You're invited to join @Model.ClinicName</h1>
+            <p class="ca-text">You have been invited to work as a receptionist (clinic assistant).</p>
+
+            <dl class="ca-details">
+                <div><dt>Clinic</dt><dd>@Model.ClinicName</dd></div>
+                <div><dt>Invited email</dt><dd>@Model.Email</dd></div>
+                <div>
+                    <dt>Status</dt>
+                    <dd>
+                        @if (Model.IsRegistered)
+                        {
+                            <span class="ca-badge ca-badge--ok">Account found</span>
+                        }
+                        else
+                        {
+                            <span class="ca-badge ca-badge--warn">Account required</span>
+                        }
+                    </dd>
+                </div>
+            </dl>
+
+            @if (!Model.IsRegistered)
+            {
+                <p class="ca-note">You don't have a CuraLink account yet. Create one to continue.</p>
+                <a class="ca-btn ca-btn--primary" asp-action="Register" asp-route-token="@Model.Token">Create Account</a>
+            }
+            else if (Model.IsAuthenticated)
+            {
+                <p class="ca-note">You're signed in. Accept the invitation to become a receptionist at @Model.ClinicName.</p>
+                <form asp-action="Accept" method="post" id="acceptForm">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="token" value="@Model.Token" />
+                    <button type="submit" class="ca-btn ca-btn--primary" id="acceptBtn">
+                        <span class="ca-spinner" id="acceptSpinner" hidden></span>
+                        <span id="acceptLabel">Accept Invitation</span>
+                    </button>
+                </form>
+            }
+            else
+            {
+                <p class="ca-note">Log in with <strong>@Model.Email</strong> to accept this invitation.</p>
+                <a class="ca-btn ca-btn--primary" asp-controller="Auth" asp-action="Login"
+                   asp-route-invitationToken="@Model.Token" asp-route-returnUrl="@loginReturnUrl">Login to Accept Invitation</a>
+            }
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        (function () {
+            var form = document.getElementById('acceptForm');
+            if (!form) return;
+            form.addEventListener('submit', function () {
+                var btn = document.getElementById('acceptBtn');
+                if (btn.disabled) return;
+                btn.disabled = true;
+                document.getElementById('acceptSpinner').hidden = false;
+                document.getElementById('acceptLabel').textContent = 'Accepting...';
+            });
+        })();
+    </script>
+}

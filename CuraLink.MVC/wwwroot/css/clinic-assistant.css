@@ -1,0 +1,314 @@
+﻿/* Invitation pages. Uses the CuraLink dashboard tokens, with the same blue as fallback
+   (these pages use the public layout, where the dashboard css is not loaded). */
+.ca-page {
+    --ca-primary: var(--cl-primary, #2f6fed);
+    --ca-primary-dark: var(--cl-primary-dark, #1a3fae);
+    --ca-primary-light: var(--cl-primary-light, #eaf1ff);
+    --ca-bg: var(--cl-bg, #f5f7fb);
+    --ca-surface: var(--cl-surface, #ffffff);
+    --ca-text: var(--cl-text, #14213d);
+    --ca-muted: var(--cl-text-muted, #5b6b85);
+    --ca-border: var(--cl-border, #e2e7f2);
+    --ca-danger: var(--cl-danger, #c0392b);
+    --ca-success: var(--cl-success, #1e8e5a);
+    --ca-warning: var(--cl-warning, #d99e2b);
+    min-height: calc(100vh - 140px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 1rem;
+    background: var(--ca-bg);
+    color: var(--ca-text);
+}
+
+.ca-card {
+    width: 100%;
+    max-width: 480px;
+    background: var(--ca-surface);
+    border: 1px solid var(--ca-border);
+    border-radius: 18px;
+    box-shadow: 0 10px 40px rgba(20, 60, 130, .08);
+    padding: 2rem;
+    text-align: center;
+}
+
+.ca-card--wide {
+    max-width: 560px;
+    text-align: left;
+}
+
+.ca-brand {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: .55rem;
+    margin-bottom: 1.25rem;
+}
+
+.ca-card--wide .ca-brand {
+    justify-content: flex-start;
+}
+
+.ca-brand-mark {
+    width: 34px;
+    height: 34px;
+    border-radius: 9px;
+    background: var(--ca-primary);
+    color: #fff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1.2rem;
+}
+
+.ca-brand-name {
+    font-weight: 700;
+    font-size: 1.15rem;
+    color: var(--ca-primary-dark);
+}
+
+.ca-icon {
+    width: 64px;
+    height: 64px;
+    margin: 0 auto 1rem;
+    border-radius: 50%;
+    background: var(--ca-primary-light);
+    color: var(--ca-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.7rem;
+    font-weight: 700;
+}
+
+.ca-icon--ok {
+    background: #e4f6ed;
+    color: var(--ca-success);
+}
+
+.ca-icon--error {
+    background: #fdecee;
+    color: var(--ca-danger);
+}
+
+.ca-title {
+    font-size: 1.4rem;
+    font-weight: 800;
+    margin: 0 0 .4rem;
+}
+
+.ca-text {
+    color: var(--ca-muted);
+    margin: 0 0 1.25rem;
+    line-height: 1.5;
+}
+
+.ca-details {
+    text-align: left;
+    margin: 0 0 1.25rem;
+    border: 1px solid var(--ca-border);
+    border-radius: 12px;
+}
+
+    .ca-details > div {
+        display: flex;
+        justify-content: space-between;
+        gap: 1rem;
+        padding: .7rem 1rem;
+    }
+
+        .ca-details > div + div {
+            border-top: 1px solid var(--ca-border);
+        }
+
+    .ca-details dt {
+        color: var(--ca-muted);
+        font-size: .85rem;
+        font-weight: 500;
+    }
+
+    .ca-details dd {
+        margin: 0;
+        font-weight: 600;
+        word-break: break-word;
+        text-align: right;
+    }
+
+.ca-badge {
+    display: inline-block;
+    padding: .15rem .6rem;
+    border-radius: 999px;
+    font-size: .78rem;
+    font-weight: 700;
+}
+
+.ca-badge--ok {
+    background: #e4f6ed;
+    color: var(--ca-success);
+}
+
+.ca-badge--warn {
+    background: #fff4dc;
+    color: #8a5a00;
+}
+
+.ca-note {
+    color: var(--ca-muted);
+    font-size: .9rem;
+    margin: 0 0 1rem;
+}
+
+.ca-note--center {
+    text-align: center;
+    margin: 1rem 0 0;
+}
+
+.ca-note a {
+    color: var(--ca-primary);
+    font-weight: 600;
+}
+
+.ca-alert {
+    background: #fdecee;
+    border: 1px solid #f6c9ce;
+    color: #a12a36;
+    border-radius: 10px;
+    padding: .7rem 1rem;
+    font-size: .9rem;
+    margin-bottom: 1rem;
+}
+
+.ca-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: .5rem;
+    padding: .7rem 1.4rem;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: .95rem;
+    border: 1px solid transparent;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background-color .15s, opacity .15s;
+}
+
+.ca-btn--primary {
+    background: var(--ca-primary);
+    color: #fff;
+}
+
+    .ca-btn--primary:hover {
+        background: var(--ca-primary-dark);
+        color: #fff;
+    }
+
+    .ca-btn--primary:disabled {
+        opacity: .6;
+        cursor: not-allowed;
+    }
+
+.ca-btn--ghost {
+    background: transparent;
+    color: var(--ca-primary);
+    border-color: var(--ca-border);
+    margin-top: .6rem;
+}
+
+    .ca-btn--ghost:hover {
+        background: var(--ca-primary-light);
+    }
+
+.ca-btn--block {
+    width: 100%;
+    margin-top: .5rem;
+}
+
+.ca-field {
+    margin-bottom: 1rem;
+    flex: 1;
+    min-width: 0;
+}
+
+    .ca-field label {
+        display: block;
+        font-size: .85rem;
+        font-weight: 600;
+        margin-bottom: .3rem;
+    }
+
+    .ca-field input {
+        width: 100%;
+        padding: .6rem .8rem;
+        border: 1px solid var(--ca-border);
+        border-radius: 10px;
+        font-size: .95rem;
+        background: #fbfcfe;
+        outline: none;
+        transition: border-color .15s, box-shadow .15s;
+    }
+
+        .ca-field input:focus {
+            border-color: var(--ca-primary);
+            box-shadow: 0 0 0 3px rgba(47, 111, 237, .15);
+            background: #fff;
+        }
+
+        .ca-field input[disabled] {
+            background: #eef2f8;
+            color: var(--ca-muted);
+        }
+
+    .ca-field small {
+        display: block;
+        color: var(--ca-muted);
+        font-size: .78rem;
+        margin-top: .25rem;
+    }
+
+.ca-error {
+    display: block;
+    color: var(--ca-danger);
+    font-size: .8rem;
+    margin-top: .25rem;
+}
+
+    .ca-error:empty {
+        display: none;
+    }
+
+.ca-row {
+    display: flex;
+    gap: 1rem;
+}
+
+.ca-spinner {
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(255,255,255,.4);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: ca-spin .8s linear infinite;
+}
+
+    .ca-spinner[hidden] {
+        display: none;
+    }
+
+@keyframes ca-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@media (max-width: 575.98px) {
+    .ca-card {
+        padding: 1.5rem 1.15rem;
+    }
+
+    .ca-row {
+        flex-direction: column;
+        gap: 0;
+    }
+}

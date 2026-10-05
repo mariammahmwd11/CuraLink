@@ -1,0 +1,100 @@
+﻿@{
+    var controller = ViewContext.RouteData.Values["controller"]?.ToString() ?? "";
+    var pageTitle = ViewData["PageTitle"]?.ToString() ?? ViewData["Title"]?.ToString() ?? "Dashboard";
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - CuraLink</title>
+
+    @* Same includes as your other layouts: adjust the paths if yours differ. *@
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+    <link rel="stylesheet" href="~/css/patient-dashboard.css" asp-append-version="true" />
+</head>
+<body class="patient-body">
+    <div class="patient-wrapper">
+
+        <!-- Sidebar -->
+        <aside class="patient-sidebar" id="assistantSidebar">
+            <div class="patient-sidebar-brand">
+                <span class="patient-brand-mark"><i class="bi bi-heart-pulse"></i></span>
+                <span>CuraLink</span>
+            </div>
+
+            <nav class="patient-nav">
+                <a class="patient-nav-link @(controller == "Assistant" ? "active" : "")"
+                   asp-controller="Assistant" asp-action="Index">
+                    <i class="bi bi-grid"></i> Dashboard
+                </a>
+                <a class="patient-nav-link disabled" href="#" tabindex="-1">
+                    <i class="bi bi-calendar-check"></i> Appointments
+                    <span class="patient-nav-soon">Soon</span>
+                </a>
+                <a class="patient-nav-link disabled" href="#" tabindex="-1">
+                    <i class="bi bi-people"></i> Patients
+                    <span class="patient-nav-soon">Soon</span>
+                </a>
+                <a class="patient-nav-link disabled" href="#" tabindex="-1">
+                    <i class="bi bi-person-badge"></i> Clinic Doctors
+                    <span class="patient-nav-soon">Soon</span>
+                </a>
+
+                @* Users who are both Patient and Receptionist can jump between dashboards. *@
+                @if (User.IsInRole("Patient"))
+                {
+                    <a class="patient-nav-link" asp-controller="Patient" asp-action="Index">
+                        <i class="bi bi-person"></i> Patient Dashboard
+                    </a>
+                }
+            </nav>
+
+            <div class="patient-sidebar-footer">
+                @* Adjust to your real logout action (Auth/Logout). *@
+                <form asp-controller="Auth" asp-action="Logout" method="post" class="m-0">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="patient-nav-link patient-logout w-100 border-0 bg-transparent text-start">
+                        <i class="bi bi-box-arrow-right"></i> Log out
+                    </button>
+                </form>
+            </div>
+        </aside>
+        <div class="patient-sidebar-backdrop" id="assistantBackdrop"></div>
+
+        <!-- Main -->
+        <div class="patient-main">
+            <header class="patient-topbar">
+                <button type="button" class="patient-sidebar-toggle d-lg-none" id="assistantToggle" aria-label="Toggle menu">
+                    <i class="bi bi-list"></i>
+                </button>
+                <h1 class="patient-topbar-title">@pageTitle</h1>
+                <span class="ms-auto text-muted small d-none d-sm-inline">
+                    <i class="bi bi-person-circle me-1"></i>@User.Identity?.Name
+                </span>
+            </header>
+
+            <main class="patient-content">
+                @RenderBody()
+            </main>
+        </div>
+    </div>
+
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+            (function() {
+                var sidebar = document.getElementById('assistantSidebar');
+                var backdrop = document.getElementById('assistantBackdrop');
+                var toggle = document.getElementById('assistantToggle');
+                function setOpen(open) {
+                    sidebar.classList.toggle('open', open);
+                    backdrop.classList.toggle('open', open);
+                }
+                toggle.addEventListener('click', function() { setOpen(!sidebar.classList.contains('open')); });
+                backdrop.addEventListener('click', function() { setOpen(false); });
+            })();
+    </script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
