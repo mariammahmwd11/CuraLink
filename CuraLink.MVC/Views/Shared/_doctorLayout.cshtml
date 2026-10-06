@@ -147,7 +147,6 @@
 
         <!-- Main -->
         <div class="doctor-main">
-
             <header class="doctor-topbar">
 
                 <button type="button"
@@ -162,6 +161,59 @@
                 <h1 class="doctor-topbar-title">
                     @ViewData["Title"]
                 </h1>
+
+                <!-- Notifications -->
+                <div class="doctor-notification-wrapper">
+
+                    <button type="button"
+                            class="doctor-notification-btn"
+                            id="notificationButton"
+                            aria-label="Notifications"
+                            title="Notifications">
+
+                        <i class="bi bi-bell"></i>
+
+                        <span class="doctor-notification-badge"
+                              id="notificationBadge"
+                              style="display: none;">
+                            0
+                        </span>
+
+                    </button>
+
+                    <!-- Notification dropdown -->
+                    <div class="doctor-notification-dropdown"
+                         id="notificationDropdown">
+
+                        <div class="doctor-notification-header">
+
+                            <strong>Notifications</strong>
+
+                            <button type="button"
+                                    class="doctor-mark-all-read"
+                                    id="markAllNotificationsRead">
+                                Mark all as read
+                            </button>
+
+                        </div>
+
+                        <div class="doctor-notification-list"
+                             id="notificationList">
+
+                            <div class="doctor-no-notifications"
+                                 id="noNotifications">
+
+                                <i class="bi bi-bell-slash"></i>
+
+                                <span>No new notifications</span>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
 
             </header>
 

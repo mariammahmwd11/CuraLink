@@ -1,6 +1,7 @@
 ﻿let realtimeConnection = null;
 
 async function getAccessToken() {
+
     const response = await fetch("/Realtime/Token", {
         method: "GET",
         credentials: "include"
@@ -17,13 +18,15 @@ async function getAccessToken() {
 
 
 async function startRealtimeConnection() {
+
     try {
+
         const token = await getAccessToken();
 
         realtimeConnection =
             new signalR.HubConnectionBuilder()
-            .withUrl(
-                "https://localhost:7188/hubs/notifications",
+                .withUrl(
+                    "https://localhost:7188/hubs/notifications",
                     {
                         accessTokenFactory: () => token
                     })
@@ -31,9 +34,9 @@ async function startRealtimeConnection() {
                 .build();
 
 
-        // =========================
+        // =========================================================
         // Notifications
-        // =========================
+        // =========================================================
 
         realtimeConnection.on(
             "ReceiveNotification",
@@ -41,13 +44,39 @@ async function startRealtimeConnection() {
 
                 console.log(
                     "🔔 Notification received:",
-                    notification);
+                    notification
+                );
+
+                // Add notification to bell
+                if (typeof addNotification === "function") {
+
+                    addNotification({
+                        title:
+                            notification.title
+                            ?? "Notification",
+
+                        message:
+                            notification.message
+                            ?? "",
+
+                        createdAt:
+                            notification.createdAt
+                            ?? new Date(),
+
+                        isRead:
+                            notification.isRead
+                            ?? false
+                    });
+                }
+
+                // Optional browser notification
+                showBrowserNotification(notification);
             });
 
 
-        // =========================
+        // =========================================================
         // Chat
-        // =========================
+        // =========================================================
 
         realtimeConnection.on(
             "ReceiveChatMessage",
@@ -55,17 +84,19 @@ async function startRealtimeConnection() {
 
                 console.log(
                     "💬 Chat message received:",
-                    message);
+                    message
+                );
 
                 if (typeof addMessageToChat === "function") {
+
                     addMessageToChat(message);
                 }
             });
 
 
-        // =========================
+        // =========================================================
         // Read Receipt
-        // =========================
+        // =========================================================
 
         realtimeConnection.on(
             "ChatMessageRead",
@@ -73,26 +104,29 @@ async function startRealtimeConnection() {
 
                 console.log(
                     "👀 Chat message read:",
-                    receipt);
+                    receipt
+                );
 
                 if (
                     typeof markMessagesAsReadInUI ===
                     "function"
                 ) {
+
                     markMessagesAsReadInUI(receipt);
                 }
             });
 
 
-        // =========================
+        // =========================================================
         // Connection
-        // =========================
+        // =========================================================
 
         realtimeConnection.onreconnecting(error => {
 
             console.warn(
                 "🟡 SignalR reconnecting...",
-                error);
+                error
+            );
         });
 
 
@@ -100,7 +134,8 @@ async function startRealtimeConnection() {
 
             console.log(
                 "🟢 SignalR reconnected:",
-                connectionId);
+                connectionId
+            );
         });
 
 
@@ -108,28 +143,65 @@ async function startRealtimeConnection() {
 
             console.error(
                 "🔴 SignalR connection closed:",
-                error);
+                error
+            );
         });
 
 
         await realtimeConnection.start();
 
         console.log(
-            "🟢 SignalR connected successfully.");
+            "🟢 SignalR connected successfully."
+        );
+
     }
     catch (error) {
 
         console.error(
             "❌ SignalR connection failed:",
-            error);
+            error
+        );
 
         setTimeout(
             startRealtimeConnection,
-            5000);
+            5000
+        );
     }
 }
 
 
+// =========================================================
+// Browser notification
+// =========================================================
+
+function showBrowserNotification(notification) {
+
+    if (!("Notification" in window)) {
+        return;
+    }
+
+    if (Notification.permission !== "granted") {
+        return;
+    }
+
+    const title =
+        notification.title ?? "CuraLink";
+
+    const message =
+        notification.message ?? "";
+
+    new Notification(title, {
+        body: message,
+        icon: "/favicon.ico"
+    });
+}
+
+
+// =========================================================
+// Start SignalR
+// =========================================================
+
 document.addEventListener(
     "DOMContentLoaded",
-    startRealtimeConnection);
+    startRealtimeConnection
+);

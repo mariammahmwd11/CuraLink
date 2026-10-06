@@ -6,7 +6,7 @@ public class Notification
 {
     public Guid Id { get; set; } = Guid.NewGuid();
 
-    public Guid PatientId { get; set; }
+    public string UserId { get; set; } = string.Empty;
 
     public string Title { get; set; } = string.Empty;
 

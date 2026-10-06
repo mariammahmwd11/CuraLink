@@ -26,6 +26,6 @@ public class NotificationConfiguration : IEntityTypeConfiguration<Notification>
             .HasDefaultValue(false);
 
         // Speeds up "unread count" and "list for patient" queries.
-        builder.HasIndex(n => new { n.PatientId, n.IsRead });
+        builder.HasIndex(n => new { n.UserId, n.IsRead });
     }
 }

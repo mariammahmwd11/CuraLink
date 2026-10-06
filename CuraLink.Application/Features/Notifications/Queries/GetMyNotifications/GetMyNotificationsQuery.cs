@@ -4,14 +4,18 @@ using MediatR;
 
 namespace CuraLink.Application.Features.Notifications.Queries.GetMyNotifications;
 
-public record GetMyNotificationsQuery(string UserId) : IRequest<List<NotificationDto>>;
+public record GetMyNotificationsQuery(string UserId)
+    : IRequest<List<NotificationDto>>;
 
 public class GetMyNotificationsQueryHandler
-    : IRequestHandler<GetMyNotificationsQuery, List<NotificationDto>>
+    : IRequestHandler<
+        GetMyNotificationsQuery,
+        List<NotificationDto>>
 {
     private readonly IUnitOfWork _unitOfWork;
 
-    public GetMyNotificationsQueryHandler(IUnitOfWork unitOfWork)
+    public GetMyNotificationsQueryHandler(
+        IUnitOfWork unitOfWork)
     {
         _unitOfWork = unitOfWork;
     }
@@ -20,16 +24,11 @@ public class GetMyNotificationsQueryHandler
         GetMyNotificationsQuery request,
         CancellationToken cancellationToken)
     {
-        var patient = await _unitOfWork.Patients
-            .GetByApplicationUserIdAsync(request.UserId, cancellationToken);
-
-        if (patient == null)
-        {
-            return new List<NotificationDto>();
-        }
-
-        var notifications = await _unitOfWork.Notifications
-            .GetByPatientIdAsync(patient.Id, cancellationToken);
+        var notifications =
+            await _unitOfWork.Notifications
+                .GetByUserIdAsync(
+                    request.UserId,
+                    cancellationToken);
 
         return notifications
             .OrderByDescending(n => n.CreatedAt)

@@ -66,7 +66,18 @@ public class BookAppointmentCommandHandler
             throw new KeyNotFoundException(
                 "Clinic not found for this doctor.");
 
-        // 4. Validate doctor availability
+        // 4. Validate appointment is not in the past
+        var appointmentDateTime =
+            request.Date.ToDateTime(
+                TimeOnly.FromTimeSpan(request.StartTime));
+
+        if (appointmentDateTime <= DateTime.Now)
+        {
+            throw new InvalidOperationException(
+                "You cannot book an appointment in the past.");
+        }
+
+        // 5. Validate doctor availability
         var availability =
             await _context.DoctorAvailabilities
                 .AsNoTracking()
@@ -82,7 +93,7 @@ public class BookAppointmentCommandHandler
             throw new InvalidOperationException(
                 "The selected time is outside the doctor's available schedule.");
 
-        // 5. Validate slot duration
+        // 6. Validate slot duration
         var expectedEndTime =
             request.StartTime.Add(
                 TimeSpan.FromMinutes(
@@ -92,13 +103,15 @@ public class BookAppointmentCommandHandler
             throw new InvalidOperationException(
                 "The selected slot duration is invalid.");
 
-        // 6. Pending appointment hold = 35 minutes
+        // 7. Pending appointment hold = 35 minutes
         var holdLimit = DateTime.UtcNow.AddMinutes(-35);
 
         var requestDate =
-            request.Date.ToDateTime(TimeOnly.MinValue).Date;
+            request.Date
+                .ToDateTime(TimeOnly.MinValue)
+                .Date;
 
-        // 7. Get conflicting appointments
+        // 8. Get conflicting appointments
         var existingAppointments =
             await _context.Appointments
                 .Where(x =>
@@ -109,7 +122,7 @@ public class BookAppointmentCommandHandler
                     x.Status != AppointmentStatus.Cancelled)
                 .ToListAsync(cancellationToken);
 
-        // 8. Handle existing appointments
+        // 9. Handle existing appointments
         foreach (var existingAppointment in existingAppointments)
         {
             // Pending appointment expired → release the slot
@@ -121,13 +134,14 @@ public class BookAppointmentCommandHandler
             }
             else
             {
-                // Pending still within hold OR Paid/Confirmed/Completed
+                // Pending still within hold
+                // OR Paid / Confirmed / Completed
                 throw new InvalidOperationException(
                     "The selected slot is no longer available.");
             }
         }
 
-        // 9. Create new pending appointment
+        // 10. Create new pending appointment
         var appointment = new Appointment
         {
             DoctorId = doctor.Id,
@@ -145,10 +159,10 @@ public class BookAppointmentCommandHandler
             appointment,
             cancellationToken);
 
-        // 10. Save appointment + expired holds
+        // 11. Save appointment + expired holds
         await _context.SaveChangesAsync(cancellationToken);
 
-        // 11. Notification
+        // 12. Notification
         await _notificationService.SendAsync(
             request.ApplicationUserId,
             "Appointment Booked",

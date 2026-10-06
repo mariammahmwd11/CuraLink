@@ -3,14 +3,18 @@ using MediatR;
 
 namespace CuraLink.Application.Features.Notifications.Commands.MarkAllAsRead;
 
-public record MarkAllNotificationsAsReadCommand(string UserId) : IRequest<bool>;
+public record MarkAllNotificationsAsReadCommand(
+    string UserId) : IRequest<bool>;
 
 public class MarkAllNotificationsAsReadCommandHandler
-    : IRequestHandler<MarkAllNotificationsAsReadCommand, bool>
+    : IRequestHandler<
+        MarkAllNotificationsAsReadCommand,
+        bool>
 {
     private readonly IUnitOfWork _unitOfWork;
 
-    public MarkAllNotificationsAsReadCommandHandler(IUnitOfWork unitOfWork)
+    public MarkAllNotificationsAsReadCommandHandler(
+        IUnitOfWork unitOfWork)
     {
         _unitOfWork = unitOfWork;
     }
@@ -19,18 +23,16 @@ public class MarkAllNotificationsAsReadCommandHandler
         MarkAllNotificationsAsReadCommand request,
         CancellationToken cancellationToken)
     {
-        var patient = await _unitOfWork.Patients
-            .GetByApplicationUserIdAsync(request.UserId, cancellationToken);
+        var notifications =
+            await _unitOfWork.Notifications
+                .GetByUserIdAsync(
+                    request.UserId,
+                    cancellationToken);
 
-        if (patient == null)
-        {
-            return false;
-        }
-
-        var notifications = await _unitOfWork.Notifications
-            .GetByPatientIdAsync(patient.Id, cancellationToken);
-
-        var unread = notifications.Where(n => !n.IsRead).ToList();
+        var unread =
+            notifications
+                .Where(n => !n.IsRead)
+                .ToList();
 
         if (unread.Count == 0)
         {
@@ -42,7 +44,8 @@ public class MarkAllNotificationsAsReadCommandHandler
             notification.IsRead = true;
         }
 
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
+        await _unitOfWork.SaveChangesAsync(
+            cancellationToken);
 
         return true;
     }

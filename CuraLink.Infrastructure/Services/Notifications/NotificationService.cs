@@ -13,11 +13,12 @@ namespace CuraLink.Infrastructure.Services.Notifications
         private readonly WebPushSettings _settings;
         private readonly IRealtimeNotificationService _realtimeNotificationService;
         private readonly ILogger<NotificationService> _logger;
+
         public NotificationService(
             IUnitOfWork unitOfWork,
-            IOptions<WebPushSettings> options
-            , IRealtimeNotificationService realtimeNotificationService
-            , ILogger<NotificationService> logger)
+            IOptions<WebPushSettings> options,
+            IRealtimeNotificationService realtimeNotificationService,
+            ILogger<NotificationService> logger)
         {
             _unitOfWork = unitOfWork;
             _settings = options.Value;
@@ -31,24 +32,34 @@ namespace CuraLink.Infrastructure.Services.Notifications
             string message,
             CancellationToken cancellationToken = default)
         {
-            var patient = await _unitOfWork.Patients
-                .GetByApplicationUserIdAsync(
-                    userId,
-                    cancellationToken);
-
-            if (patient == null)
+            if (string.IsNullOrWhiteSpace(userId))
             {
-                throw new KeyNotFoundException(
-                    "Patient not found.");
+                throw new ArgumentException(
+                    "User ID cannot be empty.",
+                    nameof(userId));
             }
 
-            // Persist the in-app notification FIRST and save immediately.
-            // This guarantees it exists inside CuraLink even if the patient
-            // has no Web Push subscription at all, or every subscription
-            // turns out to be stale/invalid below.
+            if (string.IsNullOrWhiteSpace(title))
+            {
+                throw new ArgumentException(
+                    "Notification title cannot be empty.",
+                    nameof(title));
+            }
+
+            if (string.IsNullOrWhiteSpace(message))
+            {
+                throw new ArgumentException(
+                    "Notification message cannot be empty.",
+                    nameof(message));
+            }
+
+            // ==========================================
+            // 1. Persist in-app notification
+            // ==========================================
+
             var notification = new Notification
             {
-                PatientId = patient.Id,
+                UserId = userId,
                 Title = title,
                 Message = message,
                 CreatedAt = DateTime.UtcNow,
@@ -56,7 +67,16 @@ namespace CuraLink.Infrastructure.Services.Notifications
             };
 
             _unitOfWork.Notifications.Add(notification);
-            await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+            await _unitOfWork.SaveChangesAsync(
+                cancellationToken);
+
+
+            // ==========================================
+            // 2. Send real-time notification through
+            //    SignalR
+            // ==========================================
+
             try
             {
                 await _realtimeNotificationService.SendAsync(
@@ -71,6 +91,35 @@ namespace CuraLink.Infrastructure.Services.Notifications
                     "Failed to send real-time notification to user {UserId}",
                     userId);
             }
+
+
+            // ==========================================
+            // 3. Web Push
+            //
+            // Notification subscriptions are currently
+            // Patient-based, so only try Web Push if
+            // this user belongs to a Patient.
+            // ==========================================
+
+            var patient = await _unitOfWork.Patients
+                .GetByApplicationUserIdAsync(
+                    userId,
+                    cancellationToken);
+
+            // User may be a Doctor.
+            // That's completely valid because the
+            // in-app + SignalR notification already
+            // works for every user.
+            if (patient == null)
+            {
+                return;
+            }
+
+
+            // ==========================================
+            // 4. Get patient's Web Push subscriptions
+            // ==========================================
+
             var subscriptions =
                 await _unitOfWork.NotificationSubscriptions
                     .GetByPatientIdAsync(
@@ -82,6 +131,11 @@ namespace CuraLink.Infrastructure.Services.Notifications
                 return;
             }
 
+
+            // ==========================================
+            // 5. Prepare Web Push
+            // ==========================================
+
             var vapidDetails = new VapidDetails(
                 _settings.Subject,
                 _settings.VapidPublicKey,
@@ -89,21 +143,28 @@ namespace CuraLink.Infrastructure.Services.Notifications
 
             var webPushClient = new WebPushClient();
 
-            var payload = System.Text.Json.JsonSerializer.Serialize(
-                new
-                {
-                    title,
-                    message
-                });
+            var payload =
+                System.Text.Json.JsonSerializer.Serialize(
+                    new
+                    {
+                        title,
+                        message
+                    });
+
+
+            // ==========================================
+            // 6. Send Web Push to all subscriptions
+            // ==========================================
 
             foreach (var subscription in subscriptions)
             {
                 try
                 {
-                    var pushSubscription = new PushSubscription(
-                        subscription.Endpoint,
-                        subscription.P256DH,
-                        subscription.Auth);
+                    var pushSubscription =
+                        new PushSubscription(
+                            subscription.Endpoint,
+                            subscription.P256DH,
+                            subscription.Auth);
 
                     await webPushClient.SendNotificationAsync(
                         pushSubscription,
@@ -115,10 +176,27 @@ namespace CuraLink.Infrastructure.Services.Notifications
                         "Subscription no longer valid",
                         StringComparison.OrdinalIgnoreCase))
                 {
+                    // Remove expired / invalid subscription
                     _unitOfWork.NotificationSubscriptions
                         .Remove(subscription);
                 }
+                catch (Exception ex)
+                {
+                    // One invalid subscription should not
+                    // prevent notifications from reaching
+                    // the other subscriptions.
+                    _logger.LogError(
+                        ex,
+                        "Failed to send Web Push notification " +
+                        "to subscription for patient {PatientId}",
+                        patient.Id);
+                }
             }
+
+
+            // ==========================================
+            // 7. Save removed invalid subscriptions
+            // ==========================================
 
             await _unitOfWork.SaveChangesAsync(
                 cancellationToken);

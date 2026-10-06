@@ -5,10 +5,6 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CuraLink.Infrastructure.Presistance.Repositories;
 
-// NOTE: This assumes other repositories in this project also take the
-// concrete ApplicationDbContext directly. If your existing repositories
-// instead take IApplicationDbContext, change the constructor parameter
-// type to match — nothing else in this file needs to change.
 public class NotificationRepository : INotificationRepository
 {
     private readonly ApplicationDbContext _context;
@@ -23,23 +19,23 @@ public class NotificationRepository : INotificationRepository
         _context.Notifications.Add(notification);
     }
 
-    public async Task<List<Notification>> GetByPatientIdAsync(
-        Guid patientId,
+    public async Task<List<Notification>> GetByUserIdAsync(
+        string userId,
         CancellationToken cancellationToken = default)
     {
         return await _context.Notifications
-            .Where(n => n.PatientId == patientId)
+            .Where(n => n.UserId == userId)
             .OrderByDescending(n => n.CreatedAt)
             .ToListAsync(cancellationToken);
     }
 
     public async Task<int> GetUnreadCountAsync(
-        Guid patientId,
+        string userId,
         CancellationToken cancellationToken = default)
     {
         return await _context.Notifications
             .CountAsync(
-                n => n.PatientId == patientId && !n.IsRead,
+                n => n.UserId == userId && !n.IsRead,
                 cancellationToken);
     }
 
@@ -48,6 +44,8 @@ public class NotificationRepository : INotificationRepository
         CancellationToken cancellationToken = default)
     {
         return await _context.Notifications
-            .FirstOrDefaultAsync(n => n.Id == id, cancellationToken);
+            .FirstOrDefaultAsync(
+                n => n.Id == id,
+                cancellationToken);
     }
 }

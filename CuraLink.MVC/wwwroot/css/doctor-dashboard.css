@@ -584,3 +584,181 @@ html, body {
         padding: 1rem 1.25rem;
     }
 }
+
+/* =========================================================
+   Notifications
+   ========================================================= */
+
+.doctor-notification-wrapper {
+    position: relative;
+    margin-left: auto;
+}
+
+.doctor-notification-btn {
+    position: relative;
+    width: 42px;
+    height: 42px;
+    border: none;
+    background: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    color: #475569;
+    font-size: 21px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+    .doctor-notification-btn:hover {
+        background: #f1f5f9;
+        color: #2563eb;
+    }
+
+.doctor-notification-badge {
+    position: absolute;
+    top: 1px;
+    right: 0;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #ef4444;
+    color: white;
+    border-radius: 999px;
+    font-size: 10px;
+    font-weight: 700;
+    border: 2px solid white;
+}
+
+.doctor-notification-dropdown {
+    position: absolute;
+    top: calc(100% + 12px);
+    right: 0;
+    width: 360px;
+    max-width: 90vw;
+    max-height: 450px;
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    box-shadow: 0 15px 40px rgba(15, 23, 42, 0.15);
+    overflow: hidden;
+    z-index: 1050;
+    display: none;
+}
+
+    .doctor-notification-dropdown.show {
+        display: block;
+    }
+
+.doctor-notification-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 15px 16px;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+    .doctor-notification-header strong {
+        font-size: 15px;
+        color: #1e293b;
+    }
+
+.doctor-mark-all-read {
+    border: none;
+    background: transparent;
+    color: #2563eb;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+    .doctor-mark-all-read:hover {
+        text-decoration: underline;
+    }
+
+.doctor-notification-list {
+    max-height: 390px;
+    overflow-y: auto;
+}
+
+.doctor-notification-item {
+    display: flex;
+    gap: 12px;
+    padding: 14px 16px;
+    border-bottom: 1px solid #f1f5f9;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+    .doctor-notification-item:hover {
+        background: #f8fafc;
+    }
+
+    .doctor-notification-item.unread {
+        background: #eff6ff;
+    }
+
+.doctor-notification-icon {
+    flex-shrink: 0;
+    width: 38px;
+    height: 38px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: #dbeafe;
+    color: #2563eb;
+}
+
+.doctor-notification-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.doctor-notification-title {
+    margin-bottom: 3px;
+    font-size: 13px;
+    font-weight: 700;
+    color: #1e293b;
+}
+
+.doctor-notification-message {
+    font-size: 12px;
+    line-height: 1.5;
+    color: #64748b;
+}
+
+.doctor-notification-time {
+    margin-top: 4px;
+    font-size: 10px;
+    color: #94a3b8;
+}
+
+.doctor-no-notifications {
+    min-height: 150px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    color: #94a3b8;
+    font-size: 13px;
+}
+
+    .doctor-no-notifications i {
+        font-size: 28px;
+    }
+
+@media (max-width: 576px) {
+    .doctor-notification-dropdown {
+        position: fixed;
+        top: 70px;
+        left: 15px;
+        right: 15px;
+        width: auto;
+        max-width: none;
+    }
+}

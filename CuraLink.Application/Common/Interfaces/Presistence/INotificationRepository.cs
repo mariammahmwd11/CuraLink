@@ -6,12 +6,12 @@ public interface INotificationRepository
 {
     void Add(Notification notification);
 
-    Task<List<Notification>> GetByPatientIdAsync(
-        Guid patientId,
+    Task<List<Notification>> GetByUserIdAsync(
+        string userId,
         CancellationToken cancellationToken = default);
 
     Task<int> GetUnreadCountAsync(
-        Guid patientId,
+        string userId,
         CancellationToken cancellationToken = default);
 
     Task<Notification?> GetByIdAsync(
