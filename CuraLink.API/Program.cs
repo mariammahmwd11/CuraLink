@@ -158,5 +158,6 @@ app.MapBookAppointmentForPatientEndpoint();
 app.MapCheckInPatientEndpoint();
 app.MapGetTodayAppointmentsEndpoint();
 app.MapCreatePatientEndpoint();
+app.MapGetAvailableClinicAssistantSlotsEndpoint();
 
 app.Run();

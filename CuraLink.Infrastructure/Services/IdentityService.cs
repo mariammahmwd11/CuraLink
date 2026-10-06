@@ -237,15 +237,16 @@ namespace CuraLink.Infrastructure.Services
             }
 
             return await query
-                .OrderBy(x => x.FirstName)
-                .ThenBy(x => x.LastName)
-                .Select(x => new PatientSearchResult(
-                    x.Id,
-                    x.FirstName,
-                    x.LastName,
-                    x.Email!,
-                    x.PhoneNumber))
-                .ToListAsync(cancellationToken);
+     .OrderBy(x => x.FirstName)
+     .ThenBy(x => x.LastName)
+     .Select(x => new PatientSearchResult(
+         string.Empty,
+         x.Id,
+         x.FirstName,
+         x.LastName,
+         x.Email!,
+         x.PhoneNumber))
+     .ToListAsync(cancellationToken);
         }
         public async Task<(bool Succeeded, string[] Errors, string UserId)>
     CreateReceptionistAsync(

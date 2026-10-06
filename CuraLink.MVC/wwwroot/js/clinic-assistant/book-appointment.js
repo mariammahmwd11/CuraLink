@@ -4,14 +4,24 @@
     const $ = (id) => document.getElementById(id);
     const root = $('baRoot');
 
-    let patient = null;   // { id, name }
+    let patient = null;        // { id, name }
+    let selectedSlot = null;   // { startTime, endTime }  (both "HH:mm")
     let timer = null;
-    let seq = 0;
+    let seq = 0;               // patient search race guard
+    let slotsSeq = 0;          // slots request race guard
 
     const today = new Date();
-    const todayIso = new Date(today.getTime() - today.getTimezoneOffset() * 60000).toISOString().slice(0, 10);
+    const todayIso = new Date(today.getTime() - today.getTimezoneOffset() * 60000)
+        .toISOString().slice(0, 10);
     $('baDate').min = todayIso;
     $('baDate').value = todayIso;
+
+    const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    function prettyDate(iso) {
+        if (!iso) return '\u2014';
+        const p = iso.split('-');
+        return p[2] + ' ' + MONTHS[parseInt(p[1], 10) - 1] + ' ' + p[0];
+    }
 
     /* ---------------- patient ---------------- */
     function setPatient(p) {
@@ -54,33 +64,83 @@
         if (b) setPatient({ id: b.dataset.id, name: b.dataset.name });
     });
 
-    /* ---------------- time ---------------- */
-    function addMinutes(hhmm, mins) {
-        const [h, m] = hhmm.split(':').map(Number);
-        const total = h * 60 + m + mins;
-        if (total >= 24 * 60) return '';
-        return String(Math.floor(total / 60)).padStart(2, '0') + ':' + String(total % 60).padStart(2, '0');
+    /* ---------------- slots ---------------- */
+    function showSlotsMessage(text) {
+        $('baSlots').innerHTML = '<div class="text-muted small">' + UI.esc(text) + '</div>';
     }
 
-    $('baStart').addEventListener('change', () => {
-        const s = $('baStart').value;
-        if (s && (!$('baEnd').value || $('baEnd').value <= s)) $('baEnd').value = addMinutes(s, 30);
+    function clearSelection() {
+        selectedSlot = null;
         refresh();
-    });
-    $('baEnd').addEventListener('change', refresh);
-    $('baDate').addEventListener('change', refresh);
-
-    function timeValid() {
-        const s = $('baStart').value, e = $('baEnd').value;
-        return !!s && !!e && e > s;
     }
 
+    async function loadSlots() {
+        const date = $('baDate').value;
+        const grid = $('baSlots');
+
+        $('baSlotsEmpty').hidden = true;
+        $('baSlotsError').hidden = true;
+        selectedSlot = null;
+        refresh();
+
+        if (!date) { showSlotsMessage('Select a date to see available times.'); return; }
+        if (date < todayIso) {
+            grid.innerHTML = '';
+            $('baSlotsError').textContent = 'Past dates cannot be booked.';
+            $('baSlotsError').hidden = false;
+            return;
+        }
+
+        const mine = ++slotsSeq;
+        showSlotsMessage('Loading available times...');
+
+        const r = await UI.get(root.dataset.slotsUrl + '?date=' + encodeURIComponent(date));
+        if (mine !== slotsSeq) return;           // a newer date was picked meanwhile
+
+        grid.innerHTML = '';
+
+        if (!r.ok) {
+            $('baSlotsError').textContent = r.message || 'We could not load available times.';
+            $('baSlotsError').hidden = false;
+            UI.loginRedirectIfExpired(r);
+            return;
+        }
+
+        const slots = (r.data && Array.isArray(r.data.slots)) ? r.data.slots : [];
+        if (slots.length === 0) {
+            $('baSlotsEmpty').hidden = false;
+            return;
+        }
+
+        slots.forEach((slot) => {
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'slot-btn';
+            btn.textContent = slot.startTime + ' - ' + slot.endTime;
+            btn.addEventListener('click', () => selectSlot(slot, btn));
+            grid.appendChild(btn);
+        });
+    }
+
+    function selectSlot(slot, btn) {
+        selectedSlot = { startTime: slot.startTime, endTime: slot.endTime };
+        document.querySelectorAll('#baSlots .slot-btn.selected')
+            .forEach((b) => b.classList.remove('selected'));
+        btn.classList.add('selected');
+        refresh();
+    }
+
+    $('baDate').addEventListener('change', loadSlots);
+
+    /* ---------------- summary ---------------- */
     function refresh() {
         const date = $('baDate').value;
         $('sumPatient').textContent = patient ? patient.name : '\u2014';
-        $('sumDate').textContent = date || '\u2014';
-        $('sumTime').textContent = timeValid() ? $('baStart').value + ' \u2013 ' + $('baEnd').value : '\u2014';
-        $('baConfirm').disabled = !(patient && date && date >= todayIso && timeValid());
+        $('sumDate').textContent = prettyDate(date);
+        $('sumTime').textContent = selectedSlot
+            ? selectedSlot.startTime + ' \u2013 ' + selectedSlot.endTime
+            : '\u2014';
+        $('baConfirm').disabled = !(patient && date && date >= todayIso && selectedSlot);
     }
 
     /* ---------------- confirm ---------------- */
@@ -93,14 +153,14 @@
     $('baConfirm').addEventListener('click', async function () {
         $('baError').hidden = true;
         $('baSuccess').hidden = true;
-        if (!patient || !timeValid()) return;
+        if (!patient || !selectedSlot) return;
 
         setBusy(true);
         const r = await UI.post(UI.urls.bookApi, {
             patientId: patient.id,
             date: $('baDate').value,
-            startTime: $('baStart').value + ':00',
-            endTime: $('baEnd').value + ':00'
+            startTime: selectedSlot.startTime ,
+            endTime: selectedSlot.endTime 
         });
         setBusy(false);
 
@@ -108,7 +168,8 @@
             $('baError').textContent = r.message;
             $('baError').hidden = false;
             UI.loginRedirectIfExpired(r);
-            refresh();
+            // The slot may have just been taken by someone else: refresh the list.
+            loadSlots();
             return;
         }
 
@@ -117,9 +178,7 @@
             '<a href="' + UI.esc(UI.urls.todayPage) + '" class="alert-link">View today\'s appointments</a>';
         $('baSuccess').hidden = false;
 
-        $('baStart').value = '';
-        $('baEnd').value = '';
-        refresh();
+        loadSlots();   // the booked slot disappears, selection is cleared
         window.scrollTo({ top: 0, behavior: 'smooth' });
     });
 
@@ -127,4 +186,6 @@
     const pid = root.dataset.patientId;
     if (pid) setPatient({ id: pid, name: root.dataset.patientName || 'Selected patient' });
     else setPatient(null);
+
+    loadSlots();
 })();

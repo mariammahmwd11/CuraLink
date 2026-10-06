@@ -49,7 +49,9 @@ public class GetTodayAppointmentsQueryHandler
          x =>
              x.ClinicId == assistant.ClinicId &&
              x.AppointmentDate.Date == today &&
-             x.Status != AppointmentStatus.Cancelled)
+             x.Status != AppointmentStatus.Cancelled
+             &&
+        x.Status != AppointmentStatus.Pending)
      .OrderBy(x => x.StartTime)
      .ToListAsync(cancellationToken);
         var result = new List<TodayAppointmentDto>();

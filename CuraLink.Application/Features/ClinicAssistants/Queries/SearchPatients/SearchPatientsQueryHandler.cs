@@ -53,21 +53,37 @@ public class SearchPatientsQueryHandler
         }
 
         // 3. Get patients associated with this clinic's doctor
-        var patientUserIds = await _context.DoctorPatients
-            .Where(x => x.DoctorId == clinic.DoctorId)
-            .Select(x => x.Patient.ApplicationUserId)
-            .Distinct()
-            .ToListAsync(cancellationToken);
+        var patients = await _context.Patients
+     .Where(x =>
+         x.Doctors.Any(dp => dp.DoctorId == clinic.DoctorId))
+     .ToListAsync(cancellationToken);
 
-        if (patientUserIds.Count == 0)
+        if (patients.Count == 0)
         {
             return Array.Empty<PatientSearchResult>();
         }
 
-        // 4. Search their Identity users
-        return await _identityService.SearchPatientsAsync(
+        var patientUserIds = patients
+            .Select(x => x.ApplicationUserId)
+            .Distinct()
+            .ToList();
+
+        var users = await _identityService.SearchPatientsAsync(
             patientUserIds,
             request.Search,
             cancellationToken);
+
+        return users
+            .Select(user =>
+            {
+                var patient = patients.First(
+                    x => x.ApplicationUserId == user.PatientUserId);
+
+                return user with
+                {
+                    PatientId = patient.Id.ToString()
+                };
+            })
+            .ToList();
     }
 }

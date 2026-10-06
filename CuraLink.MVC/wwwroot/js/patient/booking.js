@@ -92,13 +92,24 @@
                 }
 
                 data.slots.forEach(function (slot) {
+
+                    // If this slot has already passed, don't show it.
+                    if (isSlotInPast(date, slot.startTime)) {
+                        return;
+                    }
+
                     var btn = document.createElement('button');
+
                     btn.type = 'button';
                     btn.className = 'slot-btn';
-                    btn.textContent = slot.startTime + ' - ' + slot.endTime;
+
+                    btn.textContent =
+                        slot.startTime + ' - ' + slot.endTime;
+
                     btn.addEventListener('click', function () {
                         selectSlot(slot, btn);
                     });
+
                     slotsContainer.appendChild(btn);
                 });
             })
@@ -107,7 +118,31 @@
                 slotsErrorState.classList.remove('d-none');
             });
     }
+    function isSlotInPast(dateString, startTime) {
 
+        var dateParts = dateString.split('-');
+
+        var year = parseInt(dateParts[0], 10);
+        var month = parseInt(dateParts[1], 10) - 1;
+        var day = parseInt(dateParts[2], 10);
+
+        var timeParts = startTime.split(':');
+
+        var hours = parseInt(timeParts[0], 10);
+        var minutes = parseInt(timeParts[1], 10);
+
+        var slotDateTime = new Date(
+            year,
+            month,
+            day,
+            hours,
+            minutes,
+            0,
+            0
+        );
+
+        return slotDateTime <= new Date();
+    }
     function selectSlot(slot, btnEl) {
         selectedSlot = slot;
 

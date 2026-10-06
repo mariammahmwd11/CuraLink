@@ -116,7 +116,26 @@ namespace CuraLink.MVC.Controllers
 
             return ForwardAsync(HttpMethod.Post, $"/api/clinic-assistants/appointments/{id}/check-in", null);
         }
+        [HttpGet]
+        public Task<IActionResult> AvailableSlots(string? date)
+        {
+            if (!DateTime.TryParseExact(
+                    date,
+                    "yyyy-MM-dd",
+                    System.Globalization.CultureInfo.InvariantCulture,
+                    System.Globalization.DateTimeStyles.None,
+                    out var parsed))
+            {
+                return Task.FromResult<IActionResult>(
+                    BadRequest(new { message = "Invalid date." }));
+            }
 
+            // No doctorId here: the API derives the doctor from the receptionist's JWT.
+            return ForwardAsync(
+                HttpMethod.Get,
+                $"/api/clinic-assistants/available-slots?date={parsed:yyyy-MM-dd}",
+                null);
+        }
         // ---------- Helper ----------
 
         private async Task<IActionResult> ForwardAsync(HttpMethod method, string path, string? jsonBody)
