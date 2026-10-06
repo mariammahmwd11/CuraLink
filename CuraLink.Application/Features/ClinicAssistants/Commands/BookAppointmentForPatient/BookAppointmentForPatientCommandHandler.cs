@@ -1,4 +1,5 @@
 ﻿using CuraLink.Application.Common.Interfaces.Presistence;
+using CuraLink.Domain.Entities;
 using CuraLink.Domain.Entities.Appointments;
 using CuraLink.Domain.Entities.Doctors;
 using MediatR;
@@ -67,6 +68,29 @@ public class BookAppointmentForPatientCommandHandler
         if (patient is null)
             throw new KeyNotFoundException(
                 "Patient not found.");
+        // Link patient to doctor if this is their first interaction
+        // with this doctor.
+        var doctorPatient =
+            await _context.DoctorPatients
+                .FirstOrDefaultAsync(
+                    x =>
+                        x.DoctorId == doctor.Id &&
+                        x.PatientId == patient.Id,
+                    cancellationToken);
+
+        if (doctorPatient is null)
+        {
+            doctorPatient = new DoctorPatient
+            {
+                DoctorId = doctor.Id,
+                PatientId = patient.Id,
+                CreatedAt = DateTime.UtcNow
+            };
+
+            await _context.DoctorPatients.AddAsync(
+                doctorPatient,
+                cancellationToken);
+        }
 
         // 6. Validate date
         var appointmentDate = request.Date.Date;

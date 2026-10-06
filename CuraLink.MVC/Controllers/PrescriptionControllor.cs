@@ -76,7 +76,39 @@ namespace CuraLink.MVC.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Create(CancellationToken cancellationToken)
+        public async Task<IActionResult> ViewPdf(
+    Guid id,
+    CancellationToken cancellationToken)
+        {
+            try
+            {
+                var (bytes, fileName) = await _prescriptionApiClient
+                    .DownloadPrescriptionPdfAsync(id, cancellationToken);
+
+                // Open PDF in browser instead of downloading it
+                Response.Headers["Content-Disposition"] = $"inline; filename=\"{fileName}\"";
+
+                return File(bytes, "application/pdf");
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return RedirectToAction("Login", "Auth");
+            }
+            catch (KeyNotFoundException ex)
+            {
+                TempData["ErrorMessage"] = ex.Message;
+                return RedirectToAction(nameof(Index));
+            }
+            catch (HttpRequestException ex)
+            {
+                TempData["ErrorMessage"] = ex.Message;
+                return RedirectToAction(nameof(Index));
+            }
+        }
+        [HttpGet]
+        public async Task<IActionResult> Create(
+     Guid? patientId,
+     CancellationToken cancellationToken)
         {
             var model = new CreatePrescriptionViewModel();
 
@@ -84,6 +116,17 @@ namespace CuraLink.MVC.Controllers
             {
                 model.Patients = await _prescriptionApiClient
                     .GetMyPatientsAsync(cancellationToken);
+
+                if (patientId.HasValue)
+                {
+                    var patient = model.Patients.FirstOrDefault(
+                        p => p.PatientId == patientId.Value);
+
+                    if (patient != null)
+                    {
+                        model.PatientUserId = patient.PatientUserId;
+                    }
+                }
             }
             catch (UnauthorizedAccessException)
             {
@@ -157,8 +200,9 @@ namespace CuraLink.MVC.Controllers
 
             TempData["PrescriptionSuccess"] = "Prescription created successfully.";
 
-            return RedirectToAction(nameof(Create));
+            return RedirectToAction(nameof(Index));
         }
+
 
         /// <summary>
         /// The patient list is never posted back, so it has to be refetched

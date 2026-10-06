@@ -15,17 +15,20 @@ namespace CuraLink.MVC.Controllers
         private readonly AppointmentApiClient _appointmentApiClient;
         // Despite its name, GetProfileAsync/UpdateProfileAsync call the shared /api/profile endpoints.
         private readonly PatientApiClient _profileApiClient;
+        private readonly DoctorPatientApiClient _doctorPatientApiClient;
 
         public DoctorController(
             ClinicApiClient clinicApiClient,
             DoctorScheduleApiClient scheduleApiClient,
             AppointmentApiClient appointmentApiClient,
-            PatientApiClient profileApiClient)
+            PatientApiClient profileApiClient,
+            DoctorPatientApiClient doctorPatientApiClient)
         {
             _clinicApiClient = clinicApiClient;
             _scheduleApiClient = scheduleApiClient;
             _appointmentApiClient = appointmentApiClient;
             _profileApiClient = profileApiClient;
+            _doctorPatientApiClient = doctorPatientApiClient;
         }
 
         [HttpGet]
@@ -106,33 +109,14 @@ namespace CuraLink.MVC.Controllers
         // =========================================================
 
         [HttpGet]
-        public async Task<IActionResult> Patients(CancellationToken cancellationToken)
+        public async Task<IActionResult> Patients(
+    CancellationToken cancellationToken)
         {
             try
             {
-                var bookings = await GetRealBookingsAsync(cancellationToken);
-                var now = DateTime.Now;
-
-                var patients = bookings
-                    .Where(a => !string.IsNullOrWhiteSpace(a.PatientName))
-                    .GroupBy(a => a.PatientName.Trim(), StringComparer.OrdinalIgnoreCase)
-                    .Select(g => new DoctorPatientViewModel
-                    {
-                        PatientName = g.Key,
-                        TotalAppointments = g.Count(),
-                        LastAppointment = g
-                            .Select(a => a.Date.Date.Add(a.StartTime))
-                            .Where(t => t <= now)
-                            .Select(t => (DateTime?)t)
-                            .Max(),
-                        NextAppointment = g
-                            .Select(a => a.Date.Date.Add(a.StartTime))
-                            .Where(t => t > now)
-                            .Select(t => (DateTime?)t)
-                            .Min()
-                    })
-                    .OrderBy(p => p.PatientName)
-                    .ToList();
+                var patients =
+                    await _doctorPatientApiClient.GetMyPatientsAsync(
+                        cancellationToken);
 
                 return View(patients);
             }
@@ -140,10 +124,112 @@ namespace CuraLink.MVC.Controllers
             {
                 return RedirectToAction("Login", "Auth");
             }
+            catch (HttpRequestException)
+            {
+                TempData["ErrorMessage"] =
+                    "Unable to load your patients. Please try again.";
+
+                return View(new List<DoctorPatientViewModel>());
+            }
+        }
+       
+
+        [HttpGet]
+        public async Task<IActionResult> Patient(Guid id, CancellationToken cancellationToken)
+        {
+            if (id == Guid.Empty)
+            {
+                TempData["ErrorMessage"] = "This patient could not be found.";
+                return RedirectToAction(nameof(Patients));
+            }
+
+            try
+            {
+                var profile = await _doctorPatientApiClient.GetPatientProfileAsync(id, cancellationToken);
+                return View(profile);
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return RedirectToAction("Login", "Auth");
+            }
+            catch (KeyNotFoundException)
+            {
+                TempData["ErrorMessage"] = "This patient could not be found.";
+                return RedirectToAction(nameof(Patients));
+            }
             catch (Exception)
             {
-                TempData["ErrorMessage"] = "Unable to load your patients. Please try again.";
-                return View(new List<DoctorPatientViewModel>());
+                // No exception details are shown to the user.
+                TempData["ErrorMessage"] = "Unable to load this patient's profile.";
+                return RedirectToAction(nameof(Patients));
+            }
+        }
+
+        // ---------- Medical documents (the JWT stays server-side) ----------
+
+        // Types that are safe to render inline in the browser; anything else is forced to download.
+        private static readonly HashSet<string> InlineDocumentTypes = new(StringComparer.OrdinalIgnoreCase)
+{
+    "application/pdf", "image/jpeg", "image/jpg", "image/png"
+};
+
+        [HttpGet]
+        public async Task<IActionResult> ViewMedicalDocument(
+            Guid patientId,
+            int documentId,
+            CancellationToken cancellationToken)
+        {
+            try
+            {
+                var file = await _doctorPatientApiClient
+                    .ViewMedicalDocumentAsync(patientId, documentId, cancellationToken);
+
+                Response.Headers["X-Content-Type-Options"] = "nosniff";
+                Response.Headers["Cache-Control"] = "private, no-store";
+
+                if (!InlineDocumentTypes.Contains(file.ContentType))
+                {
+                    return File(file.Content, "application/octet-stream", file.FileName ?? $"document-{documentId}");
+                }
+
+                // No download file name -> the browser displays it inline (PDF viewer / image).
+                return File(file.Content, file.ContentType);
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return RedirectToAction("Login", "Auth");
+            }
+            catch (Exception)
+            {
+                TempData["ErrorMessage"] = "Unable to open the medical document.";
+                return RedirectToAction(nameof(Patient), new { id = patientId });
+            }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> DownloadMedicalDocument(
+            Guid patientId,
+            int documentId,
+            CancellationToken cancellationToken)
+        {
+            try
+            {
+                var file = await _doctorPatientApiClient
+                    .DownloadMedicalDocumentAsync(patientId, documentId, cancellationToken);
+
+                Response.Headers["X-Content-Type-Options"] = "nosniff";
+                Response.Headers["Cache-Control"] = "private, no-store";
+
+                return File(file.Content, file.ContentType, file.FileName ?? $"document-{documentId}");
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return RedirectToAction("Login", "Auth");
+            }
+            catch (Exception)
+            {
+                TempData["ErrorMessage"] = "Unable to download the medical document.";
+                return RedirectToAction(nameof(Patient), new { id = patientId });
             }
         }
 

@@ -1,0 +1,161 @@
+﻿@model CuraLink.MVC.Models.Doctors.DoctorPatientProfileViewModel
+@using System.Globalization
+@{
+    ViewData["Title"] = "Patient Profile";
+    Layout = "_DoctorLayout";
+
+    var culture = CultureInfo.InvariantCulture;
+    string Text(string? value) => string.IsNullOrWhiteSpace(value) ? "—" : value;
+    string DateText(DateTime? d) => d.HasValue ? d.Value.ToString("dd MMM yyyy", culture) : "—";
+    string DateTimeText(DateTime? d) => d.HasValue ? d.Value.ToString("dd MMM yyyy, HH:mm", culture) : "—";
+
+    var history = Model.MedicalHistory;
+
+    var info = new[]
+    {
+        (Icon: "bi-person",         Label: "Full name",     Value: Text(Model.FullName)),
+        (Icon: "bi-hourglass-split", Label: "Age",           Value: Model.Age?.ToString(culture) ?? "—"),
+        (Icon: "bi-calendar-event", Label: "Date of birth", Value: DateText(Model.DateOfBirth)),
+        (Icon: "bi-droplet",        Label: "Blood type",    Value: Text(Model.BloodType)),
+        (Icon: "bi-envelope",       Label: "Email",         Value: Text(Model.Email)),
+        (Icon: "bi-telephone",      Label: "Phone number",  Value: Text(Model.PhoneNumber))
+    };
+}
+
+<!-- Header -->
+<div class="mb-3">
+    <a asp-controller="Doctor" asp-action="Patients" class="text-decoration-none small">
+        <i class="bi bi-arrow-left me-1"></i> Back to Patients
+    </a>
+</div>
+
+<div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
+    <div style="min-width:0;">
+        <h1 class="doctor-page-title mb-1 text-break" dir="auto">@Text(Model.FullName)</h1>
+        <div class="doctor-page-subtitle mb-0"><i class="bi bi-person-vcard me-1"></i> Patient Profile</div>
+    </div>
+
+    <a asp-controller="Prescription"
+       asp-action="Create"
+       asp-route-patientId="@Model.PatientId"
+       class="btn btn-primary doctor-submit-btn">
+        <i class="bi bi-file-earmark-medical me-1"></i>
+        Create Prescription
+    </a>
+</div>
+
+<div class="row g-4 mb-4">
+
+    <!-- Patient information -->
+    <div class="col-lg-5">
+        <div class="doctor-card h-100">
+            <div class="doctor-card-header">
+                <h2 class="h5 mb-0"><i class="bi bi-person-lines-fill me-2 text-primary"></i>Patient Information</h2>
+            </div>
+
+            <div class="row g-3">
+                @foreach (var item in info)
+                {
+                    <div class="col-sm-6 col-lg-12 col-xl-6">
+                        <div class="d-flex align-items-start gap-2">
+                            <span class="d-inline-flex align-items-center justify-content-center rounded-3 text-primary flex-shrink-0"
+                                  style="width:36px;height:36px;background:#eaf1ff;">
+                                <i class="bi @item.Icon"></i>
+                            </span>
+                            <div style="min-width:0;">
+                                <div class="text-muted small">@item.Label</div>
+                                <div class="fw-semibold text-break" dir="auto">@item.Value</div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- Medical history -->
+    <div class="col-lg-7">
+        <div class="doctor-card h-100">
+            <div class="doctor-card-header">
+                <h2 class="h5 mb-0"><i class="bi bi-journal-medical me-2 text-primary"></i>Medical History</h2>
+            </div>
+
+            @if (history is null)
+            {
+                <p class="text-muted mb-0">No medical history recorded yet.</p>
+            }
+            else
+            {
+                <div class="mb-3">
+                    <div class="text-muted small mb-1">Notes</div>
+                    @if (string.IsNullOrWhiteSpace(history.Notes))
+                    {
+                        <p class="text-muted mb-0">No medical history notes available.</p>
+                    }
+                    else
+                    {
+                        <p class="mb-0 text-break" style="white-space:pre-wrap;" dir="auto">@history.Notes</p>
+                    }
+                </div>
+
+                <div class="row g-3 pt-3 border-top">
+                    <div class="col-sm-6">
+                        <div class="text-muted small">Created at</div>
+                        <div class="fw-semibold">@DateTimeText(history.CreatedAt)</div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="text-muted small">Last updated at</div>
+                        <div class="fw-semibold">@DateTimeText(history.UpdatedAt)</div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- Medical documents -->
+<div class="doctor-card">
+    <div class="doctor-card-header">
+        <h2 class="h5 mb-0"><i class="bi bi-folder2-open me-2 text-primary"></i>Medical Documents</h2>
+    </div>
+
+    @if (Model.Documents.Count == 0)
+    {
+        <p class="text-muted mb-0">No medical documents available.</p>
+    }
+    else
+    {
+        <div class="list-group list-group-flush">
+            @foreach (var doc in Model.Documents)
+            {
+                <div class="list-group-item px-0 d-flex flex-wrap align-items-center justify-content-between gap-3">
+                    <div class="d-flex align-items-start gap-3" style="min-width:0; flex:1 1 260px;">
+                        <span class="d-inline-flex align-items-center justify-content-center rounded-3 text-primary flex-shrink-0"
+                              style="width:42px;height:42px;background:#eaf1ff;font-size:1.2rem;">
+                            <i class="bi @doc.IconClass"></i>
+                        </span>
+                        <div style="min-width:0;">
+                            <div class="fw-semibold text-break" dir="auto">@Text(doc.FileName)</div>
+                            <div class="text-muted small">
+                                @doc.FileTypeLabel &bull; @doc.FormattedFileSize &bull; @DateText(doc.UploadedAt)
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-2 flex-shrink-0">
+                        <a asp-controller="Doctor" asp-action="ViewMedicalDocument"
+                           asp-route-patientId="@Model.PatientId" asp-route-documentId="@doc.Id"
+                           target="_blank" rel="noopener" class="btn btn-sm btn-outline-primary">
+                            <i class="bi bi-eye me-1"></i> View
+                        </a>
+                        <a asp-controller="Doctor" asp-action="DownloadMedicalDocument"
+                           asp-route-patientId="@Model.PatientId" asp-route-documentId="@doc.Id"
+                           class="btn btn-sm btn-outline-secondary">
+                            <i class="bi bi-download me-1"></i> Download
+                        </a>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>

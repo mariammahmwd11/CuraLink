@@ -73,11 +73,27 @@
                                 }
                             </td>
                             <td class="text-end">
-                                <a asp-controller="Prescription" asp-action="ExportPdf"
-                                   asp-route-id="@prescription.Id"
-                                   class="btn btn-outline-primary btn-sm">
-                                    <i class="bi bi-file-earmark-pdf me-1"></i> Export PDF
-                                </a>
+                                <div class="d-inline-flex align-items-center gap-2">
+
+                                    <!-- View PDF -->
+                                    <a asp-controller="Prescription"
+                                       asp-action="ViewPdf"
+                                       asp-route-id="@prescription.Id"
+                                       target="_blank"
+                                       class="btn btn-outline-secondary btn-sm"
+                                       title="View Prescription">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+
+                                    <!-- Export PDF -->
+                                    <a asp-controller="Prescription"
+                                       asp-action="ExportPdf"
+                                       asp-route-id="@prescription.Id"
+                                       class="btn btn-outline-primary btn-sm">
+                                        <i class="bi bi-file-earmark-pdf me-1"></i> Export PDF
+                                    </a>
+
+                                </div>
                             </td>
                         </tr>
                     }

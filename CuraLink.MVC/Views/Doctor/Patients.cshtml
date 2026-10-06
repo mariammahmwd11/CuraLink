@@ -1,4 +1,5 @@
 ﻿@model List<CuraLink.MVC.Models.Doctors.DoctorPatientViewModel>
+
 @{
     ViewData["Title"] = "My Patients";
     Layout = "_DoctorLayout";
@@ -8,72 +9,153 @@
 
     <div class="doctor-card-header">
         <h1 class="doctor-page-title">My Patients</h1>
-        <p class="doctor-page-subtitle">Patients who have booked an appointment with you.</p>
+        <p class="doctor-page-subtitle">
+            Patients associated with your practice.
+        </p>
     </div>
 
     @if (Model.Count == 0)
     {
         <div class="text-center py-5">
-            <div class="display-5 text-primary mb-2"><i class="bi bi-people"></i></div>
+            <div class="display-5 text-primary mb-2">
+                <i class="bi bi-people"></i>
+            </div>
+
             <h2 class="h5 mb-1">No patients yet</h2>
-            <p class="text-muted mb-0">Patients will appear here after they book an appointment with you.</p>
+
+            <p class="text-muted mb-0">
+                Patients will appear here after they are associated with you.
+            </p>
         </div>
     }
     else
     {
         <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+
             <div class="input-group" style="max-width: 360px;">
-                <span class="input-group-text"><i class="bi bi-search"></i></span>
-                <input type="search" id="patientFilter" class="form-control" placeholder="Search by patient name" autocomplete="off" />
+                <span class="input-group-text">
+                    <i class="bi bi-search"></i>
+                </span>
+
+                <input type="search"
+                       id="patientFilter"
+                       class="form-control"
+                       placeholder="Search by patient name"
+                       autocomplete="off" />
             </div>
-            <span class="text-muted small"><span id="patientCount">@Model.Count</span> patient(s)</span>
+
+            <span class="text-muted small">
+                <span id="patientCount">@Model.Count</span> patient(s)
+            </span>
         </div>
 
         <div class="table-responsive">
+
             <table class="table align-middle mb-0" id="patientsTable">
+
                 <thead>
                     <tr>
                         <th>Patient</th>
-                        <th class="text-center">Appointments</th>
-                        <th>Last visit</th>
-                        <th>Next appointment</th>
+                        <th>Age</th>
+                        <th>Blood Type</th>
+                        <th class="text-end">Action</th>
                     </tr>
                 </thead>
+
                 <tbody>
-                    @foreach (var p in Model)
+
+                    @foreach (var patient in Model)
                     {
-                        <tr data-name="@p.PatientName.ToLowerInvariant()">
-                            <td class="fw-semibold">@p.PatientName</td>
-                            <td class="text-center"><span class="badge bg-primary-subtle text-primary-emphasis">@p.TotalAppointments</span></td>
-                            <td>@(p.LastAppointment?.ToString("dd MMM yyyy, HH:mm") ?? "—")</td>
-                            <td>@(p.NextAppointment?.ToString("dd MMM yyyy, HH:mm") ?? "—")</td>
+                        <tr data-name="@patient.PatientName.ToLowerInvariant()">
+
+                            <td class="fw-semibold">
+                                @patient.PatientName
+                            </td>
+
+                            <td>
+                                @patient.Age
+                            </td>
+
+                            <td>
+                                @(patient.BloodType ?? "—")
+                            </td>
+
+                            <td class="text-end">
+
+                                <a asp-controller="Doctor"
+                                   asp-action="Patient"
+                                   asp-route-id="@patient.PatientId"
+                                   class="btn btn-sm btn-outline-primary">
+
+                                    <i class="bi bi-person-vcard me-1"></i>
+                                    View Profile
+
+                                </a>
+
+                            </td>
+
                         </tr>
                     }
+
                 </tbody>
+
             </table>
+
         </div>
 
-        <div id="noMatches" class="text-center text-muted py-4" hidden>No patients match your search.</div>
+        <div id="noMatches"
+             class="text-center text-muted py-4"
+             hidden>
+            No patients match your search.
+        </div>
     }
 </div>
 
 @section Scripts {
+
     <script>
-        (function () {
+        (function() {
+
             var input = document.getElementById('patientFilter');
-            if (!input) return;
-            var rows = document.querySelectorAll('#patientsTable tbody tr');
-            input.addEventListener('input', function () {
-                var q = input.value.trim().toLowerCase();
+
+            if (!input)
+                return;
+
+            var rows =
+                document.querySelectorAll(
+                    '#patientsTable tbody tr');
+
+            input.addEventListener('input', function() {
+
+                var q =
+                    input.value
+                        .trim()
+                        .toLowerCase();
+
                 var shown = 0;
-                rows.forEach(function (r) {
-                    var match = !q || r.dataset.name.indexOf(q) !== -1;
-                    r.hidden = !match;
-                    if (match) shown++;
+
+                rows.forEach(function(row) {
+
+                    var match =
+                        !q ||
+                        row.dataset.name.indexOf(q) !== -1;
+
+                    row.hidden = !match;
+
+                    if (match)
+                        shown++;
                 });
-                document.getElementById('patientCount').textContent = shown;
-                document.getElementById('noMatches').hidden = shown !== 0;
+
+                document.getElementById(
+                    'patientCount'
+                ).textContent = shown;
+
+                document.getElementById(
+                    'noMatches'
+                ).hidden = shown !== 0;
+
             });
+
         })();
     </script>
 }

@@ -106,6 +106,13 @@
                     <i class="bi bi-calendar-week"></i>
                     Schedule
                 </a>
+                <a class="doctor-nav-link @(isScheduleActive ? "active" : "")"
+                   asp-controller="Prescription"
+                   asp-action="Index">
+
+                    <i class="bi bi-calendar-week"></i>
+                    Prescriptions
+                </a>
 
                 <!-- Profile -->
                 <a class="doctor-nav-link @(isProfileActive ? "active" : "")"

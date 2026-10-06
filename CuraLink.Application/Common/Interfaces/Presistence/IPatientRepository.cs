@@ -13,5 +13,8 @@ namespace CuraLink.Application.Common.Interfaces.Presistence
         Task<Patient?> GetByApplicationUserIdAsync(
          string applicationUserId,
          CancellationToken cancellationToken = default);
+        Task<Patient?> GetByIdAsync(
+    Guid patientId,
+    CancellationToken cancellationToken = default);
     }
 }

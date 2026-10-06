@@ -119,6 +119,9 @@ app.MapGetDoctorScheduleEndpoint();
 app.MapGetAvailableDoctorSlotsEndpoint(); 
 app.MapDeleteClinicEndpoint(); 
 app.MapUpdateClinicEndpoint(); 
+app.MapGetPatientProfileEndpoint();
+app.MapGetDoctorMedicalDocumentEndpoint();
+app.MapDownloadDoctorMedicalDocumentEndpoint();
 //notification api endpoints
 app.MapRegisterNotificationSubscriptionEndpoint();
 app.MapMarkNotificationAsReadEndpoint();

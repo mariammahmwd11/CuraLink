@@ -1,11 +1,14 @@
-﻿namespace CuraLink.MVC.Models.Doctors
+﻿namespace CuraLink.MVC.Models.Doctors;
+
+public class DoctorPatientViewModel
 {
-    // One row per distinct patient who has booked with the doctor.
-    public class DoctorPatientViewModel
-    {
-        public string PatientName { get; set; } = string.Empty;
-        public int TotalAppointments { get; set; }
-        public DateTime? LastAppointment { get; set; }   // most recent past appointment
-        public DateTime? NextAppointment { get; set; }   // soonest future appointment
-    }
+    public Guid PatientId { get; set; }
+
+    public Guid PatientUserId { get; set; }
+
+    public string PatientName { get; set; } = string.Empty;
+
+    public int Age { get; set; }
+
+    public string? BloodType { get; set; }
 }

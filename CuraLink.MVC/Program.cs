@@ -42,6 +42,10 @@ builder.Services.AddHttpClient<AppointmentApiClient>(client =>
 {
     client.BaseAddress = new Uri(apiBaseUrl);
 });
+builder.Services.AddHttpClient<DoctorPatientApiClient>(client =>
+{
+    client.BaseAddress = new Uri(apiBaseUrl);
+});
 builder.Services.AddScoped<ClinicAssistantApiService>();
 
 builder.Services
