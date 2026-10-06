@@ -1,0 +1,78 @@
+﻿@{
+    ViewData["Title"] = "Book Appointment";
+    ViewData["PageTitle"] = "Book Appointment";
+    Layout = "~/Views/Shared/_AssistantLayout.cshtml";
+}
+
+<div id="baRoot" data-patient-id="@ViewBag.PatientId" data-patient-name="@ViewBag.PatientName">
+    <div id="baSuccess" class="alert alert-success" role="alert" hidden>Appointment booked successfully.</div>
+    <div id="baError" class="alert alert-danger" role="alert" hidden></div>
+
+    <div class="row g-4">
+        <div class="col-lg-7">
+            <!-- 1. Patient -->
+            <div class="patient-upload-card mb-4" style="max-width:none">
+                <h3 class="patient-section-title mb-3">1. Patient</h3>
+
+                <div id="baPatientChosen" hidden class="d-flex align-items-center justify-content-between border rounded-3 p-3">
+                    <div><div class="fw-semibold" id="baPatientName"></div><div class="text-muted small">Selected patient</div></div>
+                    <button type="button" class="btn btn-sm btn-outline-secondary" id="baChange">Change</button>
+                </div>
+
+                <div id="baPatientPicker">
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-search"></i></span>
+                        <input type="search" class="form-control" id="baSearch" maxlength="100" autocomplete="off"
+                               placeholder="Search by name, email or phone" />
+                    </div>
+                    <div id="baSearchState" class="text-muted small mt-2"></div>
+                    <div class="list-group mt-2" id="baResults"></div>
+                </div>
+            </div>
+
+            <!-- 2. Date -->
+            <div class="patient-upload-card mb-4" style="max-width:none">
+                <h3 class="patient-section-title mb-3">2. Date</h3>
+                <input type="date" class="form-control" id="baDate" />
+            </div>
+
+            <!-- 3. Time -->
+            <div class="patient-upload-card" style="max-width:none">
+                <h3 class="patient-section-title mb-3">3. Time</h3>
+                <div class="row g-3">
+                    <div class="col-sm-6">
+                        <label class="form-label" for="baStart">Start time</label>
+                        <input type="time" class="form-control" id="baStart" step="300" />
+                    </div>
+                    <div class="col-sm-6">
+                        <label class="form-label" for="baEnd">End time</label>
+                        <input type="time" class="form-control" id="baEnd" step="300" />
+                    </div>
+                </div>
+                <div class="form-text mt-2">The end time is filled in as 30 minutes after the start. The system checks the doctor's availability when you confirm.</div>
+            </div>
+        </div>
+
+        <div class="col-lg-5">
+            <div class="patient-upload-card" style="max-width:none; position:sticky; top:90px;">
+                <h3 class="patient-section-title mb-3">Summary</h3>
+                <dl class="mb-3">
+                    <dt class="text-muted small fw-normal">Patient</dt>
+                    <dd class="fw-semibold" id="sumPatient">&mdash;</dd>
+                    <dt class="text-muted small fw-normal">Date</dt>
+                    <dd class="fw-semibold" id="sumDate">&mdash;</dd>
+                    <dt class="text-muted small fw-normal">Selected time</dt>
+                    <dd class="fw-semibold mb-0" id="sumTime">&mdash;</dd>
+                </dl>
+                <button type="button" class="btn btn-primary w-100" id="baConfirm" disabled>
+                    <span class="spinner-border spinner-border-sm me-2" id="baSpinner" hidden></span>
+                    <span id="baLabel">Confirm Booking</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/clinic-assistant/book-appointment.js" asp-append-version="true"></script>
+}

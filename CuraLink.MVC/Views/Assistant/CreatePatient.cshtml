@@ -1,0 +1,71 @@
+﻿@{
+    ViewData["Title"] = "Add Patient";
+    ViewData["PageTitle"] = "Add Patient";
+    Layout = "~/Views/Shared/_AssistantLayout.cshtml";
+}
+
+<div class="patient-upload-card" style="max-width:720px">
+
+    <div id="cpSuccess" class="alert alert-success" role="alert" hidden>
+        <div class="fw-semibold" id="cpSuccessText"></div>
+        <a class="btn btn-sm btn-primary mt-2" id="cpBookLink" href="#"><i class="bi bi-calendar-plus me-1"></i>Book appointment for this patient</a>
+    </div>
+    <div id="cpError" class="alert alert-danger" role="alert" hidden></div>
+
+    <form id="cpForm" novalidate>
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label class="form-label" for="cpFirst">First name <span class="text-danger">*</span></label>
+                <input class="form-control" id="cpFirst" maxlength="50" autocomplete="off" />
+                <div class="invalid-feedback"></div>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label" for="cpLast">Last name <span class="text-danger">*</span></label>
+                <input class="form-control" id="cpLast" maxlength="50" autocomplete="off" />
+                <div class="invalid-feedback"></div>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label" for="cpEmail">Email <span class="text-danger">*</span></label>
+                <input class="form-control" id="cpEmail" type="email" maxlength="100" autocomplete="off" />
+                <div class="invalid-feedback"></div>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label" for="cpPhone">Phone <span class="text-danger">*</span></label>
+                <input class="form-control" id="cpPhone" type="tel" maxlength="11" placeholder="01012345678" autocomplete="off" />
+                <div class="invalid-feedback"></div>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label" for="cpDob">Date of birth <span class="text-danger">*</span></label>
+                <input class="form-control" id="cpDob" type="date" />
+                <div class="invalid-feedback"></div>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label" for="cpBlood">Blood type <span class="text-muted small">(optional)</span></label>
+                <select class="form-select" id="cpBlood">
+                    <option value="">Not specified</option>
+                    <option>A+</option>
+                    <option>A-</option>
+                    <option>B+</option>
+                    <option>B-</option>
+                    <option>AB+</option>
+                    <option>AB-</option>
+                    <option>O+</option>
+                    <option>O-</option>
+                </select>
+            </div>
+            <div class="col-12">
+                <label class="form-label" for="cpNotes">Medical history notes <span class="text-muted small">(optional)</span></label>
+                <textarea class="form-control" id="cpNotes" rows="3" maxlength="1000"></textarea>
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary mt-4" id="cpSubmit">
+            <span class="spinner-border spinner-border-sm me-2" id="cpSpinner" hidden></span>
+            <span id="cpLabel">Create patient</span>
+        </button>
+    </form>
+</div>
+
+@section Scripts {
+    <script src="~/js/clinic-assistant/create-patient.js" asp-append-version="true"></script>
+}

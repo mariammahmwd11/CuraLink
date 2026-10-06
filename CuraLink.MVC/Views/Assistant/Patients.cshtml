@@ -1,0 +1,47 @@
+﻿@{
+    ViewData["Title"] = "Find Patient";
+    ViewData["PageTitle"] = "Find Patient";
+    Layout = "~/Views/Shared/_AssistantLayout.cshtml";
+}
+
+<div class="patient-upload-card mb-4" style="max-width:none">
+    <label for="patientSearch" class="form-label fw-semibold">Search patients in your clinic</label>
+    <div class="input-group">
+        <span class="input-group-text"><i class="bi bi-search"></i></span>
+        <input type="search" id="patientSearch" class="form-control" maxlength="100" autocomplete="off"
+               placeholder="Name, email or phone number" autofocus />
+        <button type="button" class="btn btn-primary" id="patientSearchBtn">Search</button>
+    </div>
+    <div class="form-text">Results appear as you type.</div>
+</div>
+
+<div id="psHint" class="patient-empty-state">
+    <div class="patient-empty-icon"><i class="bi bi-search"></i></div>
+    <div class="patient-empty-title">Search for a patient</div>
+    <div class="patient-empty-subtitle mb-0">Enter a name, email or phone number to find a patient.</div>
+</div>
+
+<div id="psLoading" class="patient-empty-state" hidden>
+    <div class="spinner-border text-primary mb-3" role="status"></div>
+    <div class="patient-empty-title">Searching...</div>
+</div>
+
+<div id="psError" class="alert alert-danger" role="alert" hidden></div>
+
+<div id="psEmpty" class="patient-empty-state" hidden>
+    <div class="patient-empty-icon"><i class="bi bi-person-x"></i></div>
+    <div class="patient-empty-title">No patients found</div>
+    <div class="patient-empty-subtitle">Check the spelling, or add the patient as a new one.</div>
+    <a class="btn btn-primary" asp-action="CreatePatient"><i class="bi bi-person-plus me-1"></i>Add new patient</a>
+</div>
+
+<div class="table-responsive bg-white border rounded-3" id="psTableWrap" hidden>
+    <table class="table align-middle mb-0">
+        <thead><tr><th>Patient</th><th>Email</th><th>Phone</th><th class="text-end">Actions</th></tr></thead>
+        <tbody id="psRows"></tbody>
+    </table>
+</div>
+
+@section Scripts {
+    <script src="~/js/clinic-assistant/patients.js" asp-append-version="true"></script>
+}

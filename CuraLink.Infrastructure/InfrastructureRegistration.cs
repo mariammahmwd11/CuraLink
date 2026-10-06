@@ -177,10 +177,16 @@ namespace CuraLink.Infrastructure
                         ClaimTypes.Role,
                         "Admin");
                 });
-                options.AddPolicy("Patient", policy => policy.RequireRole("Patient"));
-                options.AddPolicy("Doctor", policy => policy.RequireRole("Doctor"));
-            });
 
+                options.AddPolicy("Patient", policy =>
+                    policy.RequireRole("Patient"));
+
+                options.AddPolicy("Doctor", policy =>
+                    policy.RequireRole("Doctor"));
+
+                options.AddPolicy("Receptionist", policy =>
+                    policy.RequireRole("Receptionist"));
+            });
             services.AddCors(options =>
             {
                 options.AddPolicy("MvcClient", policy =>

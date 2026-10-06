@@ -1,5 +1,7 @@
 ﻿@{
+    var action = ViewContext.RouteData.Values["action"]?.ToString() ?? "";
     var controller = ViewContext.RouteData.Values["controller"]?.ToString() ?? "";
+    bool Active(string name) => controller == "Assistant" && action == name;
     var pageTitle = ViewData["PageTitle"]?.ToString() ?? ViewData["Title"]?.ToString() ?? "Dashboard";
 }
 <!DOCTYPE html>
@@ -15,6 +17,7 @@
     <link rel="stylesheet" href="~/css/patient-dashboard.css" asp-append-version="true" />
 </head>
 <body class="patient-body">
+    @Html.AntiForgeryToken()
     <div class="patient-wrapper">
 
         <!-- Sidebar -->
@@ -25,24 +28,22 @@
             </div>
 
             <nav class="patient-nav">
-                <a class="patient-nav-link @(controller == "Assistant" ? "active" : "")"
-                   asp-controller="Assistant" asp-action="Index">
+                <a class="patient-nav-link @(Active("Index") ? "active" : "")" asp-controller="Assistant" asp-action="Index">
                     <i class="bi bi-grid"></i> Dashboard
                 </a>
-                <a class="patient-nav-link disabled" href="#" tabindex="-1">
-                    <i class="bi bi-calendar-check"></i> Appointments
-                    <span class="patient-nav-soon">Soon</span>
+                <a class="patient-nav-link @(Active("Patients") ? "active" : "")" asp-controller="Assistant" asp-action="Patients">
+                    <i class="bi bi-search"></i> Find Patient
                 </a>
-                <a class="patient-nav-link disabled" href="#" tabindex="-1">
-                    <i class="bi bi-people"></i> Patients
-                    <span class="patient-nav-soon">Soon</span>
+                <a class="patient-nav-link @(Active("CreatePatient") ? "active" : "")" asp-controller="Assistant" asp-action="CreatePatient">
+                    <i class="bi bi-person-plus"></i> Add Patient
                 </a>
-                <a class="patient-nav-link disabled" href="#" tabindex="-1">
-                    <i class="bi bi-person-badge"></i> Clinic Doctors
-                    <span class="patient-nav-soon">Soon</span>
+                <a class="patient-nav-link @(Active("BookAppointment") ? "active" : "")" asp-controller="Assistant" asp-action="BookAppointment">
+                    <i class="bi bi-calendar-plus"></i> Book Appointment
+                </a>
+                <a class="patient-nav-link @(Active("TodayAppointments") ? "active" : "")" asp-controller="Assistant" asp-action="TodayAppointments">
+                    <i class="bi bi-calendar-check"></i> Today's Appointments
                 </a>
 
-                @* Users who are both Patient and Receptionist can jump between dashboards. *@
                 @if (User.IsInRole("Patient"))
                 {
                     <a class="patient-nav-link" asp-controller="Patient" asp-action="Index">
@@ -54,7 +55,6 @@
             <div class="patient-sidebar-footer">
                 @* Adjust to your real logout action (Auth/Logout). *@
                 <form asp-controller="Auth" asp-action="Logout" method="post" class="m-0">
-                    @Html.AntiForgeryToken()
                     <button type="submit" class="patient-nav-link patient-logout w-100 border-0 bg-transparent text-start">
                         <i class="bi bi-box-arrow-right"></i> Log out
                     </button>
@@ -94,7 +94,21 @@
                 toggle.addEventListener('click', function() { setOpen(!sidebar.classList.contains('open')); });
                 backdrop.addEventListener('click', function() { setOpen(false); });
             })();
+
+            window.assistantUrls = @Json.Serialize(new
+                {
+                            dashboardData = Url.Action("DashboardData", "Assistant"),
+                            todayData = Url.Action("TodayData", "Assistant"),
+                            searchPatients = Url.Action("SearchPatients", "Assistant"),
+                            createPatientApi = Url.Action("CreatePatientApi", "Assistant"),
+                            bookApi = Url.Action("BookApi", "Assistant"),
+                            checkIn = Url.Action("CheckIn", "Assistant"),
+                            bookPage = Url.Action("BookAppointment", "Assistant"),
+                            todayPage = Url.Action("TodayAppointments", "Assistant"),
+                            loginPage = Url.Action("Login", "Auth")
+                });
     </script>
+    <script src="~/js/clinic-assistant/common.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

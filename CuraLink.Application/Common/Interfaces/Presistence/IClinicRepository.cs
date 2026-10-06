@@ -16,5 +16,10 @@ namespace CuraLink.Application.Common.Interfaces.Presistence
     Guid doctorId,
     CancellationToken cancellationToken);
 
+        Task<Clinic?> GetByIdAsync(
+    Guid id,
+    CancellationToken cancellationToken);
+        void Delete(Clinic clinic);
+
     }
 }

@@ -10,7 +10,19 @@
      data-doctor-name="@Model.DoctorName">
 
     <div class="patient-profile-header">
-        <span class="patient-avatar">@Model.DoctorName.Substring(0, 1).ToUpperInvariant()</span>
+        @if (!string.IsNullOrWhiteSpace(Model.ProfilePhoto))
+        {
+            <img src="@Model.ProfilePhoto"
+                 alt="Dr. @Model.DoctorName"
+                 class="patient-avatar"
+                 style="object-fit: cover;" />
+        }
+        else
+        {
+            <span class="patient-avatar">
+                @Model.DoctorName.Substring(0, 1).ToUpperInvariant()
+            </span>
+        }
         <div>
             <h2 class="patient-profile-name">@Model.DoctorName</h2>
             @if (!string.IsNullOrWhiteSpace(Model.Specialty))

@@ -30,6 +30,7 @@ namespace CuraLink.MVC.Models.Patients
         public Guid Id { get; set; }
         public Guid ClinicId { get; set; }
         public string FullName { get; set; } = string.Empty;
+        public string? ProfilePhoto { get; set; }
         public string Specialty { get; set; } = string.Empty;
         public string Address { get; set; } = string.Empty;
         public string Governorate { get; set; } = string.Empty;

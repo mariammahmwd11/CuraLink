@@ -118,12 +118,51 @@ namespace CuraLink.MVC.Controllers
 
                 if (!string.IsNullOrEmpty(model.ReturnUrl) && Url.IsLocalUrl(model.ReturnUrl))
                     return LocalRedirect(model.ReturnUrl);
+                // Clinic invitation...
+                if (!string.IsNullOrEmpty(model.InvitationToken))
+                {
+                    return RedirectToAction(
+                        "Invitation",
+                        "ClinicAssistant",
+                        new { token = model.InvitationToken });
+                }
 
-                // Clinic assistants (Receptionist, not Doctor/Admin) land on their dashboard.
-                if (roles.Contains("Receptionist") && !roles.Contains("Doctor") && !roles.Contains("Admin"))
-                    return RedirectToAction("Index", "Assistant");
+                if (!string.IsNullOrEmpty(model.ReturnUrl) &&
+                    Url.IsLocalUrl(model.ReturnUrl))
+                {
+                    return LocalRedirect(model.ReturnUrl);
+                }
 
-                return RedirectToAction("Index", "Home");
+                // Patient -> Patient Dashboard
+                if (roles.Contains("Patient"))
+                {
+                    return RedirectToAction(
+                        "Dashboard",
+                        "Patient");
+                }
+
+                // Doctor -> Doctor Dashboard
+                if (roles.Contains("Doctor"))
+                {
+                    return RedirectToAction(
+                        "Dashboard",
+                        "Doctor");
+                }
+
+                // Clinic assistant -> Assistant Dashboard
+                if (roles.Contains("Receptionist") &&
+                    !roles.Contains("Doctor") &&
+                    !roles.Contains("Admin"))
+                {
+                    return RedirectToAction(
+                        "Index",
+                        "Assistant");
+                }
+
+                // Other roles -> Home for now
+                return RedirectToAction(
+                    "Index",
+                    "Home");
             }
             catch
             {
@@ -321,5 +360,15 @@ namespace CuraLink.MVC.Controllers
                 accessToken
             });
         }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Logout()
+        {
+            await HttpContext.SignOutAsync(
+                CookieAuthenticationDefaults.AuthenticationScheme);
+
+            return RedirectToAction("Login", "Auth");
+        }
+
     }
 }

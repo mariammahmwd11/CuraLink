@@ -236,6 +236,7 @@ namespace CuraLink.MVC.Services
                         ClinicId = dto.ClinicId,
                         FullName = dto.FullName,
                         Specialty = dto.Specialty,
+                        ProfilePhoto = dto.ProfilePhoto,
                         Address = dto.Address,
                         Governorate = dto.Governorate,
                         ConsultationPrice =
@@ -255,8 +256,161 @@ namespace CuraLink.MVC.Services
                 TotalPages = apiResult.TotalPages
             };
         }
+        public async Task<(Stream Stream, string ContentType, string FileName)> GetMedicalDocumentAsync(
+    int documentId,
+    CancellationToken cancellationToken = default)
+        {
+            var token = GetToken();
 
+            using var request = new HttpRequestMessage(
+                HttpMethod.Get,
+                $"/api/patient/medical-documents/{documentId}");
 
+            request.Headers.Authorization =
+                new AuthenticationHeaderValue("Bearer", token);
+
+            var response = await _httpClient.SendAsync(
+                request,
+                HttpCompletionOption.ResponseHeadersRead,
+                cancellationToken);
+
+            if (response.StatusCode == HttpStatusCode.Unauthorized)
+            {
+                throw new UnauthorizedAccessException(
+                    "You are not authorized to view this document.");
+            }
+
+            if (response.StatusCode == HttpStatusCode.NotFound)
+            {
+                throw new FileNotFoundException(
+                    "Medical document not found.");
+            }
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var errorMessage =
+                    await response.Content.ReadAsStringAsync(cancellationToken);
+
+                throw new HttpRequestException(
+                    $"Failed to view medical document. " +
+                    $"Status: {response.StatusCode}. " +
+                    $"Error: {errorMessage}");
+            }
+
+            var stream = await response.Content.ReadAsStreamAsync(
+                cancellationToken);
+
+            var contentType =
+                response.Content.Headers.ContentType?.MediaType
+                ?? "application/octet-stream";
+
+            var fileName =
+                response.Content.Headers.ContentDisposition?.FileNameStar
+                ?? response.Content.Headers.ContentDisposition?.FileName
+                ?? "medical-document";
+
+            fileName = fileName.Trim('"');
+
+            return (stream, contentType, fileName);
+        }
+        public async Task<(Stream Stream, string ContentType, string FileName)> DownloadMedicalDocumentAsync(
+    int documentId,
+    CancellationToken cancellationToken = default)
+        {
+            var token = GetToken();
+
+            using var request = new HttpRequestMessage(
+                HttpMethod.Get,
+                $"/api/patient/medical-documents/{documentId}/download");
+
+            request.Headers.Authorization =
+                new AuthenticationHeaderValue("Bearer", token);
+
+            var response = await _httpClient.SendAsync(
+                request,
+                HttpCompletionOption.ResponseHeadersRead,
+                cancellationToken);
+
+            if (response.StatusCode == HttpStatusCode.Unauthorized)
+            {
+                throw new UnauthorizedAccessException(
+                    "You are not authorized to download this document.");
+            }
+
+            if (response.StatusCode == HttpStatusCode.NotFound)
+            {
+                throw new FileNotFoundException(
+                    "Medical document not found.");
+            }
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var errorMessage =
+                    await response.Content.ReadAsStringAsync(cancellationToken);
+
+                throw new HttpRequestException(
+                    $"Failed to download medical document. " +
+                    $"Status: {response.StatusCode}. " +
+                    $"Error: {errorMessage}");
+            }
+
+            var stream = await response.Content.ReadAsStreamAsync(
+                cancellationToken);
+
+            var contentType =
+                response.Content.Headers.ContentType?.MediaType
+                ?? "application/octet-stream";
+
+            var fileName =
+                response.Content.Headers.ContentDisposition?.FileNameStar
+                ?? response.Content.Headers.ContentDisposition?.FileName
+                ?? "medical-document";
+
+            fileName = fileName.Trim('"');
+
+            return (stream, contentType, fileName);
+        }
+
+        public async Task DeleteMedicalDocumentAsync(
+    int documentId,
+    CancellationToken cancellationToken = default)
+        {
+            var token = GetToken();
+
+            using var request = new HttpRequestMessage(
+                HttpMethod.Delete,
+                $"/api/patient/medical-documents/{documentId}");
+
+            request.Headers.Authorization =
+                new AuthenticationHeaderValue("Bearer", token);
+
+            var response = await _httpClient.SendAsync(
+                request,
+                cancellationToken);
+
+            if (response.StatusCode == HttpStatusCode.Unauthorized)
+            {
+                throw new UnauthorizedAccessException(
+                    "You are not authorized to delete this document.");
+            }
+
+            if (response.StatusCode == HttpStatusCode.NotFound)
+            {
+                throw new FileNotFoundException(
+                    "Medical document not found.");
+            }
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var errorMessage =
+                    await response.Content.ReadAsStringAsync(cancellationToken);
+
+                throw new HttpRequestException(
+                    $"Failed to delete medical document. " +
+                    $"Status: {response.StatusCode}. " +
+                    $"Error: {errorMessage}");
+            }
+        }
         // =========================================================
         // Authentication
         // =========================================================
@@ -429,7 +583,7 @@ namespace CuraLink.MVC.Services
 
             public string Specialty { get; set; }
                 = string.Empty;
-
+            public string? ProfilePhoto { get; set; }
             public string Address { get; set; }
                 = string.Empty;
 

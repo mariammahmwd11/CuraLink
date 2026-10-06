@@ -40,5 +40,19 @@ namespace CuraLink.Infrastructure.Presistance.Repositories
                 })
                 .ToListAsync(cancellationToken);
         }
+        public async Task<Clinic?> GetByIdAsync(
+    Guid id,
+    CancellationToken cancellationToken = default)
+        {
+            return await applicationDbContext.Clinics
+                .FirstOrDefaultAsync(
+                    c => c.Id == id,
+                    cancellationToken);
+        }
+
+        public void Delete(Clinic clinic)
+        {
+            applicationDbContext.Clinics.Remove(clinic);
+        }
     }
 }

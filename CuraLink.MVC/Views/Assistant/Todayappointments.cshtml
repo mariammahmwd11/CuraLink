@@ -1,0 +1,40 @@
+﻿@{
+    ViewData["Title"] = "Today's Appointments";
+    ViewData["PageTitle"] = "Today's Appointments";
+    Layout = "~/Views/Shared/_AssistantLayout.cshtml";
+}
+
+<div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+    <div class="btn-group flex-wrap" role="group" aria-label="Filter appointments" id="taFilters">
+        <button type="button" class="btn btn-outline-primary active" data-filter="all">All</button>
+        <button type="button" class="btn btn-outline-primary" data-filter="confirmed">Confirmed / Waiting</button>
+        <button type="button" class="btn btn-outline-primary" data-filter="checkedin">Checked in</button>
+        <button type="button" class="btn btn-outline-primary" data-filter="completed">Completed</button>
+        <button type="button" class="btn btn-outline-primary" data-filter="cancelled">Cancelled</button>
+    </div>
+    <button type="button" class="btn btn-outline-secondary" id="taRefresh"><i class="bi bi-arrow-clockwise me-1"></i>Refresh</button>
+</div>
+
+<div id="taLoading" class="patient-empty-state">
+    <div class="spinner-border text-primary mb-3" role="status"></div>
+    <div class="patient-empty-title">Loading appointments...</div>
+</div>
+
+<div id="taError" class="alert alert-danger" role="alert" hidden></div>
+
+<div id="taEmpty" class="patient-empty-state" hidden>
+    <div class="patient-empty-icon"><i class="bi bi-calendar2-x"></i></div>
+    <div class="patient-empty-title" id="taEmptyTitle">No appointments today</div>
+    <div class="patient-empty-subtitle mb-0">Appointments for your clinic will appear here.</div>
+</div>
+
+<div class="table-responsive bg-white border rounded-3" id="taTableWrap" hidden>
+    <table class="table align-middle mb-0">
+        <thead><tr><th>Time</th><th>Patient</th><th>Doctor</th><th>Status</th><th class="text-end">Actions</th></tr></thead>
+        <tbody id="taRows"></tbody>
+    </table>
+</div>
+
+@section Scripts {
+    <script src="~/js/clinic-assistant/today-appointments.js" asp-append-version="true"></script>
+}

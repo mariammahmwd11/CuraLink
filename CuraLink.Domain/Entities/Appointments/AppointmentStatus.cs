@@ -9,6 +9,7 @@ namespace CuraLink.Domain.Entities.Appointments
         Pending,
         Paid,
         Confirmed,
+        CheckedIn,
         Cancelled,
         Completed
     }

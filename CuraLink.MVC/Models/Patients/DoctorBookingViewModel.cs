@@ -6,6 +6,7 @@
         public Guid ClinicId { get; set; }
         public string DoctorName { get; set; } = "Doctor";
         public string? Specialty { get; set; }
+        public string? ProfilePhoto { get; set; }
         public string? Address { get; set; }
         public string? Governorate { get; set; }
         public decimal ConsultationPrice { get; set; }

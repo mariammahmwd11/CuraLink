@@ -13,14 +13,19 @@ namespace CuraLink.MVC.Controllers
         private readonly ClinicApiClient _clinicApiClient;
         private readonly DoctorScheduleApiClient _scheduleApiClient;
         private readonly AppointmentApiClient _appointmentApiClient;
+        // Despite its name, GetProfileAsync/UpdateProfileAsync call the shared /api/profile endpoints.
+        private readonly PatientApiClient _profileApiClient;
 
         public DoctorController(
             ClinicApiClient clinicApiClient,
-            DoctorScheduleApiClient scheduleApiClient,AppointmentApiClient appointmentApiClient)
+            DoctorScheduleApiClient scheduleApiClient,
+            AppointmentApiClient appointmentApiClient,
+            PatientApiClient profileApiClient)
         {
             _clinicApiClient = clinicApiClient;
             _scheduleApiClient = scheduleApiClient;
             _appointmentApiClient = appointmentApiClient;
+            _profileApiClient = profileApiClient;
         }
 
         [HttpGet]
@@ -28,6 +33,7 @@ namespace CuraLink.MVC.Controllers
         {
             return RedirectToAction(nameof(Dashboard));
         }
+
         [HttpGet]
         public async Task<IActionResult> Appointments(CancellationToken cancellationToken)
         {
@@ -46,8 +52,13 @@ namespace CuraLink.MVC.Controllers
                 return View(new List<MyAppointmentViewModel>());
             }
         }
+
+        // =========================================================
+        // Dashboard
+        // =========================================================
+
         [HttpGet]
-        public async Task<IActionResult> Dashboard()
+        public async Task<IActionResult> Dashboard(CancellationToken cancellationToken)
         {
             var model = new DoctorDashboardViewModel
             {
@@ -64,11 +75,174 @@ namespace CuraLink.MVC.Controllers
                 return RedirectToAction("Login", "Auth");
             }
 
-            model.TodaysAppointments = 0;
-            model.UpcomingAppointments = 0;
-            model.TotalPatients = 0;
+            // Numbers are computed from the doctor's real appointments.
+            try
+            {
+                var bookings = await GetRealBookingsAsync(cancellationToken);
+                var today = DateTime.Today;
+
+                model.TodaysAppointments = bookings.Count(a => a.Date.Date == today);
+                model.UpcomingAppointments = bookings.Count(a => a.Date.Date > today && !IsStatus(a, "Completed"));
+                model.TotalPatients = bookings
+                    .Select(a => a.PatientName.Trim())
+                    .Where(n => n.Length > 0)
+                    .Distinct(StringComparer.OrdinalIgnoreCase)
+                    .Count();
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return RedirectToAction("Login", "Auth");
+            }
+            catch (Exception)
+            {
+                // Keep the dashboard usable: the numbers stay at 0 if appointments can't be loaded.
+            }
 
             return View(model);
+        }
+
+        // =========================================================
+        // Patients (everyone who has booked with this doctor)
+        // =========================================================
+
+        [HttpGet]
+        public async Task<IActionResult> Patients(CancellationToken cancellationToken)
+        {
+            try
+            {
+                var bookings = await GetRealBookingsAsync(cancellationToken);
+                var now = DateTime.Now;
+
+                var patients = bookings
+                    .Where(a => !string.IsNullOrWhiteSpace(a.PatientName))
+                    .GroupBy(a => a.PatientName.Trim(), StringComparer.OrdinalIgnoreCase)
+                    .Select(g => new DoctorPatientViewModel
+                    {
+                        PatientName = g.Key,
+                        TotalAppointments = g.Count(),
+                        LastAppointment = g
+                            .Select(a => a.Date.Date.Add(a.StartTime))
+                            .Where(t => t <= now)
+                            .Select(t => (DateTime?)t)
+                            .Max(),
+                        NextAppointment = g
+                            .Select(a => a.Date.Date.Add(a.StartTime))
+                            .Where(t => t > now)
+                            .Select(t => (DateTime?)t)
+                            .Min()
+                    })
+                    .OrderBy(p => p.PatientName)
+                    .ToList();
+
+                return View(patients);
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return RedirectToAction("Login", "Auth");
+            }
+            catch (Exception)
+            {
+                TempData["ErrorMessage"] = "Unable to load your patients. Please try again.";
+                return View(new List<DoctorPatientViewModel>());
+            }
+        }
+
+        // =========================================================
+        // Profile (shared /api/profile endpoints)
+        // =========================================================
+
+        [HttpGet]
+        public async Task<IActionResult> Profile(CancellationToken cancellationToken)
+        {
+            try
+            {
+                var profile = await _profileApiClient.GetProfileAsync(cancellationToken);
+                profile.Email = GetEmail(); // API doesn't return email
+                return View(profile);
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return RedirectToAction("Login", "Auth");
+            }
+            catch (Exception)
+            {
+                return View(new PatientProfileViewModel { Email = GetEmail() });
+            }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> EditProfile(CancellationToken cancellationToken)
+        {
+            try
+            {
+                var profile = await _profileApiClient.GetProfileAsync(cancellationToken);
+                profile.Email = GetEmail();
+                return View(profile);
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return RedirectToAction("Login", "Auth");
+            }
+            catch (Exception)
+            {
+                return RedirectToAction(nameof(Profile));
+            }
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditProfile(
+            PatientProfileViewModel model,
+            CancellationToken cancellationToken)
+        {
+            const long maxFileSize = 5 * 1024 * 1024;
+            var allowedContentTypes = new[] { "image/jpeg", "image/jpg", "image/png", "image/webp" };
+
+            if (model.ProfilePhoto is { Length: > 0 })
+            {
+                if (model.ProfilePhoto.Length > maxFileSize)
+                {
+                    ModelState.AddModelError(string.Empty, "Profile photo must not exceed 5 MB.");
+                }
+                else if (!allowedContentTypes.Contains(model.ProfilePhoto.ContentType))
+                {
+                    ModelState.AddModelError(string.Empty, "Only JPG, JPEG, PNG, and WebP images are allowed.");
+                }
+            }
+
+            if (!ModelState.IsValid)
+            {
+                model.Email = GetEmail();
+                return View(model);
+            }
+
+            try
+            {
+                await _profileApiClient.UpdateProfileAsync(
+                    model.PhoneNumber,
+                    model.Bio,
+                    model.ProfilePhoto,
+                    cancellationToken);
+
+                TempData["SuccessMessage"] = "Your profile was updated successfully.";
+                return RedirectToAction(nameof(Profile));
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return RedirectToAction("Login", "Auth");
+            }
+            catch (HttpRequestException ex)
+            {
+                ModelState.AddModelError(string.Empty, ex.Message);
+                model.Email = GetEmail();
+                return View(model);
+            }
+            catch (Exception)
+            {
+                ModelState.AddModelError(string.Empty, "Something went wrong while updating your profile.");
+                model.Email = GetEmail();
+                return View(model);
+            }
         }
 
         // =========================================================
@@ -162,6 +336,31 @@ namespace CuraLink.MVC.Controllers
                 return View(model);
             }
         }
+
+        // =========================================================
+        // Helpers
+        // =========================================================
+
+        private static bool IsStatus(MyAppointmentViewModel a, string status) =>
+            string.Equals(a.Status?.Trim(), status, StringComparison.OrdinalIgnoreCase);
+
+        // Appointments that count as real bookings: not Pending (unpaid) and not Cancelled.
+        private async Task<List<MyAppointmentViewModel>> GetRealBookingsAsync(CancellationToken cancellationToken)
+        {
+            var all = await _appointmentApiClient.GetMyAppointmentsAsync(cancellationToken);
+
+            return all
+                .Where(a => !IsStatus(a, "Pending")
+                         && !IsStatus(a, "Cancelled")
+                         && !IsStatus(a, "Canceled"))
+                .ToList();
+        }
+
+        private string GetEmail() =>
+            User.FindFirst("Email")?.Value
+            ?? User.FindFirst(ClaimTypes.Email)?.Value
+            ?? User.FindFirst(ClaimTypes.Name)?.Value
+            ?? string.Empty;
 
         private string GetDoctorDisplayName()
         {

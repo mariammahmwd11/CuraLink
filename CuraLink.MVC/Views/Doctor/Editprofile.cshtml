@@ -1,0 +1,99 @@
+﻿@model CuraLink.MVC.Models.Patients.PatientProfileViewModel
+@{
+    ViewData["Title"] = "Edit Profile";
+    Layout = "_DoctorLayout";
+}
+
+<nav class="doctor-breadcrumb">
+    <a asp-controller="Doctor" asp-action="Dashboard">Dashboard</a>
+    <span> / </span>
+    <a asp-controller="Doctor" asp-action="Profile">Profile</a>
+    <span> / </span>
+    <span class="current">Edit</span>
+</nav>
+
+<div class="doctor-card" style="max-width: 640px;">
+
+    <div class="doctor-card-header">
+        <h1 class="doctor-page-title">Edit Profile</h1>
+        <p class="doctor-page-subtitle">Update your phone number, bio and profile photo.</p>
+    </div>
+
+    @if (!ViewData.ModelState.IsValid)
+    {
+        <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+    }
+
+    <form asp-controller="Doctor" asp-action="EditProfile" method="post" enctype="multipart/form-data" novalidate>
+
+        @* Not editable here, but kept so the page renders correctly if validation fails *@
+        <input type="hidden" asp-for="FirstName" />
+        <input type="hidden" asp-for="LastName" />
+        <input type="hidden" asp-for="ProfilePhotoUrl" />
+
+        <div class="d-flex align-items-center gap-3 mb-4">
+            <img id="photoPreview" alt="Profile photo preview" class="rounded-circle border"
+                 style="width:72px;height:72px;object-fit:cover;@(string.IsNullOrWhiteSpace(Model.ProfilePhotoUrl) ? "display:none;" : "")"
+                 src="@Model.ProfilePhotoUrl" />
+            <span id="photoPlaceholder" class="rounded-circle d-inline-flex align-items-center justify-content-center text-primary"
+                  style="width:72px;height:72px;background:#eaf1ff;font-size:1.6rem;@(string.IsNullOrWhiteSpace(Model.ProfilePhotoUrl) ? "" : "display:none !important;")">
+                <i class="bi bi-person"></i>
+            </span>
+            <div class="flex-grow-1">
+                <label for="ProfilePhoto" class="form-label mb-1">Profile photo</label>
+                <input type="file" class="form-control" id="ProfilePhoto" name="ProfilePhoto"
+                       accept="image/jpeg,image/png,image/webp" />
+                <div class="form-text">JPG, PNG or WebP, up to 5 MB.</div>
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Email</label>
+            <input class="form-control" value="@Model.Email" readonly disabled />
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="PhoneNumber" class="form-label"></label>
+            <div class="input-group doctor-input-group">
+                <span class="input-group-text"><i class="bi bi-telephone"></i></span>
+                <input asp-for="PhoneNumber" type="tel" class="form-control" autocomplete="tel" />
+            </div>
+            <span asp-validation-for="PhoneNumber" class="text-danger small"></span>
+        </div>
+
+        <div class="mb-3">
+            <label asp-for="Bio" class="form-label"></label>
+            <textarea asp-for="Bio" class="form-control" rows="4" maxlength="1000"
+                      placeholder="Tell patients a little about yourself"></textarea>
+            <span asp-validation-for="Bio" class="text-danger small"></span>
+        </div>
+
+        <div class="d-flex flex-column flex-sm-row gap-2 mt-4">
+            <button type="submit" class="btn btn-primary doctor-submit-btn">
+                <i class="bi bi-check-circle me-1"></i> Save changes
+            </button>
+            <a asp-controller="Doctor" asp-action="Profile" class="btn btn-outline-secondary doctor-submit-btn">Cancel</a>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <script>
+        (function () {
+            var file = document.getElementById('ProfilePhoto');
+            var img = document.getElementById('photoPreview');
+            var ph = document.getElementById('photoPlaceholder');
+            file.addEventListener('change', function () {
+                var f = file.files && file.files[0];
+                if (!f) return;
+                var reader = new FileReader();
+                reader.onload = function (e) {
+                    img.src = e.target.result;
+                    img.style.display = '';
+                    ph.style.setProperty('display', 'none', 'important');
+                };
+                reader.readAsDataURL(f);
+            });
+        })();
+    </script>
+}

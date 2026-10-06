@@ -105,6 +105,9 @@ app.MapGetDoctorClinicsEndpoint();
 app.MapUploadMedicalDocumentEndpoint();
 app.MapGetPatientMedicalDocsEndpoint();
 app.MapSearchDoctorsEndpoint();
+app.MapGetMedicalDocumentEndpoint();
+app.MapDownloadMedicalDocumentEndpoint();
+app.MapDeleteMedicalDocumentEndpoint();
 //prescription api endpoints
 app.MapCreatePrescriptionEndpoint();
 app.MapGetPrescriptionPdfEndpoint();
@@ -114,6 +117,8 @@ app.MapGetMyPatientsEndpoint();
 app.MapUpdateDoctorScheduleEndpoint();
 app.MapGetDoctorScheduleEndpoint();
 app.MapGetAvailableDoctorSlotsEndpoint(); 
+app.MapDeleteClinicEndpoint(); 
+app.MapUpdateClinicEndpoint(); 
 //notification api endpoints
 app.MapRegisterNotificationSubscriptionEndpoint();
 app.MapMarkNotificationAsReadEndpoint();
@@ -144,5 +149,11 @@ app.MapInviteClinicAssistantEndpoint();
 app.MapGetClinicAssistantInvitationEndpoint();
 app.MapRegisterClinicAssistantEndpoint();
 app.MapAcceptClinicAssistantInvitationEndpoint();
+app.MapGetClinicAssistantDashboardEndpoint();
+app.MapSearchPatientsEndpoint();
+app.MapBookAppointmentForPatientEndpoint();
+app.MapCheckInPatientEndpoint();
+app.MapGetTodayAppointmentsEndpoint();
+app.MapCreatePatientEndpoint();
 
 app.Run();

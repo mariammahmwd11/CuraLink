@@ -43,12 +43,27 @@ namespace CuraLink.MVC.Controllers
                 // of sync with what the backend actually has stored.
                 var notificationsEnabled = await _notificationApiClient
                     .GetSubscriptionStatusAsync(cancellationToken);
+                var appointments =
+          await _appointmentApiClient.GetMyAppointmentsAsync(cancellationToken);
 
+                var now = DateTime.Now;
+
+                var upcomingAppointmentsCount =
+      appointments.Count(a =>
+          a.Status != "Cancelled" &&
+          a.Status != "Completed" &&
+          (
+              a.Date.Date > now.Date ||
+              (
+                  a.Date.Date == now.Date &&
+                  a.EndTime > now.TimeOfDay
+              )
+          ));
                 var model = new PatientDashboardViewModel
                 {
                     Profile = GetProfileFromClaims(),
                     MedicalDocumentsCount = documents.Count,
-                    UpcomingAppointmentsCount = 0,
+                    UpcomingAppointmentsCount = upcomingAppointmentsCount,
                     NotificationsEnabled = notificationsEnabled
                 };
 
@@ -256,7 +271,103 @@ namespace CuraLink.MVC.Controllers
                 return View(model);
             }
         }
+        [HttpGet]
+        public async Task<IActionResult> ViewMedicalDocument(
+    int id,
+    CancellationToken cancellationToken)
+        {
+            try
+            {
+                var result =
+                    await _patientApiClient.GetMedicalDocumentAsync(
+                        id,
+                        cancellationToken);
 
+                return File(
+                    result.Stream,
+                    result.ContentType);
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return RedirectToAction("Login", "Auth");
+            }
+            catch (FileNotFoundException)
+            {
+                return NotFound();
+            }
+            catch (HttpRequestException)
+            {
+                TempData["ErrorMessage"] =
+                    "Unable to open this medical document.";
+
+                return RedirectToAction(nameof(MedicalRecords));
+            }
+        }
+        [HttpGet]
+        public async Task<IActionResult> DownloadMedicalDocument(
+    int id,
+    CancellationToken cancellationToken)
+        {
+            try
+            {
+                var result =
+                    await _patientApiClient.DownloadMedicalDocumentAsync(
+                        id,
+                        cancellationToken);
+
+                return File(
+                    result.Stream,
+                    result.ContentType,
+                    result.FileName);
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return RedirectToAction("Login", "Auth");
+            }
+            catch (FileNotFoundException)
+            {
+                return NotFound();
+            }
+            catch (HttpRequestException)
+            {
+                TempData["ErrorMessage"] =
+                    "Unable to download this medical document.";
+
+                return RedirectToAction(nameof(MedicalRecords));
+            }
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteMedicalDocument(
+    int id,
+    CancellationToken cancellationToken)
+        {
+            try
+            {
+                await _patientApiClient.DeleteMedicalDocumentAsync(
+                    id,
+                    cancellationToken);
+
+                TempData["SuccessMessage"] =
+                    "Medical document deleted successfully.";
+            }
+            catch (UnauthorizedAccessException)
+            {
+                return RedirectToAction("Login", "Auth");
+            }
+            catch (FileNotFoundException)
+            {
+                TempData["ErrorMessage"] =
+                    "Medical document not found.";
+            }
+            catch (HttpRequestException)
+            {
+                TempData["ErrorMessage"] =
+                    "Unable to delete this medical document.";
+            }
+
+            return RedirectToAction(nameof(MedicalRecords));
+        }
         // =========================================================
         // Notification Subscription (Web Push)
         // =========================================================
@@ -458,7 +569,7 @@ namespace CuraLink.MVC.Controllers
             string? address,
             string? governorate,
             decimal consultationPrice,
-            double rating)
+            double rating, string? profilePhoto)
         {
             var model = new DoctorBookingViewModel
             {
@@ -469,7 +580,8 @@ namespace CuraLink.MVC.Controllers
                 Address = address,
                 Governorate = governorate,
                 ConsultationPrice = consultationPrice,
-                Rating = rating
+                Rating = rating,
+                ProfilePhoto = profilePhoto
             };
 
             return View(model);

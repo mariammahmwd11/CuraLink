@@ -189,12 +189,27 @@
                    asp-controller="Patient" asp-action="Appointments">
                     <i class="bi bi-calendar-check"></i> Appointments
                 </a>
+                <a class="patient-nav-link @(ViewContext.RouteData.Values["controller"]?.ToString() == "DrugAssistant" ? "active" : "")"
+                   asp-controller="DrugAssistant"
+                   asp-action="Index">
+                    <i class="bi bi-person-badge"></i> Drug Assistant
+                </a>
             </nav>
 
             <div class="patient-sidebar-footer">
-                <a asp-controller="Auth" asp-action="Logout" class="patient-nav-link patient-logout">
-                    <i class="bi bi-box-arrow-right"></i> Logout
-                </a>
+                <form asp-controller="Auth"
+                      asp-action="Logout"
+                      method="post"
+                      class="d-inline">
+
+                    @Html.AntiForgeryToken()
+
+                    <button type="submit" class="dropdown-item">
+                        <i class="bi bi-box-arrow-right me-2"></i>
+                        Logout
+                    </button>
+
+                </form>
             </div>
         </aside>
 

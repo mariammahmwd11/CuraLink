@@ -83,11 +83,26 @@
         {
             <div class="pd-card">
                 <div class="pd-card-top">
-                    <span class="pd-avatar"><i class="bi bi-person-fill"></i></span>
+
+                    @if (!string.IsNullOrWhiteSpace(doctor.ProfilePhoto))
+                    {
+                        <img src="@doctor.ProfilePhoto"
+                             alt="Dr. @doctor.FullName"
+                             class="pd-avatar"
+                             style="object-fit: cover;" />
+                    }
+                    else
+                    {
+                        <span class="pd-avatar">
+                            <i class="bi bi-person-fill"></i>
+                        </span>
+                    }
+
                     <div class="min-width-0">
                         <h3 class="pd-doctor-name">Dr. @doctor.FullName</h3>
                         <span class="pd-specialty">@doctor.Specialty</span>
                     </div>
+
                 </div>
 
                 <div class="pd-rating">
@@ -149,7 +164,9 @@
                        asp-route-address="@doctor.Address"
                        asp-route-governorate="@doctor.Governorate"
                        asp-route-consultationPrice="@doctor.ConsultationPrice"
-                       asp-route-rating="@doctor.Rating">
+                       asp-route-rating="@doctor.Rating"
+                       asp-route-profilePhoto="@doctor.ProfilePhoto">
+                        
                         <i class="bi bi-calendar-plus me-1"></i>
                         Book Appointment
                     </a>

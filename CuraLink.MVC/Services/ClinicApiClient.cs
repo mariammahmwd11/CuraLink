@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Net;
 using System.Net.Http.Headers;
+using System.Text.Json;
 
 namespace CuraLink.MVC.Services
 {
@@ -85,13 +86,8 @@ namespace CuraLink.MVC.Services
         }
 
         /// <summary>
-        /// NEW. Fetches the clinics owned/managed by the current doctor for the
+        /// Fetches the clinics owned/managed by the current doctor for the
         /// Dashboard / My Clinics section.
-        ///
-        /// ASSUMPTION (not yet confirmed against the API): this mirrors the existing
-        /// POST /api/doctor/clinics create endpoint with a matching GET on the same
-        /// route. If the real endpoint differs, only the URL below needs updating —
-        /// nothing else in the MVC layer depends on it.
         ///
         /// Fails soft: on 404/network/deserialization issues it returns an empty
         /// list instead of throwing, so the Dashboard still renders its
@@ -175,6 +171,144 @@ namespace CuraLink.MVC.Services
                 // Response shape didn't match what we expect — degrade safely
                 // instead of throwing an unhandled exception on the dashboard.
                 return new List<ClinicSummaryViewModel>();
+            }
+        }
+
+        // =========================================================
+        // Edit / Delete
+        // =========================================================
+
+        /// <summary>
+        /// One clinic of the current doctor, for pre-filling the Edit form.
+        /// Reuses GET /api/doctor/clinics, so it only ever returns clinics the
+        /// doctor owns (no extra "get by id" endpoint needed).
+        /// </summary>
+        public async Task<ClinicSummaryViewModel?> GetClinicAsync(Guid id)
+        {
+            var clinics = await GetMyClinicsAsync();
+            return clinics.FirstOrDefault(c => c.Id == id);
+        }
+
+        /// <summary>
+        /// PUT /api/doctor/clinics/{id}
+        /// Body: same shape as the create request (clinicName, address,
+        /// consultationPrice, phoneNumber).
+        /// </summary>
+        public async Task UpdateClinicAsync(Guid id, CreateClinicViewModel model)
+        {
+            using var request = BuildAuthorizedRequest(HttpMethod.Put, $"/api/doctor/clinics/{id}");
+            request.Content = JsonContent.Create(model);
+
+            using var response = await _httpClient.SendAsync(request);
+            await EnsureSuccessAsync(response, "update the clinic");
+        }
+
+        /// <summary>
+        /// DELETE /api/doctor/clinics/{id}
+        /// </summary>
+        public async Task DeleteClinicAsync(Guid id)
+        {
+            using var request = BuildAuthorizedRequest(HttpMethod.Delete, $"/api/doctor/clinics/{id}");
+
+            using var response = await _httpClient.SendAsync(request);
+            await EnsureSuccessAsync(response, "delete the clinic");
+        }
+
+        private HttpRequestMessage BuildAuthorizedRequest(HttpMethod method, string url)
+        {
+            var token = _httpContextAccessor.HttpContext?
+                .User
+                .FindFirst("AccessToken")
+                ?.Value;
+
+            if (string.IsNullOrEmpty(token))
+            {
+                throw new UnauthorizedAccessException("Authentication token not found.");
+            }
+
+            var request = new HttpRequestMessage(method, url);
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+            return request;
+        }
+
+        // Maps API failures to exceptions the controller already knows how to show.
+        private static async Task EnsureSuccessAsync(HttpResponseMessage response, string action)
+        {
+            if (response.IsSuccessStatusCode)
+            {
+                return;
+            }
+
+            var message = await ReadErrorMessageAsync(response);
+
+            switch (response.StatusCode)
+            {
+                case HttpStatusCode.Unauthorized:
+                    throw new UnauthorizedAccessException("You are not authorized.");
+
+                case HttpStatusCode.Forbidden:
+                    throw new InvalidOperationException(
+                        message ?? $"You don't have permission to {action}.");
+
+                case HttpStatusCode.NotFound:
+                    throw new KeyNotFoundException(message ?? "Clinic not found.");
+
+                case HttpStatusCode.Conflict:
+                    throw new InvalidOperationException(
+                        message ?? $"We couldn't {action} because of a conflict.");
+
+                case HttpStatusCode.BadRequest:
+                    throw new HttpRequestException(message ?? "Invalid clinic data.");
+
+                case HttpStatusCode.MethodNotAllowed:
+                    throw new HttpRequestException("This action is not available yet.");
+
+                default:
+                    throw new HttpRequestException($"We couldn't {action}. Please try again.");
+            }
+        }
+
+        // Pulls a readable message from {message}/{detail}/{error}/{title}/{errors:{..}} or short plain text.
+        private static async Task<string?> ReadErrorMessageAsync(HttpResponseMessage response)
+        {
+            var text = await response.Content.ReadAsStringAsync();
+            if (string.IsNullOrWhiteSpace(text))
+            {
+                return null;
+            }
+
+            try
+            {
+                using var doc = JsonDocument.Parse(text);
+                if (doc.RootElement.ValueKind == JsonValueKind.Object)
+                {
+                    if (doc.RootElement.TryGetProperty("errors", out var errors) &&
+                        errors.ValueKind == JsonValueKind.Object)
+                    {
+                        var parts = new List<string>();
+                        foreach (var prop in errors.EnumerateObject())
+                        {
+                            if (prop.Value.ValueKind == JsonValueKind.Array)
+                                parts.AddRange(prop.Value.EnumerateArray()
+                                    .Where(e => e.ValueKind == JsonValueKind.String)
+                                    .Select(e => e.GetString()!));
+                        }
+                        if (parts.Count > 0) return string.Join(" ", parts);
+                    }
+
+                    foreach (var name in new[] { "message", "detail", "error", "title" })
+                    {
+                        if (doc.RootElement.TryGetProperty(name, out var v) && v.ValueKind == JsonValueKind.String)
+                            return v.GetString();
+                    }
+                }
+                return null;
+            }
+            catch (JsonException)
+            {
+                // Plain text: only show it if it is short and not markup.
+                var trimmed = text.Trim().Trim('"');
+                return trimmed.Length <= 200 && !trimmed.StartsWith('<') ? trimmed : null;
             }
         }
 

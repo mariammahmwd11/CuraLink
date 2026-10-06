@@ -18,7 +18,34 @@ namespace CuraLink.MVC.Services
         public bool IsRegistered { get; set; }
         public string ClinicName { get; set; } = "";
     }
+    public class ClinicAssistantDashboardDto
+    {
+        public string ClinicName { get; set; } = "";
 
+        public int TotalToday { get; set; }
+
+        public int Waiting { get; set; }
+
+        public int CheckedIn { get; set; }
+
+        public int Completed { get; set; }
+
+        public List<TodayAppointmentDto> TodayAppointments { get; set; }
+            = new();
+    }
+
+    public class TodayAppointmentDto
+    {
+        public int AppointmentId { get; set; }
+
+        public string Time { get; set; } = "";
+
+        public string PatientName { get; set; } = "";
+
+        public string DoctorName { get; set; } = "";
+
+        public string Status { get; set; } = "";
+    }
     public class MessageDto
     {
         public string? Message { get; set; }
@@ -46,7 +73,13 @@ namespace CuraLink.MVC.Services
 
         private string BaseUrl =>
             (_configuration["ApiSettings:BaseUrl"] ?? "https://localhost:7188").TrimEnd('/');
-
+        public Task<ApiResult<ClinicAssistantDashboardDto>> GetDashboardAsync(
+    string accessToken) =>
+    SendAsync<ClinicAssistantDashboardDto>(
+        HttpMethod.Get,
+        "/api/clinic-assistants/dashboard",
+        null,
+        accessToken);
         public Task<ApiResult<InvitationPreviewDto>> PreviewAsync(string token) =>
       SendAsync<InvitationPreviewDto>(
           HttpMethod.Get,

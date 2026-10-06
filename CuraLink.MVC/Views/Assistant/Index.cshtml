@@ -1,105 +1,83 @@
-﻿@model CuraLink.MVC.Models.AssistantDashboardViewModel
-@{
+﻿@{
     ViewData["Title"] = "Assistant Dashboard";
     ViewData["PageTitle"] = "Dashboard";
     Layout = "~/Views/Shared/_AssistantLayout.cshtml";
 }
 
-<h2 class="patient-welcome-title">Welcome, @User.Identity?.Name</h2>
-<p class="patient-welcome-subtitle">
-    @if (!string.IsNullOrWhiteSpace(Model.ClinicName))
-    {
-        <text>Receptionist at <strong>@Model.ClinicName</strong>. Here is today's clinic activity.</text>
-    }
-    else
-    {
-        <text>Here is today's clinic activity.</text>
-    }
-</p>
-
-<!-- Today's numbers -->
-<div class="patient-stats-row">
-    <div class="patient-stat-card">
-        <div class="patient-stat-top">
-            <span class="patient-stat-icon"><i class="bi bi-calendar-event"></i></span>
-            <div><div class="patient-stat-value">@Model.TotalToday</div><div class="patient-stat-label">Today's appointments</div></div>
-        </div>
-    </div>
-    <div class="patient-stat-card">
-        <div class="patient-stat-top">
-            <span class="patient-stat-icon"><i class="bi bi-hourglass-split"></i></span>
-            <div><div class="patient-stat-value">@Model.Waiting</div><div class="patient-stat-label">Waiting to check in</div></div>
-        </div>
-    </div>
-    <div class="patient-stat-card">
-        <div class="patient-stat-top">
-            <span class="patient-stat-icon"><i class="bi bi-door-open"></i></span>
-            <div><div class="patient-stat-value">@Model.CheckedIn</div><div class="patient-stat-label">In the clinic now</div></div>
-        </div>
-    </div>
-    <div class="patient-stat-card">
-        <div class="patient-stat-top">
-            <span class="patient-stat-icon"><i class="bi bi-check2-circle"></i></span>
-            <div><div class="patient-stat-value">@Model.Completed</div><div class="patient-stat-label">Completed today</div></div>
-        </div>
-    </div>
+<div id="dashLoading" class="patient-empty-state">
+    <div class="spinner-border text-primary mb-3" role="status"></div>
+    <div class="patient-empty-title">Loading dashboard...</div>
 </div>
 
-<div class="row g-4">
-    <!-- Today's schedule -->
-    <div class="col-lg-8">
-        <div class="patient-section-header">
-            <h3 class="patient-section-title">Today's schedule</h3>
-        </div>
+<div id="dashError" class="alert alert-danger" role="alert" hidden>
+    <span id="dashErrorText"></span>
+    <button type="button" class="btn btn-sm btn-outline-danger ms-2" id="dashRetry">Try again</button>
+</div>
 
-        @if (Model.TodayAppointments.Count == 0)
-        {
-            <div class="patient-empty-state">
+<div id="dashContent" hidden>
+    <h2 class="patient-welcome-title">Welcome, @User.Identity?.Name</h2>
+    <p class="patient-welcome-subtitle" id="dashSubtitle"></p>
+
+    <div class="patient-stats-row">
+        <div class="patient-stat-card">
+            <div class="patient-stat-top">
+                <span class="patient-stat-icon"><i class="bi bi-calendar-event"></i></span>
+                <div><div class="patient-stat-value" id="statTotal">0</div><div class="patient-stat-label">Today's appointments</div></div>
+            </div>
+        </div>
+        <div class="patient-stat-card">
+            <div class="patient-stat-top">
+                <span class="patient-stat-icon"><i class="bi bi-hourglass-split"></i></span>
+                <div><div class="patient-stat-value" id="statWaiting">0</div><div class="patient-stat-label">Waiting</div></div>
+            </div>
+        </div>
+        <div class="patient-stat-card">
+            <div class="patient-stat-top">
+                <span class="patient-stat-icon"><i class="bi bi-door-open"></i></span>
+                <div><div class="patient-stat-value" id="statCheckedIn">0</div><div class="patient-stat-label">Checked in</div></div>
+            </div>
+        </div>
+        <div class="patient-stat-card">
+            <div class="patient-stat-top">
+                <span class="patient-stat-icon"><i class="bi bi-check2-circle"></i></span>
+                <div><div class="patient-stat-value" id="statCompleted">0</div><div class="patient-stat-label">Completed</div></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-8">
+            <div class="patient-section-header">
+                <h3 class="patient-section-title">Today's schedule</h3>
+                <a class="btn btn-sm btn-outline-primary" asp-action="TodayAppointments">View all</a>
+            </div>
+
+            <div id="dashEmpty" class="patient-empty-state" hidden>
                 <div class="patient-empty-icon"><i class="bi bi-calendar2-x"></i></div>
                 <div class="patient-empty-title">No appointments today</div>
                 <div class="patient-empty-subtitle mb-0">Appointments for your clinic will appear here.</div>
             </div>
-        }
-        else
-        {
-            <div class="table-responsive patient-document-row d-block p-0">
+
+            <div class="table-responsive bg-white border rounded-3" id="dashTableWrap" hidden>
                 <table class="table align-middle mb-0">
-                    <thead>
-                        <tr><th>Time</th><th>Patient</th><th>Doctor</th><th>Status</th></tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var a in Model.TodayAppointments)
-                        {
-                            var badge = a.Status switch
-                            {
-                                "CheckedIn" => "bg-primary",
-                                "Completed" => "bg-success",
-                                "Cancelled" => "bg-secondary",
-                                _ => "bg-warning text-dark"
-                            };
-                            <tr>
-                                <td class="fw-semibold">@a.Time</td>
-                                <td>@a.PatientName</td>
-                                <td>@a.DoctorName</td>
-                                <td><span class="badge @badge">@a.Status</span></td>
-                            </tr>
-                        }
-                    </tbody>
+                    <thead><tr><th>Time</th><th>Patient</th><th>Doctor</th><th>Status</th><th class="text-end">Action</th></tr></thead>
+                    <tbody id="dashRows"></tbody>
                 </table>
             </div>
-        }
-    </div>
+        </div>
 
-    <!-- Quick actions -->
-    <div class="col-lg-4">
-        <div class="patient-section-header">
-            <h3 class="patient-section-title">Quick actions</h3>
+        <div class="col-lg-4">
+            <div class="patient-section-header"><h3 class="patient-section-title">Quick actions</h3></div>
+            <div class="d-grid gap-2">
+                <a class="btn btn-primary" asp-action="BookAppointment"><i class="bi bi-calendar-plus me-2"></i>Book appointment</a>
+                <a class="btn btn-outline-primary" asp-action="Patients"><i class="bi bi-search me-2"></i>Find a patient</a>
+                <a class="btn btn-outline-primary" asp-action="CreatePatient"><i class="bi bi-person-plus me-2"></i>Add a new patient</a>
+                <a class="btn btn-outline-primary" asp-action="TodayAppointments"><i class="bi bi-calendar-check me-2"></i>Today's appointments</a>
+            </div>
         </div>
-        <div class="d-grid gap-2">
-            <button class="btn btn-primary" disabled><i class="bi bi-plus-circle me-2"></i>Book appointment for a patient</button>
-            <button class="btn btn-outline-primary" disabled><i class="bi bi-person-check me-2"></i>Check in a patient</button>
-            <button class="btn btn-outline-primary" disabled><i class="bi bi-search me-2"></i>Find a patient</button>
-        </div>
-        <p class="text-muted small mt-2 mb-0">These actions will be enabled once the clinic endpoints are ready.</p>
     </div>
 </div>
+
+@section Scripts {
+    <script src="~/js/clinic-assistant/dashboard.js" asp-append-version="true"></script>
+}

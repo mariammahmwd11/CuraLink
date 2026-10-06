@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CuraLink.Application.Common.Models;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -41,5 +42,9 @@ namespace CuraLink.Application.Common.Interfaces.Authentication
        AddUserToRoleAsync(
            string userId,
            string role);
+        Task<IReadOnlyList<PatientSearchResult>> SearchPatientsAsync(
+      IEnumerable<string> userIds,
+      string search,
+      CancellationToken cancellationToken = default);
     }
 }

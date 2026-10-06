@@ -77,18 +77,14 @@
                         }
                     </div>
 
-                    <!-- View/Edit/Delete actions are not wired yet — no
-                         corresponding ClinicController actions exist. Left as
-                         inert buttons so the layout matches spec without
-                         faking a route that would 404. -->
                     <div class="clinic-card-actions">
-                        <button type="button" class="btn btn-outline-secondary" disabled title="Coming soon">
-                            <i class="bi bi-eye"></i> View
-                        </button>
-                        <button type="button" class="btn btn-outline-secondary" disabled title="Coming soon">
+                        <a asp-controller="Clinic" asp-action="Edit" asp-route-id="@clinic.Id"
+                           class="btn btn-outline-secondary">
                             <i class="bi bi-pencil"></i> Edit
-                        </button>
-                        <button type="button" class="btn btn-outline-danger" disabled title="Coming soon">
+                        </a>
+                        <button type="button" class="btn btn-outline-danger"
+                                data-bs-toggle="modal" data-bs-target="#deleteClinicModal"
+                                data-clinic-id="@clinic.Id" data-clinic-name="@clinic.ClinicName">
                             <i class="bi bi-trash"></i> Delete
                         </button>
                     </div>
@@ -108,3 +104,52 @@
         </div>
     }
 </section>
+
+<!-- Delete confirmation -->
+<div class="modal fade" id="deleteClinicModal" tabindex="-1" aria-labelledby="deleteClinicTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <form asp-controller="Clinic" asp-action="Delete" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="id" id="deleteClinicId" />
+
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteClinicTitle">Delete clinic</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="mb-1">Are you sure you want to delete <strong id="deleteClinicName"></strong>?</p>
+                    <p class="text-muted small mb-0">This action cannot be undone.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-danger" id="deleteClinicConfirm">
+                        <i class="bi bi-trash me-1"></i> Delete
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        (function () {
+            var modal = document.getElementById('deleteClinicModal');
+            if (!modal) return;
+
+            modal.addEventListener('show.bs.modal', function (event) {
+                var button = event.relatedTarget;
+                document.getElementById('deleteClinicId').value = button.getAttribute('data-clinic-id');
+                document.getElementById('deleteClinicName').textContent = button.getAttribute('data-clinic-name');
+            });
+
+            // Prevent double submission
+            modal.querySelector('form').addEventListener('submit', function () {
+                var btn = document.getElementById('deleteClinicConfirm');
+                btn.disabled = true;
+                btn.textContent = 'Deleting...';
+            });
+        })();
+    </script>
+}

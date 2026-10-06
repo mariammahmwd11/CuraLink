@@ -8,7 +8,7 @@
         public string FullName { get; set; } = null!;
 
         public string Specialty { get; set; } = null!;
-
+        public string? ProfilePhoto { get; set; }
         public string Address { get; set; } = null!;
 
         public string Governorate { get; set; } = null!;

@@ -1,6 +1,8 @@
 ﻿using CuraLink.Application.Common.Interfaces.Authentication;
+using CuraLink.Application.Common.Models;
 using CuraLink.Infrastructure.Identity;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -116,7 +118,21 @@ namespace CuraLink.Infrastructure.Services
                     string.Empty);
             }
 
-            await userManager.AddToRoleAsync(user, "Patient");
+            var roleResult = await userManager.AddToRoleAsync(
+        user,
+        "Patient");
+
+            if (!roleResult.Succeeded)
+            {
+                await userManager.DeleteAsync(user);
+
+                return (
+                    false,
+                    roleResult.Errors
+                        .Select(e => e.Description)
+                        .ToArray(),
+                    string.Empty);
+            }
 
             return (
                 true,
@@ -136,12 +152,16 @@ namespace CuraLink.Infrastructure.Services
                 user.LastName
             );
         }
+
+
         public async Task<string?> GetUserIdByEmailAsync(string email)
         {
             var user = await userManager.FindByEmailAsync(email);
 
             return user?.Id;
         }
+
+
 
         public async Task<bool> IsUserInRoleAsync(
             string userId,
@@ -154,6 +174,8 @@ namespace CuraLink.Infrastructure.Services
 
             return await userManager.IsInRoleAsync(user, role);
         }
+
+
 
         public async Task<(bool Succeeded, string[] Errors)>
             AddUserToRoleAsync(
@@ -192,6 +214,38 @@ namespace CuraLink.Infrastructure.Services
             return (
                 true,
                 Array.Empty<string>());
+        }
+
+
+        public async Task<IReadOnlyList<PatientSearchResult>> SearchPatientsAsync(
+    IEnumerable<string> userIds,
+    string search,
+    CancellationToken cancellationToken = default)
+        {
+            var query = userManager.Users
+                .Where(x => userIds.Contains(x.Id));
+
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                search = search.Trim();
+
+                query = query.Where(x =>
+                    x.FirstName.Contains(search) ||
+                    x.LastName.Contains(search) ||
+                    x.Email!.Contains(search) ||
+                    (x.PhoneNumber != null && x.PhoneNumber.Contains(search)));
+            }
+
+            return await query
+                .OrderBy(x => x.FirstName)
+                .ThenBy(x => x.LastName)
+                .Select(x => new PatientSearchResult(
+                    x.Id,
+                    x.FirstName,
+                    x.LastName,
+                    x.Email!,
+                    x.PhoneNumber))
+                .ToListAsync(cancellationToken);
         }
         public async Task<(bool Succeeded, string[] Errors, string UserId)>
     CreateReceptionistAsync(
@@ -256,6 +310,7 @@ namespace CuraLink.Infrastructure.Services
                 Array.Empty<string>(),
                 user.Id);
         }
+
     }
     }
 

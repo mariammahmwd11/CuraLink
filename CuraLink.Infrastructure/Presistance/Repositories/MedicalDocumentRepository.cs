@@ -40,5 +40,26 @@ namespace CuraLink.Infrastructure.Presistance.Repositories
                 })
                 .ToListAsync(cancellationToken);
         }
+        public async Task<MedicalDocument?> GetByIdForPatientAsync(
+    int documentId,
+    Guid patientId,
+    CancellationToken cancellationToken = default)
+        {
+            return await context.MedicalDocuments
+                .Include(x => x.MedicalHistory)
+                .FirstOrDefaultAsync(
+                    x =>
+                        x.Id == documentId &&
+                        x.MedicalHistory.PatientId == patientId,
+                    cancellationToken);
+        }
+        public Task DeleteAsync(
+    MedicalDocument medicalDocument,
+    CancellationToken cancellationToken = default)
+        {
+            context.MedicalDocuments.Remove(medicalDocument);
+
+            return Task.CompletedTask;
+        }
     }
 }

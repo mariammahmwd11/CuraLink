@@ -4,9 +4,6 @@ using CuraLink.Application.Features.Patients.Queries.SearchDoctors;
 using CuraLink.Domain.Entities.Doctors;
 using CuraLink.Infrastructure.Presistance.Data;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace CuraLink.Infrastructure.Presistance.Repositories
 {
@@ -38,22 +35,24 @@ namespace CuraLink.Infrastructure.Presistance.Repositories
                     d => d.Id == id,
                     cancellationToken);
         }
+
         public async Task<Doctor?> GetByApplicationUserIdAsync(
-    string applicationUserId,
-    CancellationToken cancellationToken = default)
+            string applicationUserId,
+            CancellationToken cancellationToken = default)
         {
             return await _context.Doctors
                 .FirstOrDefaultAsync(
                     d => d.ApplicationUserId == applicationUserId,
                     cancellationToken);
         }
+
         public async Task<PagedResult<DoctorSearchDto>> SearchAsync(
-       string? doctorName,
-       string? specialty,
-       string? governorate,
-       int pageNumber,
-       int pageSize,
-       CancellationToken cancellationToken = default)
+            string? doctorName,
+            string? specialty,
+            string? governorate,
+            int pageNumber,
+            int pageSize,
+            CancellationToken cancellationToken = default)
         {
             var query = _context.Doctors
                 .AsNoTracking()
@@ -103,63 +102,72 @@ namespace CuraLink.Infrastructure.Presistance.Repositories
                 cancellationToken);
 
             var doctors = await query
-     .OrderBy(d => d.Id)
-     .Skip((pageNumber - 1) * pageSize)
-     .Take(pageSize)
-     .Select(d => new
-     {
-         d.Id,
-         d.Specialty,
+                .OrderBy(d => d.Id)
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .Select(d => new
+                {
+                    d.Id,
+                    d.Specialty,
 
-         FirstName = _context.Users
-             .Where(u => u.Id == d.ApplicationUserId)
-             .Select(u => u.FirstName)
-             .FirstOrDefault(),
+                    FirstName = _context.Users
+                        .Where(u => u.Id == d.ApplicationUserId)
+                        .Select(u => u.FirstName)
+                        .FirstOrDefault(),
 
-         LastName = _context.Users
-             .Where(u => u.Id == d.ApplicationUserId)
-             .Select(u => u.LastName)
-             .FirstOrDefault(),
+                    LastName = _context.Users
+                        .Where(u => u.Id == d.ApplicationUserId)
+                        .Select(u => u.LastName)
+                        .FirstOrDefault(),
 
-         Clinic = d.Clinics
-    .OrderBy(c => c.ConsultationPrice)
-    .Select(c => new
-    {
-        c.Id,
-        c.Address,
-        c.ConsultationPrice
-    })
-    .FirstOrDefault(),
-         Rating = d.Reviews
-             .Select(r => (double?)r.Rating)
-             .Average() ?? 0
-     })
-     .ToListAsync(cancellationToken);
+                    // Cloudinary storage key
+                    ProfilePhoto = _context.Users
+                        .Where(u => u.Id == d.ApplicationUserId)
+                        .Select(u => u.ProfilePhoto)
+                        .FirstOrDefault(),
+
+                    Clinic = d.Clinics
+                        .OrderBy(c => c.ConsultationPrice)
+                        .Select(c => new
+                        {
+                            c.Id,
+                            c.Address,
+                            c.ConsultationPrice
+                        })
+                        .FirstOrDefault(),
+
+                    Rating = d.Reviews
+                        .Select(r => (double?)r.Rating)
+                        .Average() ?? 0
+                })
+                .ToListAsync(cancellationToken);
 
             var items = doctors
-     .Select(d => new DoctorSearchDto
-     {
-         Id = d.Id,
+                .Select(d => new DoctorSearchDto
+                {
+                    Id = d.Id,
 
-         ClinicId = d.Clinic?.Id ?? Guid.Empty,
+                    ClinicId = d.Clinic?.Id ?? Guid.Empty,
 
-         FullName = $"{d.FirstName} {d.LastName}".Trim(),
+                    FullName = $"{d.FirstName} {d.LastName}".Trim(),
 
-         Specialty = d.Specialty,
+                    Specialty = d.Specialty,
 
-         Address = d.Clinic?.Address ?? string.Empty,
+                    ProfilePhoto = d.ProfilePhoto,
 
-         Governorate = ExtractGovernorate(
-             d.Clinic?.Address),
+                    Address = d.Clinic?.Address ?? string.Empty,
 
-         ConsultationPrice =
-             d.Clinic?.ConsultationPrice ?? 0,
+                    Governorate = ExtractGovernorate(
+                        d.Clinic?.Address),
 
-         Rating = Math.Round(d.Rating, 1),
+                    ConsultationPrice =
+                        d.Clinic?.ConsultationPrice ?? 0,
 
-         AvailableDates = new List<DateTime>()
-     })
-     .ToList();
+                    Rating = Math.Round(d.Rating, 1),
+
+                    AvailableDates = new List<DateTime>()
+                })
+                .ToList();
 
             return new PagedResult<DoctorSearchDto>
             {
