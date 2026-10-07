@@ -18,27 +18,26 @@ public class DrugAssistantService : IDrugAssistantService
     }
 
     public async Task<DrugAssistantResponse> AskAsync(
-    string query,
-    CancellationToken cancellationToken = default)
+        string query,
+        CancellationToken cancellationToken = default)
     {
+        // 1. Understand the user's question
         var analysis = await _geminiService.AnalyzeQueryAsync(
             query,
             cancellationToken);
 
+        // 2. No medication identified
         if (analysis.Medications.Count == 0)
         {
             return new DrugAssistantResponse
             {
-                Warnings =
-                [
-                    "No medication could be identified from the query."
-                ],
-
-                Disclaimer =
-                    "This information is for educational purposes only and does not replace professional medical advice."
+                Answer =
+                    "I couldn't identify a medication in your question. " +
+                    "Please mention the medication name and tell me what you'd like to know about it."
             };
         }
 
+        // 3. Retrieve trusted FDA information
         var drugLabels = new List<OpenFDADrugLabel>();
 
         foreach (var medication in analysis.Medications)
@@ -53,28 +52,23 @@ public class DrugAssistantService : IDrugAssistantService
             }
         }
 
+        // 4. No FDA information found
         if (drugLabels.Count == 0)
         {
             return new DrugAssistantResponse
             {
-                Medication = string.Join(
-                    ", ",
-                    analysis.Medications),
-
-                Warnings =
-                [
-                    "No FDA drug label was found for the specified medication(s)."
-                ],
-
-                Disclaimer =
-                    "This information is for educational purposes only and does not replace professional medical advice."
+                Answer =
+                    $"I couldn't find an FDA drug label for " +
+                    $"{string.Join(", ", analysis.Medications)}. " +
+                    "Please check the medication name and try again."
             };
         }
 
+        // 5. Let Gemini turn the trusted FDA data
+        //    into a natural conversational answer
         return await _geminiService.GenerateDrugResponseAsync(
             query,
             drugLabels,
             cancellationToken);
-    
-}
+    }
 }

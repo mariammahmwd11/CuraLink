@@ -159,5 +159,6 @@ app.MapCheckInPatientEndpoint();
 app.MapGetTodayAppointmentsEndpoint();
 app.MapCreatePatientEndpoint();
 app.MapGetAvailableClinicAssistantSlotsEndpoint();
+app.MapGetClinicAssistantsEndpoint();
 
 app.Run();

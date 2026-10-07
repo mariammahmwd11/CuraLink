@@ -16,19 +16,22 @@ namespace CuraLink.MVC.Controllers
         // Despite its name, GetProfileAsync/UpdateProfileAsync call the shared /api/profile endpoints.
         private readonly PatientApiClient _profileApiClient;
         private readonly DoctorPatientApiClient _doctorPatientApiClient;
+        DoctorClinicAssistantApiClient doctorClinicAssistantApiClient;
 
         public DoctorController(
             ClinicApiClient clinicApiClient,
             DoctorScheduleApiClient scheduleApiClient,
             AppointmentApiClient appointmentApiClient,
             PatientApiClient profileApiClient,
-            DoctorPatientApiClient doctorPatientApiClient)
+            DoctorPatientApiClient doctorPatientApiClient,
+            DoctorClinicAssistantApiClient doctorClinicAssistantApiClient)
         {
             _clinicApiClient = clinicApiClient;
             _scheduleApiClient = scheduleApiClient;
             _appointmentApiClient = appointmentApiClient;
             _profileApiClient = profileApiClient;
             _doctorPatientApiClient = doctorPatientApiClient;
+            this.doctorClinicAssistantApiClient = doctorClinicAssistantApiClient;
         }
 
         [HttpGet]
@@ -422,6 +425,112 @@ namespace CuraLink.MVC.Controllers
                 return View(model);
             }
         }
+        // =========================================================
+// Assistants (receptionists of the doctor's clinics)
+// =========================================================
+
+[HttpGet]
+public async Task<IActionResult> Assistants(Guid? clinicId, CancellationToken cancellationToken)
+{
+    var model = new DoctorAssistantsViewModel();
+
+    try
+    {
+        model.Clinics = await LoadClinicOptionsAsync();
+
+        if (model.Clinics.Count == 0)
+            return View(model);
+
+        var selected = model.Clinics.FirstOrDefault(c => c.Id == clinicId) ?? model.Clinics[0];
+        model.SelectedClinicId = selected.Id;
+        model.SelectedClinicName = selected.Name;
+
+        model.Assistants = await doctorClinicAssistantApiClient.GetAssistantsAsync(selected.Id, cancellationToken);
+        return View(model);
+    }
+    catch (UnauthorizedAccessException)
+    {
+        return RedirectToAction("Login", "Auth");
+    }
+    catch (Exception)
+    {
+        TempData["ErrorMessage"] = "Unable to load your assistants. Please try again.";
+        return View(model);
+    }
+}
+
+[HttpGet]
+public async Task<IActionResult> AddAssistant(Guid clinicId)
+{
+    try
+    {
+        var clinic = (await LoadClinicOptionsAsync()).FirstOrDefault(c => c.Id == clinicId);
+
+        if (clinic is null)
+        {
+            TempData["ErrorMessage"] = "Clinic not found.";
+            return RedirectToAction(nameof(Assistants));
+        }
+
+        return View(new AddAssistantViewModel { ClinicId = clinic.Id, ClinicName = clinic.Name });
+    }
+    catch (UnauthorizedAccessException)
+    {
+        return RedirectToAction("Login", "Auth");
+    }
+    catch (Exception)
+    {
+        TempData["ErrorMessage"] = "Unable to open the page. Please try again.";
+        return RedirectToAction(nameof(Assistants));
+    }
+}
+
+[HttpPost]
+[ValidateAntiForgeryToken]
+public async Task<IActionResult> AddAssistant(
+    AddAssistantViewModel model,
+    CancellationToken cancellationToken)
+{
+    if (!ModelState.IsValid)
+        return View(model);
+
+    try
+    {
+        var error = await doctorClinicAssistantApiClient.InviteAsync(
+            model.ClinicId, model.Email.Trim(), cancellationToken);
+
+        if (error is not null)
+        {
+            ModelState.AddModelError(string.Empty, error);
+            return View(model);
+        }
+
+        TempData["SuccessMessage"] = "Invitation sent successfully.";
+        return RedirectToAction(nameof(Assistants), new { clinicId = model.ClinicId });
+    }
+    catch (UnauthorizedAccessException)
+    {
+        return RedirectToAction("Login", "Auth");
+    }
+    catch (HttpRequestException)
+    {
+        ModelState.AddModelError(string.Empty, "Could not reach the server. Please try again later.");
+        return View(model);
+    }
+    catch (Exception)
+    {
+        ModelState.AddModelError(string.Empty, "Something went wrong while sending the invitation.");
+        return View(model);
+    }
+}
+
+private async Task<List<AssistantClinicOption>> LoadClinicOptionsAsync()
+{
+    var clinics = await _clinicApiClient.GetMyClinicsAsync();
+
+    // ASSUMPTION: the clinic items expose Id and ClinicName. Adjust if yours differ.
+    return clinics.Select(c => new AssistantClinicOption(c.Id, c.ClinicName)).ToList();
+}
 
         // =========================================================
         // Helpers

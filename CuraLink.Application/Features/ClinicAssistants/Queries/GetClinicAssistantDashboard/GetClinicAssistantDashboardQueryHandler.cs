@@ -45,14 +45,16 @@ public class GetClinicAssistantDashboardQueryHandler
 
         // 3. Get today's appointments for this clinic
         var appointments = await _context.Appointments
-            .Include(x => x.Patient)
-            .Include(x => x.Doctor)
-            .Where(x =>
-                x.ClinicId == assistant.ClinicId &&
-                x.AppointmentDate >= today &&
-                x.AppointmentDate < tomorrow)
-            .OrderBy(x => x.StartTime)
-            .ToListAsync(cancellationToken);
+     .Include(x => x.Patient)
+     .Include(x => x.Doctor)
+     .Where(x =>
+         x.ClinicId == assistant.ClinicId &&
+         x.AppointmentDate >= today &&
+         x.AppointmentDate < tomorrow &&
+         x.Status != Domain.Entities.Appointments.AppointmentStatus.Pending &&
+         x.Status != Domain.Entities.Appointments.AppointmentStatus.Cancelled)
+     .OrderBy(x => x.StartTime)
+     .ToListAsync(cancellationToken);
 
         // 4. Get patient and doctor names
         var appointmentDtos = new List<TodayAppointmentDto>();
@@ -86,25 +88,21 @@ public class GetClinicAssistantDashboardQueryHandler
 
         // 5. Dashboard statistics
         // Cancelled appointments are not counted as today's active appointments.
-        var activeAppointments = appointments
-            .Where(x => x.Status != Domain.Entities.Appointments.AppointmentStatus.Cancelled)
-            .ToList();
+        var totalToday = appointments.Count;
 
-        var totalToday = activeAppointments.Count;
-
-        // Confirmed = waiting to check in.
         var waiting = appointments.Count(
             x => x.Status ==
                  Domain.Entities.Appointments.AppointmentStatus.Confirmed);
 
-       
         var checkedIn = appointments.Count(
             x => x.Status ==
-                 Domain.Entities.Appointments.AppointmentStatus.CheckedIn); ;
+                 Domain.Entities.Appointments.AppointmentStatus.CheckedIn);
 
         var completed = appointments.Count(
             x => x.Status ==
                  Domain.Entities.Appointments.AppointmentStatus.Completed);
+
+        
 
         return new GetClinicAssistantDashboardResponse(
             assistant.Clinic.ClinicName,

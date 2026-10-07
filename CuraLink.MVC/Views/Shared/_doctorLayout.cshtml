@@ -18,6 +18,7 @@
     bool isPatientsActive = IsDoctorAction("Patients");
     bool isScheduleActive = IsDoctorAction("Schedule");
     bool isProfileActive = IsDoctorAction("Profile") || IsDoctorAction("EditProfile");
+    bool isAssistantsActive = IsDoctorAction("Assistants") || IsDoctorAction("AddAssistant");
 }
 
 <!DOCTYPE html>
@@ -113,7 +114,13 @@
                     <i class="bi bi-calendar-week"></i>
                     Prescriptions
                 </a>
+                <a class="doctor-nav-link @(isAssistantsActive ? "active" : "")"
+                   asp-controller="Doctor"
+                   asp-action="Assistants">
 
+                    <i class="bi bi-person-badge"></i>
+                    Assistants
+                </a>
                 <!-- Profile -->
                 <a class="doctor-nav-link @(isProfileActive ? "active" : "")"
                    asp-controller="Doctor"

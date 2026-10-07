@@ -35,7 +35,7 @@ namespace CuraLink.MVC.Services
 
             using var request = new HttpRequestMessage(
                 HttpMethod.Post,
-                "/api/doctor/clinics");
+                "/api/doctor/CreateClinic");
 
             request.Headers.Authorization =
                 new AuthenticationHeaderValue(

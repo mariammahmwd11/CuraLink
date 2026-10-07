@@ -1,0 +1,85 @@
+﻿@model CuraLink.MVC.Models.Doctors.DoctorAssistantsViewModel
+@{
+    ViewData["Title"] = "Manage Assistants";
+    Layout = "_DoctorLayout";
+}
+
+@if (Model.Clinics.Count == 0)
+{
+    <div class="doctor-empty-state">
+        <span class="doctor-empty-icon"><i class="bi bi-hospital"></i></span>
+        <div class="doctor-empty-title">You don't have a clinic yet</div>
+        <p class="doctor-empty-subtitle">Create a clinic first, then you can invite assistants to it.</p>
+        <a asp-controller="Doctor" asp-action="Dashboard" asp-fragment="my-clinics" class="btn btn-primary">
+            Go to My Clinics
+        </a>
+    </div>
+}
+else
+{
+    <div class="doctor-section-header">
+        <div>
+            <h2 class="doctor-section-title">Manage Assistants</h2>
+            <div class="text-muted small">@Model.SelectedClinicName</div>
+        </div>
+
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+            @if (Model.Clinics.Count > 1)
+            {
+                <form method="get" asp-action="Assistants">
+                    <select name="clinicId" class="form-select form-select-sm" onchange="this.form.submit()">
+                        @foreach (var c in Model.Clinics)
+                        {
+                            <option value="@c.Id" selected="@(c.Id == Model.SelectedClinicId)">@c.Name</option>
+                        }
+                    </select>
+                </form>
+            }
+
+            <a asp-action="AddAssistant" asp-route-clinicId="@Model.SelectedClinicId" class="btn btn-primary">
+                <i class="bi bi-plus-lg me-1"></i> Add Assistant
+            </a>
+        </div>
+    </div>
+
+    @if (Model.Assistants.Count == 0)
+    {
+        <div class="doctor-empty-state">
+            <span class="doctor-empty-icon"><i class="bi bi-person-plus"></i></span>
+            <div class="doctor-empty-title">No assistants have been added to this clinic yet.</div>
+            <p class="doctor-empty-subtitle">Invite a receptionist by email to help manage appointments.</p>
+        </div>
+    }
+    else
+    {
+        <div class="doctor-card p-0">
+            <div class="table-responsive">
+                <table class="table align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Status</th>
+                            <th>Joined</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var a in Model.Assistants)
+                        {
+                            <tr>
+                                <td class="fw-semibold">@(string.IsNullOrWhiteSpace(a.FullName) ? "—" : a.FullName)</td>
+                                <td>@a.Email</td>
+                                <td>
+                                    <span class="clinic-card-status @(a.IsActive ? "status-active" : "status-inactive")">
+                                        @(a.IsActive ? "Active" : "Inactive")
+                                    </span>
+                                </td>
+                                <td>@a.JoinedAt.ToLocalTime().ToString("dd MMM yyyy")</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+}

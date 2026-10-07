@@ -30,22 +30,22 @@
                 <a class="admin-nav-link active" asp-controller="Admin" asp-action="PendingDoctors">
                     <i class="bi bi-person-badge"></i> Pending Doctors
                 </a>
-                <a class="admin-nav-link" asp-controller="Admin" asp-action="Patients">
-                    <i class="bi bi-people"></i> Patients
-                </a>
-                <a class="admin-nav-link" asp-controller="Admin" asp-action="Appointments">
-                    <i class="bi bi-calendar2-check"></i> Appointments
-                </a>
-                <a class="admin-nav-link" asp-controller="Admin" asp-action="Settings">
-                    <i class="bi bi-gear"></i> Settings
-                </a>
+                
             </nav>
 
-            <div class="admin-sidebar-footer">
-                <a asp-controller="Auth" asp-action="Logout" class="admin-nav-link admin-logout">
-                    <i class="bi bi-box-arrow-right"></i> Log out
-                </a>
-            </div>
+            <form asp-controller="Auth"
+                  asp-action="Logout"
+                  method="post"
+                  class="d-inline">
+
+                @Html.AntiForgeryToken()
+
+                <button type="submit" class="dropdown-item">
+                    <i class="bi bi-box-arrow-right me-2"></i>
+                    Logout
+                </button>
+
+            </form>
         </aside>
 
         <!-- Main -->
