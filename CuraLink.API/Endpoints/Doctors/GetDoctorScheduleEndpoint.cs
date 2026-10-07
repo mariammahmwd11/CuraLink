@@ -29,6 +29,6 @@ public static class GetDoctorScheduleEndpoint
 
                 return Results.Ok(result);
             })
-            .RequireAuthorization("Doctor");
+            .RequireAuthorization("Doctor").WithTags("Doctors");
     }
 }

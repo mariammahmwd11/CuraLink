@@ -22,6 +22,7 @@ public static class RegisterDoctorEndpoint
 
                 return Results.Accepted();
             })
-            .DisableAntiforgery();
+            .DisableAntiforgery().WithTags("Authentication")
+.WithName("RegisterDoctor");
     }
 }

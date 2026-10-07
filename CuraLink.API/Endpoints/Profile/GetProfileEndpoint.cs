@@ -31,7 +31,7 @@ namespace CuraLink.API.Endpoints.Profile
 
                     return Results.Ok(result);
                 })
-            .RequireAuthorization();
+            .RequireAuthorization().WithTags("Profile");
         }
     }
 }

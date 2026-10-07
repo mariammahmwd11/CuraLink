@@ -29,6 +29,6 @@ public static class CancelPendingAppointmentEndpoint
 
                 return success ? Results.NoContent() : Results.NotFound();
             })
-        .RequireAuthorization();
+        .RequireAuthorization().WithTags("Appointments");
     }
 }

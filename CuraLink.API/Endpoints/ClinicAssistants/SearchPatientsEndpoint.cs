@@ -37,6 +37,6 @@ public static class SearchPatientsEndpoint
 
                 return Results.Ok(result);
             })
-        .RequireAuthorization("Receptionist");
+        .RequireAuthorization("Receptionist").WithTags("Clinic Assistants");
     }
 }

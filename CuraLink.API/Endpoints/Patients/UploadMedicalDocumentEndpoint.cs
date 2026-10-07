@@ -40,7 +40,7 @@ namespace CuraLink.API.Endpoints.Patients
                         });
                 })
                 .RequireAuthorization()
-                .DisableAntiforgery();
+                .DisableAntiforgery().WithTags("Patients");
         }
     }
 }

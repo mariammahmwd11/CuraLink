@@ -38,6 +38,6 @@ public static class CreateCheckoutSessionEndpoint
                     checkoutUrl
                 });
             })
-            .RequireAuthorization();
+            .RequireAuthorization().WithTags("Payments");
     }
 }

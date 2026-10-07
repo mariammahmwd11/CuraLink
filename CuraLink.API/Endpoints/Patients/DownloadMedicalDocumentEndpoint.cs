@@ -53,6 +53,6 @@ public static class DownloadMedicalDocumentEndpoint
                     document.FileName);
             })
             .RequireAuthorization()
-            .DisableAntiforgery();
+            .DisableAntiforgery().WithTags("Patients");
     }
 }

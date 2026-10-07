@@ -29,6 +29,6 @@ public static class GetClinicAssistantDashboardEndpoint
 
                 return Results.Ok(result);
             })
-        .RequireAuthorization("Receptionist");
+        .RequireAuthorization("Receptionist").WithTags("Clinic Assistants");
     }
 }

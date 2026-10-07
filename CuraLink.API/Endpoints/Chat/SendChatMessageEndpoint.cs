@@ -36,7 +36,7 @@ public static class SendChatMessageEndpoint
 
                 return Results.Ok(result);
             })
-            .RequireAuthorization();
+            .RequireAuthorization().WithTags("Chat");
     }
 }
 

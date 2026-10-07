@@ -29,7 +29,7 @@ namespace CuraLink.API.Endpoints.Prescriptions
 
                     return Results.Ok(result);
                 })
-                .RequireAuthorization("Doctor");
+                .RequireAuthorization("Doctor").WithTags("Prescriptions");
 
             return app;
         }

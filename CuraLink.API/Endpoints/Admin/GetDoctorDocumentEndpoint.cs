@@ -21,7 +21,7 @@ namespace CuraLink.API.Endpoints.Admin
              .WithName("GetDoctorDocuments")
              .Produces<List<DoctorDocumentResult>>(StatusCodes.Status200OK)
              .Produces(StatusCodes.Status404NotFound)
-             .WithTags("Admin - Doctors");
+             .WithTags("Admin");
         }
     }
 }

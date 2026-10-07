@@ -21,6 +21,6 @@ public static class AskDrugAssistantEndpoint
 
                 return Results.Ok(result);
             })
-            .RequireAuthorization();
+            .RequireAuthorization().WithTags("Drug Assistant");
     }
 }

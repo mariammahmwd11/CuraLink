@@ -63,6 +63,6 @@ public static class GetAvailableClinicAssistantSlotsEndpoint
                     slots
                 });
             })
-        .RequireAuthorization("Receptionist");
+        .RequireAuthorization("Receptionist").WithTags("Clinic Assistants");
     }
 }

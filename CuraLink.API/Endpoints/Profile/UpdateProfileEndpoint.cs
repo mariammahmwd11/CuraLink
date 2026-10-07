@@ -49,6 +49,6 @@ public static class UpdateProfileEndpoint
                 return Results.Ok(result);
             })
         .RequireAuthorization()
-        .DisableAntiforgery();
+        .DisableAntiforgery().WithTags("Profile");
     }
 }

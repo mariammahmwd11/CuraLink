@@ -26,6 +26,6 @@ public static class GetMyAppointmentsEndpoint
 
                 return Results.Ok(result);
             })
-        .RequireAuthorization();
+        .RequireAuthorization().WithTags("Appointments");
     }
 }

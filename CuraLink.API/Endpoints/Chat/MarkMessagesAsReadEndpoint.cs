@@ -32,7 +32,7 @@ namespace CuraLink.API.Endpoints.Chat
 
                     return Results.Ok(result);
                 })
-                .RequireAuthorization();
+                .RequireAuthorization().WithTags("Chat");
         }
     }
 }

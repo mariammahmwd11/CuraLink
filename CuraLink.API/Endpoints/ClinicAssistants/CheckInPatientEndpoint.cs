@@ -34,6 +34,6 @@ public static class CheckInPatientEndpoint
                     message = "Patient checked in successfully."
                 });
             })
-        .RequireAuthorization("Receptionist");
+        .RequireAuthorization("Receptionist").WithTags("Clinic Assistants");
     }
 }

@@ -38,7 +38,8 @@ namespace CuraLink.API.Endpoints.Clinics
                         cancellationToken);
 
                     return Results.Ok(result);
-                });
+                }).WithTags("Clinics")
+                .WithName("GetDoctorClinics");
         }
     }
 }

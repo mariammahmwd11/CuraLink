@@ -39,7 +39,7 @@ public static class BookAppointmentEndpoint
                     appointmentId
                 });
             })
-        .RequireAuthorization();
+        .RequireAuthorization().WithTags("Appointments");
     }
 }
 

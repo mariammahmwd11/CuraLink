@@ -95,7 +95,6 @@ app.MapRegisterDoctorEndpoint();
 //admin api endpoints
 app.MapPendingDoctorsEndpoint();
 app.MapGetDoctorDocumentEndpoint();
-app.MapTestEmail();
 app.MapDownloadDoctorDocumentEndpoint();
 app.MapVerifyDoctorEndpoint();
 //clinic api endpoints

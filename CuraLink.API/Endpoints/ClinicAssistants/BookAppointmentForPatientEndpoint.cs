@@ -38,6 +38,6 @@ public static class BookAppointmentForPatientEndpoint
                     message = "Appointment booked successfully."
                 });
             })
-        .RequireAuthorization("Receptionist");
+        .RequireAuthorization("Receptionist").WithTags("Clinic Assistants");
     }
 }

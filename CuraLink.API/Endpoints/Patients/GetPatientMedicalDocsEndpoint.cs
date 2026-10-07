@@ -47,6 +47,6 @@ public static class GetPatientMedicalDocsEndpoint
 
                 return Results.Ok(documents);
             })
-        .RequireAuthorization();
+        .RequireAuthorization().WithTags("Patients");
     }
 }

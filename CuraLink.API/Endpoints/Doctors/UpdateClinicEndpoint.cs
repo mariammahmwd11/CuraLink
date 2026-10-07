@@ -34,7 +34,7 @@ namespace CuraLink.API.Endpoints.Doctors
 
                     return Results.NoContent();
                 })
-                .RequireAuthorization("Doctor");
+                .RequireAuthorization("Doctor").WithTags("Clinics");
         }
     }
 }

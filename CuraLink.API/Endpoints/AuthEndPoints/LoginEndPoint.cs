@@ -18,7 +18,8 @@ namespace CuraLink.API.Endpoints.AuthEndPoints
                 var result = await authService.LoginAsync(request);
 
                 return Results.Ok(result);
-            });
+            }).WithTags("Authentication")
+.WithName("Login");
 
             return app;
         }

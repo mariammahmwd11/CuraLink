@@ -67,6 +67,6 @@ public static class StripeWebhookEndpoint
                 }
 
                 return Results.Ok();
-            });
+            }).WithTags("Payments");
     }
 }

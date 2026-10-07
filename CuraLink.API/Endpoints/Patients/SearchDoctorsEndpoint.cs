@@ -33,6 +33,6 @@ public static class SearchDoctorsEndpoint
 
                 return Results.Ok(result);
             })
-            .RequireAuthorization("Patient");
+            .RequireAuthorization("Patient").WithTags("Patients");
     }
 }

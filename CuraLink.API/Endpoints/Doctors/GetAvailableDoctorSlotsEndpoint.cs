@@ -25,7 +25,7 @@ public static class GetAvailableDoctorSlotsEndpoint
 
                 return Results.Ok(result);
             })
-        .RequireAuthorization();
+        .RequireAuthorization().WithTags("Doctors");
     }
 }
 

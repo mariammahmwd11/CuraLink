@@ -40,6 +40,6 @@ public static class CreateClinicEndpoint
                         message = "Clinic created successfully."
                     });
             })
-            .RequireAuthorization();
+            .RequireAuthorization().WithTags("Clinics").WithName("CreateClinic");
     }
 }

@@ -21,7 +21,9 @@ namespace CuraLink.API.Endpoints.Admin
 
                     return Results.Ok(result);
                 })
-                .RequireAuthorization("AdminOnly");
+                .RequireAuthorization("AdminOnly")
+                .WithTags("Admin")
+.WithName("GetPendingDoctors");
         }
     }
 }

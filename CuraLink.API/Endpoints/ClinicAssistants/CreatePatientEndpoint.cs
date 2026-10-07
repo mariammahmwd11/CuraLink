@@ -38,6 +38,6 @@ public static class CreatePatientEndpoint
                     message = "Patient created successfully."
                 });
             })
-        .RequireAuthorization("Receptionist");
+        .RequireAuthorization("Receptionist").WithTags("Clinic Assistants");
     }
 }

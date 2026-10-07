@@ -29,6 +29,6 @@ public static class GetMyAppointmentEndpoint
 
                 return result is null ? Results.NotFound() : Results.Ok(result);
             })
-        .RequireAuthorization();
+        .RequireAuthorization().WithTags("Appointments");
     }
 }

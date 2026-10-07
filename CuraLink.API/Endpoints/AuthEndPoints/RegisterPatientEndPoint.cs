@@ -23,7 +23,8 @@ public static class RegisterPatientEndPoint
                 {
                     Message = "Registration successful."
                 });
-        });
+        }).WithTags("Authentication")
+.WithName("RegisterPatient");
 
         return app;
     }

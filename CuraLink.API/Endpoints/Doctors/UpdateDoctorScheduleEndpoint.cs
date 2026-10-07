@@ -34,6 +34,6 @@ public static class UpdateDoctorScheduleEndpoint
                     message = "Doctor schedule updated successfully."
                 });
             })
-            .RequireAuthorization("Doctor");
+            .RequireAuthorization("Doctor").WithTags("Doctors");
     }
 }

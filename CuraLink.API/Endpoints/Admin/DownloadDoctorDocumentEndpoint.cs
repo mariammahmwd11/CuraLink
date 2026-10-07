@@ -31,7 +31,7 @@ namespace CuraLink.API.Endpoints.Admin
                 .WithName("DownloadDoctorDocument")
                 .Produces(StatusCodes.Status200OK)
                 .Produces(StatusCodes.Status404NotFound)
-                .WithTags("Admin - Doctors");
+                .WithTags("Admin");
         }
     }
 }

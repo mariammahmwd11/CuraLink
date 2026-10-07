@@ -52,6 +52,6 @@ public static class GetMedicalDocumentEndpoint
                     document.ContentType);
             })
             .RequireAuthorization()
-            .DisableAntiforgery();
+            .DisableAntiforgery().WithTags("Patients");
     }
 }

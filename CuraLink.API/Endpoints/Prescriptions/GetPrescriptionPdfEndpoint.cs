@@ -76,7 +76,7 @@ public static class GetPrescriptionPdfEndpoint
                     "application/pdf",
                     $"Prescription-{prescriptionId}.pdf");
             })
-            .RequireAuthorization("Doctor");
+            .RequireAuthorization("Doctor").WithTags("Prescriptions");
 
         return app;
     }
