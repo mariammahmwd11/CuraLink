@@ -1,5 +1,4 @@
-﻿
-using CuraLink.Application.Common.Interfaces.Presistence;
+﻿using CuraLink.Application.Common.Interfaces.Presistence;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
@@ -8,7 +7,7 @@ namespace CuraLink.Application.Features.Doctors.Queries.GetAvailableDoctorSlots;
 public class GetAvailableDoctorSlotsQueryHandler
     : IRequestHandler<
         GetAvailableDoctorSlotsQuery,
-        List<AvailableDoctorSlotDto>>
+        AvailableDoctorSlotsResultDto>
 {
     private readonly IApplicationDbContext _context;
 
@@ -18,12 +17,13 @@ public class GetAvailableDoctorSlotsQueryHandler
         _context = context;
     }
 
-    public async Task<List<AvailableDoctorSlotDto>> Handle(
+    public async Task<AvailableDoctorSlotsResultDto> Handle(
         GetAvailableDoctorSlotsQuery request,
         CancellationToken cancellationToken)
     {
         var dayOfWeek = request.Date.DayOfWeek;
 
+        // Get the doctor's schedule for the selected day.
         var availability = await _context.DoctorAvailabilities
             .AsNoTracking()
             .Where(x =>
@@ -32,9 +32,17 @@ public class GetAvailableDoctorSlotsQueryHandler
             .OrderBy(x => x.StartTime)
             .ToListAsync(cancellationToken);
 
+        // Doctor does not work on this day.
         if (!availability.Any())
-            return [];
+        {
+            return new AvailableDoctorSlotsResultDto
+            {
+                IsDoctorAvailable = false,
+                Slots = []
+            };
+        }
 
+        // Get all non-cancelled appointments for this doctor and date.
         var appointments = await _context.Appointments
             .AsNoTracking()
             .Where(x =>
@@ -75,7 +83,12 @@ public class GetAvailableDoctorSlotsQueryHandler
             }
         }
 
-        return slots;
+        // Doctor works on this day,
+        // but all available slots are already booked.
+        return new AvailableDoctorSlotsResultDto
+        {
+            IsDoctorAvailable = true,
+            Slots = slots
+        };
     }
 }
-

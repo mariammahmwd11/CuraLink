@@ -29,10 +29,10 @@ public class AppointmentApiClient
     // AVAILABLE SLOTS
     // ============================================================
 
-    public async Task<List<AppointmentSlotViewModel>> GetAvailableSlotsAsync(
-        Guid doctorId,
-        DateOnly date,
-        CancellationToken cancellationToken = default)
+    public async Task<AvailableDoctorSlotsResponse> GetAvailableSlotsAsync(
+    Guid doctorId,
+    DateOnly date,
+    CancellationToken cancellationToken = default)
     {
         var url =
             $"/api/doctors/{doctorId}/available-slots" +
@@ -48,23 +48,29 @@ public class AppointmentApiClient
 
         if (response.IsSuccessStatusCode)
         {
-            var slots =
+            var result =
                 await response.Content
-                    .ReadFromJsonAsync<List<SlotApiDto>>(
+                    .ReadFromJsonAsync<AvailableDoctorSlotsApiResponse>(
                         JsonOptions,
                         cancellationToken);
 
-            return slots?
-                .Select(s => new AppointmentSlotViewModel
-                {
-                    StartTime =
-                        TimeSpan.Parse(s.StartTime),
+            if (result is null)
+            {
+                return new AvailableDoctorSlotsResponse();
+            }
 
-                    EndTime =
-                        TimeSpan.Parse(s.EndTime)
-                })
-                .ToList()
-                ?? [];
+            return new AvailableDoctorSlotsResponse
+            {
+                IsDoctorAvailable = result.IsDoctorAvailable,
+
+                Slots = result.Slots
+                    .Select(s => new AppointmentSlotViewModel
+                    {
+                        StartTime = TimeSpan.Parse(s.StartTime),
+                        EndTime = TimeSpan.Parse(s.EndTime)
+                    })
+                    .ToList()
+            };
         }
 
         var errorMessage =
@@ -354,6 +360,13 @@ public class AppointmentApiClient
     // ============================================================
     // DTOs
     // ============================================================
+
+    private class AvailableDoctorSlotsApiResponse
+    {
+        public bool IsDoctorAvailable { get; set; }
+
+        public List<SlotApiDto> Slots { get; set; } = [];
+    }
 
     private class SlotApiDto
     {

@@ -66,58 +66,103 @@
         });
     }
 
-    function loadSlots() {
-        slotsContainer.innerHTML = '';
-        emptyState.classList.add('d-none');
-        slotsErrorState.classList.add('d-none');
-        clearSelection();
+   
+function loadSlots() {
+    slotsContainer.innerHTML = '';
+    emptyState.classList.add('d-none');
+    slotsErrorState.classList.add('d-none');
+    clearSelection();
 
-        var date = dateInput.value;
-        if (!date) {
-            return;
-        }
-
-        fetch('/Patient/AvailableSlots?doctorId=' + encodeURIComponent(doctorId) + '&date=' + encodeURIComponent(date))
-            .then(function (res) { return res.json(); })
-            .then(function (data) {
-                if (!data.success) {
-                    slotsErrorState.textContent = data.error || 'We couldn\'t load available slots right now.';
-                    slotsErrorState.classList.remove('d-none');
-                    return;
-                }
-
-                if (!data.slots || data.slots.length === 0) {
-                    emptyState.classList.remove('d-none');
-                    return;
-                }
-
-                data.slots.forEach(function (slot) {
-
-                    // If this slot has already passed, don't show it.
-                    if (isSlotInPast(date, slot.startTime)) {
-                        return;
-                    }
-
-                    var btn = document.createElement('button');
-
-                    btn.type = 'button';
-                    btn.className = 'slot-btn';
-
-                    btn.textContent =
-                        slot.startTime + ' - ' + slot.endTime;
-
-                    btn.addEventListener('click', function () {
-                        selectSlot(slot, btn);
-                    });
-
-                    slotsContainer.appendChild(btn);
-                });
-            })
-            .catch(function () {
-                slotsErrorState.textContent = 'We couldn\'t load available slots right now.';
-                slotsErrorState.classList.remove('d-none');
-            });
+    var date = dateInput.value;
+    if (!date) {
+        return;
     }
+
+    fetch('/Patient/AvailableSlots?doctorId=' +
+        encodeURIComponent(doctorId) +
+        '&date=' +
+        encodeURIComponent(date))
+        .then(function (res) {
+            return res.json();
+        })
+        .then(function (data) {
+            if (!data.success) {
+                slotsErrorState.textContent =
+                    data.error ||
+                    'We couldn\'t load available slots right now.';
+
+                slotsErrorState.classList.remove('d-none');
+                return;
+            }
+
+            /*
+             * The doctor has no availability on the selected day.
+             */
+            if (!data.isDoctorAvailable) {
+                emptyState.innerHTML =
+                    '<i class="bi bi-calendar-x"></i>' +
+                    '<p>The doctor is not available on this day. Please choose another date.</p>';
+
+                emptyState.classList.remove('d-none');
+                return;
+            }
+
+            /*
+             * The doctor is available on this day,
+             * but all slots are already booked.
+             */
+            if (!data.slots || data.slots.length === 0) {
+                emptyState.innerHTML =
+                    '<i class="bi bi-calendar-x"></i>' +
+                    '<p>No appointments are available on this day. Please choose another date.</p>';
+
+                emptyState.classList.remove('d-none');
+                return;
+            }
+
+            data.slots.forEach(function (slot) {
+
+                // If this slot has already passed, don't show it.
+                if (isSlotInPast(date, slot.startTime)) {
+                    return;
+                }
+
+                var btn = document.createElement('button');
+
+                btn.type = 'button';
+                btn.className = 'slot-btn';
+
+                btn.textContent =
+                    slot.startTime + ' - ' + slot.endTime;
+
+                btn.addEventListener('click', function () {
+                    selectSlot(slot, btn);
+                });
+
+                slotsContainer.appendChild(btn);
+            });
+
+            /*
+             * This can happen when the selected date is today
+             * and all remaining slots have already passed.
+             */
+            if (slotsContainer.children.length === 0) {
+                emptyState.innerHTML =
+                    '<i class="bi bi-calendar-x"></i>' +
+                    '<p>No appointments are available for the rest of this day. Please choose another date.</p>';
+
+                emptyState.classList.remove('d-none');
+            }
+        })
+        .catch(function () {
+            slotsErrorState.textContent =
+                'We couldn\'t load available slots right now.';
+
+            slotsErrorState.classList.remove('d-none');
+        });
+}
+
+
     function isSlotInPast(dateString, startTime) {
 
         var dateParts = dateString.split('-');

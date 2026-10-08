@@ -589,38 +589,62 @@ namespace CuraLink.MVC.Controllers
 
         [HttpGet]
         public async Task<IActionResult> AvailableSlots(
-            Guid doctorId,
-            DateOnly date,
-            CancellationToken cancellationToken)
+     Guid doctorId,
+     DateOnly date,
+     CancellationToken cancellationToken)
         {
             try
             {
-                var slots = await _appointmentApiClient.GetAvailableSlotsAsync(doctorId, date, cancellationToken);
+                var result =
+                    await _appointmentApiClient.GetAvailableSlotsAsync(
+                        doctorId,
+                        date,
+                        cancellationToken);
 
                 return Json(new
                 {
                     success = true,
-                    slots = slots.Select(s => new
+
+                    isDoctorAvailable =
+                        result.IsDoctorAvailable,
+
+                    slots = result.Slots.Select(s => new
                     {
-                        startTime = s.StartTime.ToString(@"hh\:mm"),
-                        endTime = s.EndTime.ToString(@"hh\:mm")
+                        startTime =
+                            s.StartTime.ToString(@"hh\:mm"),
+
+                        endTime =
+                            s.EndTime.ToString(@"hh\:mm")
                     })
                 });
             }
             catch (UnauthorizedAccessException)
             {
-                return Json(new { success = false, error = "Your session has expired. Please log in again." });
+                return Json(new
+                {
+                    success = false,
+                    error =
+                        "Your session has expired. Please log in again."
+                });
             }
             catch (HttpRequestException ex)
             {
-                return Json(new { success = false, error = ex.Message });
+                return Json(new
+                {
+                    success = false,
+                    error = ex.Message
+                });
             }
             catch (Exception)
             {
-                return Json(new { success = false, error = "We couldn't load available slots right now." });
+                return Json(new
+                {
+                    success = false,
+                    error =
+                        "We couldn't load available slots right now."
+                });
             }
         }
-
         [HttpPost]
         public async Task<IActionResult> BookAppointment(
      [FromBody] BookAppointmentRequest request,
