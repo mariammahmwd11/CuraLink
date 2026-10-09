@@ -8,7 +8,7 @@ The platform supports appointment booking, online payments, prescription managem
 ## 🎥 Feature Demonstrations
 
 ### 👤 Patient Features
-* Register patient
+
 * AI Drug Assistant
   
 
