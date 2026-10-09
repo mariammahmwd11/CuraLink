@@ -9,43 +9,31 @@ The platform supports appointment booking, online payments, prescription managem
 
 ### 👤 Patient Features
 * Register patient
+* AI Drug Assistant
   
 
-https://github.com/user-attachments/assets/fe5702c6-ebe4-4c16-84e6-d600dd66fd77
+https://github.com/user-attachments/assets/ddc04f1d-cb5e-42ab-bf7d-ececcb4af3cd
 
 
+* Real-time chat and notifications
+ 
 
-
-  
-* Doctor search 
-
-
-https://github.com/user-attachments/assets/64ed011f-cde1-42d2-b600-a9650ef0cb50
-
+https://github.com/user-attachments/assets/c70f901f-4d3f-4e8b-a08d-89eae185c8fd
 
 * appointment booking
   
 
 https://github.com/user-attachments/assets/821efa6f-1916-471b-a9c9-7680767115a6
 
-
 * medical documents
  
 
 https://github.com/user-attachments/assets/3806be0e-c8a6-41da-abf8-b19e8c1f9c55
 
-
-  
-* Real-time chat and notifications
- 
-
-https://github.com/user-attachments/assets/c70f901f-4d3f-4e8b-a08d-89eae185c8fd
+* Doctor search 
 
 
-* AI Drug Assistant
-  
-
-https://github.com/user-attachments/assets/ddc04f1d-cb5e-42ab-bf7d-ececcb4af3cd
+https://github.com/user-attachments/assets/64ed011f-cde1-42d2-b600-a9650ef0cb50
 
 
 
@@ -54,34 +42,6 @@ https://github.com/user-attachments/assets/ddc04f1d-cb5e-42ab-bf7d-ececcb4af3cd
 <!-- Add the Patient demo video here -->
 
 ### 👨‍⚕️ Doctor Features
-* Register Doctor
-
-https://github.com/user-attachments/assets/ac34345a-4260-482e-baf7-04e2cf881641
-
-* Create Clinic
-
-
-https://github.com/user-attachments/assets/1f4061c9-4dcd-43e1-94f6-2704c313aa60
-
-
-*Edit Profile
-
-
-https://github.com/user-attachments/assets/e87b1b9a-9946-4f08-8a0d-92f6ecfd7851
-
-
-* Create Schedule
-  
-
-https://github.com/user-attachments/assets/4193d45c-799c-4a25-8cde-ae6022abfdd5
-
-
-* Invite Assistant
-  
-
-https://github.com/user-attachments/assets/16d802ea-e759-4139-b869-6c85bcd71021
-
-
 * Manage Prescriptions 
 
 https://github.com/user-attachments/assets/fdb21f1e-3b57-4ae1-84e4-7374d1e16713
@@ -90,6 +50,30 @@ https://github.com/user-attachments/assets/fdb21f1e-3b57-4ae1-84e4-7374d1e16713
 * Medication Reminder 
 
 https://github.com/user-attachments/assets/b18c13ee-80a1-4550-8786-56e53eca77b3
+
+
+* Invite Assistant
+  
+
+https://github.com/user-attachments/assets/16d802ea-e759-4139-b869-6c85bcd71021
+
+
+
+* Create Schedule
+  
+
+https://github.com/user-attachments/assets/4193d45c-799c-4a25-8cde-ae6022abfdd5
+
+
+* Register Doctor
+
+https://github.com/user-attachments/assets/ac34345a-4260-482e-baf7-04e2cf881641
+
+
+
+
+
+
 
 
 <!-- Add the Doctor demo video here -->
@@ -106,21 +90,15 @@ https://github.com/user-attachments/assets/7f7cff91-0df3-4fc7-bf1b-c5b9e8f8cb3d
 
 ### 👩‍💼 Receptionist Features
 
+* Appointment booking
+
+https://github.com/user-attachments/assets/7da45408-2a97-4a1e-a89d-8f880f6d76a0
+
 * Patient search
   
 
 https://github.com/user-attachments/assets/661f7ed7-63c9-4e26-943b-dd53f89b0fa6
 
-
-* create Patient
-
-https://github.com/user-attachments/assets/5ce8e471-3c7e-4d2e-a1f2-147867e57185
-
-
-  
-* Appointment booking
-
-https://github.com/user-attachments/assets/7da45408-2a97-4a1e-a89d-8f880f6d76a0
 
 
   
