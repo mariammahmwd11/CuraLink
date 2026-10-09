@@ -4,7 +4,7 @@
     {
         public Guid Id { get; set; }
         public Guid ClinicId { get; set; }
-
+        public string ClinicName { get; set; } = string.Empty;
         public string FullName { get; set; } = null!;
 
         public string Specialty { get; set; } = null!;

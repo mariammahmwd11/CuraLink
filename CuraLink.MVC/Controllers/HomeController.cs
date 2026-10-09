@@ -1,16 +1,30 @@
 using CuraLink.MVC.Models;
-using Microsoft.AspNetCore.Authorization;
+using CuraLink.MVC.Models.Home;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 
 namespace CuraLink.MVC.Controllers
 {
-    
     public class HomeController : Controller
     {
         public IActionResult Index()
         {
-            return View();
+            var model = new LandingViewModel();
+
+            if (User.Identity?.IsAuthenticated == true)
+            {
+                // Same priority order as AuthController.Login
+                if (User.IsInRole("Patient"))
+                    (model.DashboardController, model.DashboardAction) = ("Patient", "Dashboard");
+                else if (User.IsInRole("Doctor"))
+                    (model.DashboardController, model.DashboardAction) = ("Doctor", "Dashboard");
+                else if (User.IsInRole("Admin"))
+                    (model.DashboardController, model.DashboardAction) = ("Admin", "PendingDoctors");
+                else if (User.IsInRole("Receptionist"))
+                    (model.DashboardController, model.DashboardAction) = ("Assistant", "Index");
+            }
+
+            return View(model);
         }
 
         public IActionResult Privacy()

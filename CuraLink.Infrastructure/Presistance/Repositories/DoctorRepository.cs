@@ -131,6 +131,7 @@ namespace CuraLink.Infrastructure.Presistance.Repositories
                         .Select(c => new
                         {
                             c.Id,
+                            c.ClinicName,
                             c.Address,
                             c.ConsultationPrice
                         })
@@ -148,6 +149,7 @@ namespace CuraLink.Infrastructure.Presistance.Repositories
                     Id = d.Id,
 
                     ClinicId = d.Clinic?.Id ?? Guid.Empty,
+                    ClinicName = d.Clinic?.ClinicName ?? string.Empty,
 
                     FullName = $"{d.FirstName} {d.LastName}".Trim(),
 

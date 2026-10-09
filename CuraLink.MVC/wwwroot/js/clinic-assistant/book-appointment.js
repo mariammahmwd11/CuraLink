@@ -106,7 +106,14 @@
             return;
         }
 
-        const slots = (r.data && Array.isArray(r.data.slots)) ? r.data.slots : [];
+
+        const slotsData = r.data?.slots;
+        const slots = Array.isArray(slotsData)
+            ? slotsData
+            : Array.isArray(slotsData?.slots)
+                ? slotsData.slots
+                : [];
+
         if (slots.length === 0) {
             $('baSlotsEmpty').hidden = false;
             return;

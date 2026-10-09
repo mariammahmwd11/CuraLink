@@ -1,8 +1,270 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+﻿@model CuraLink.MVC.Models.Home.LandingViewModel
+@{
+    ViewData["Title"] = "Healthcare, Connected";
+    Layout = "_LandingLayout";
+
+    var startUrl = Model.HasDashboard
+        ? Url.Action(Model.DashboardAction!, Model.DashboardController!)
+        : Url.Action("RegisterPatient", "Auth");
+    var startText = Model.HasDashboard ? "Go to Dashboard" : "Get Started";
+    var loginUrl = Url.Action("Login", "Auth");
+
+    var highlights = new[]
+    {
+        (Icon: "bi-diagram-3", Title: "Connected Healthcare Workflows", Text: "Patients, doctors, and clinic staff work in one shared system."),
+        (Icon: "bi-shield-lock", Title: "Secure Authentication", Text: "JWT-based sign-in with role-based access."),
+        (Icon: "bi-broadcast", Title: "Real-Time Communication", Text: "Notifications and appointment-related chat."),
+        (Icon: "bi-credit-card-2-front", Title: "Integrated Online Payments", Text: "Appointment payments through Stripe.")
+    };
+
+    var features = new[]
+    {
+        (Icon: "bi-calendar-check", Title: "Smart Appointment Scheduling", Text: "Manage doctor availability and appointments through a streamlined booking experience.", Cls: "s4 feat"),
+        (Icon: "bi-hospital", Title: "Doctor & Clinic Management", Text: "Organize doctor profiles, clinic information, and consultation details.", Cls: "s2"),
+        (Icon: "bi-file-earmark-medical", Title: "Electronic Medical Records", Text: "Keep medical history and uploaded documents organized and accessible to authorized users.", Cls: "s2"),
+        (Icon: "bi-prescription2", Title: "Digital Prescriptions", Text: "Support digital prescription creation and management.", Cls: "s2"),
+        (Icon: "bi-credit-card", Title: "Secure Online Payments", Text: "Simplify appointment payments through Stripe integration.", Cls: "s2"),
+        (Icon: "bi-chat-dots", Title: "Real-Time Communication", Text: "Enable appointment-related chat and notifications.", Cls: "s2"),
+        (Icon: "bi-clipboard2-check", Title: "Receptionist Workspace", Text: "Support patient registration, appointment booking, and patient check-in.", Cls: "s2"),
+        (Icon: "bi-capsule", Title: "AI Drug Information Assistant", Text: "Explore medication information, potential side effects, and interaction warnings. For information only, not a substitute for professional medical advice.", Cls: "s2")
+    };
+
+    var steps = new[]
+    {
+        (Icon: "bi-people", Title: "Connect", Text: "Patients, doctors, and clinic staff access their appropriate workspaces."),
+        (Icon: "bi-calendar2-week", Title: "Coordinate", Text: "Manage appointments, clinic operations, and healthcare communication."),
+        (Icon: "bi-clipboard2-pulse", Title: "Care", Text: "Organize medical records, prescriptions, and payment workflows.")
+    };
+
+    var roles = new[]
+    {
+        (Icon: "bi-person-heart", Title: "Patients", Text: "Book appointments, access medical information, and communicate with doctors.", Url: Url.Action("RegisterPatient", "Auth"), Link: "Create a patient account"),
+        (Icon: "bi-stethoscope", Title: "Doctors", Text: "Manage clinics, availability, appointments, and prescriptions.", Url: Url.Action("RegisterDoctor", "Auth"), Link: "Register as a doctor"),
+        (Icon: "bi-person-workspace", Title: "Receptionists", Text: "Register patients, coordinate appointments, and check patients in.", Url: (string?)null, Link: "Receptionists join through a clinic invitation.")
+    };
+
+    var security = new[]
+    {
+        (Icon: "bi-person-lock", Title: "Role-based access", Text: "Patients, doctors, receptionists, and admins each reach only the workspace meant for their role."),
+        (Icon: "bi-key", Title: "Authenticated sessions", Text: "Sign-in is backed by JWT authentication, and sessions use an HttpOnly cookie that expires automatically."),
+        (Icon: "bi-patch-check", Title: "Reviewed doctors", Text: "Doctor accounts are reviewed by an admin, and only verified doctors appear in patient search."),
+        (Icon: "bi-file-earmark-lock", Title: "Protected uploads", Text: "Document uploads and profile updates use anti-forgery tokens, with file type and size checks."),
+        (Icon: "bi-credit-card", Title: "Hosted card payments", Text: "Card payments are completed on Stripe's hosted checkout page.")
+    };
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-</div>
+<header class="lp-nav" id="lpNav">
+    <div class="lp-container lp-nav-inner">
+        <a class="lp-brand" href="#home">
+            <span class="lp-brand-mark"><i class="bi bi-heart-pulse-fill"></i></span>CuraLink
+        </a>
+        <nav class="lp-links" aria-label="Main">
+            <a href="#home">Home</a>
+            <a href="#features">Features</a>
+            <a href="#how-it-works">How It Works</a>
+            <a href="#about">About</a>
+        </nav>
+        <div class="lp-actions">
+            @if (!Model.HasDashboard)
+            {
+                <a class="lp-btn lp-btn-ghost" href="@loginUrl">Login</a>
+            }
+            <a class="lp-btn lp-btn-primary" href="@startUrl">@startText</a>
+        </div>
+        <button type="button" class="lp-toggle" id="lpToggle" aria-label="Toggle menu" aria-expanded="false" aria-controls="lpMobile">
+            <i class="bi bi-list"></i>
+        </button>
+    </div>
+    <div class="lp-mobile" id="lpMobile">
+        <a href="#home">Home</a>
+        <a href="#features">Features</a>
+        <a href="#how-it-works">How It Works</a>
+        <a href="#about">About</a>
+        @if (!Model.HasDashboard)
+        {
+            <a class="lp-btn lp-btn-ghost" href="@loginUrl">Login</a>
+        }
+        <a class="lp-btn lp-btn-primary" href="@startUrl">@startText</a>
+    </div>
+</header>
+
+<main>
+    <section class="lp-hero" id="home">
+        <div class="lp-container lp-hero-grid">
+            <div>
+                <span class="lp-eyebrow"><i class="bi bi-heart-pulse"></i> Healthcare Management Platform</span>
+                <h1>Healthcare, <span>Connected.</span></h1>
+                <p class="lp-lead">One connected platform for smarter appointments, seamless clinic management, and better healthcare experiences.</p>
+                <div class="lp-hero-cta">
+                    <a class="lp-btn lp-btn-primary lp-btn-lg" href="@startUrl">@startText <i class="bi bi-arrow-right"></i></a>
+                    <a class="lp-btn lp-btn-ghost lp-btn-lg" href="#features">Explore Features</a>
+                </div>
+            </div>
+
+            <div>
+                <div class="lp-mock" aria-hidden="true">
+                    <div class="lp-window">
+                        <div class="lp-window-bar"><span></span><span></span><span></span></div>
+                        <div class="lp-window-body">
+                            <div class="lp-doc">
+                                <span class="lp-avatar"><i class="bi bi-person-fill"></i></span>
+                                <div><strong>Dr. Sara Mahmoud</strong><small>Cardiology</small></div>
+                                <span class="lp-pill ok">Verified</span>
+                            </div>
+                            <h6>Upcoming appointments</h6>
+                            <div class="lp-appt"><time>09:00</time> Omar K. <span class="lp-pill ok">Confirmed</span></div>
+                            <div class="lp-appt"><time>09:30</time> Laila A. <span class="lp-pill info">Checked in</span></div>
+                            <div class="lp-appt"><time>10:15</time> Youssef M. <span class="lp-pill warn">Awaiting payment</span></div>
+                        </div>
+                    </div>
+                    <div class="lp-float lp-float-a"><i class="bi bi-prescription2"></i><div><strong>Prescription issued</strong><small>Sent to patient</small></div></div>
+                    <div class="lp-float lp-float-b"><i class="bi bi-file-earmark-medical"></i><div><strong>Document uploaded</strong><small>Medical records</small></div></div>
+                </div>
+                <p class="lp-caption">Illustrative preview with sample data</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="lp-section lp-band" id="about">
+        <div class="lp-container">
+            <div class="lp-head">
+                <span class="lp-eyebrow">About CuraLink</span>
+                <h2>One platform for every part of care</h2>
+                <p>CuraLink brings patients, doctors, and clinic receptionists together in a single healthcare management platform.</p>
+            </div>
+            <div class="lp-highlights">
+                @foreach (var h in highlights)
+                {
+                    <div class="lp-highlight">
+                        <span class="lp-icon"><i class="bi @h.Icon"></i></span>
+                        <h3>@h.Title</h3>
+                        <p>@h.Text</p>
+                    </div>
+                }
+            </div>
+        </div>
+    </section>
+
+    <section class="lp-section" id="features">
+        <div class="lp-container">
+            <div class="lp-head">
+                <span class="lp-eyebrow">Features</span>
+                <h2>Everything your clinic workflow needs</h2>
+                <p>From first booking to prescriptions and payments, in one place.</p>
+            </div>
+            <div class="lp-bento">
+                @foreach (var f in features)
+                {
+                    <article class="lp-card @f.Cls">
+                        <span class="lp-icon"><i class="bi @f.Icon"></i></span>
+                        <h3>@f.Title</h3>
+                        <p>@f.Text</p>
+                    </article>
+                }
+            </div>
+        </div>
+    </section>
+
+    <section class="lp-section lp-band" id="how-it-works">
+        <div class="lp-container">
+            <div class="lp-head">
+                <span class="lp-eyebrow">How It Works</span>
+                <h2>Three steps, one connected flow</h2>
+            </div>
+            <div class="lp-steps">
+                @for (var i = 0; i < steps.Length; i++)
+                {
+                    <article class="lp-card lp-step">
+                        <span class="lp-step-num">@(i + 1)</span>
+                        <h3><i class="bi @steps[i].Icon"></i> @steps[i].Title</h3>
+                        <p>@steps[i].Text</p>
+                    </article>
+                }
+            </div>
+        </div>
+    </section>
+
+    <section class="lp-section" id="roles">
+        <div class="lp-container">
+            <div class="lp-head">
+                <span class="lp-eyebrow">Role-Based Experience</span>
+                <h2>A workspace for every role</h2>
+            </div>
+            <div class="lp-roles">
+                @foreach (var r in roles)
+                {
+                    <article class="lp-card">
+                        <span class="lp-icon"><i class="bi @r.Icon"></i></span>
+                        <h3>@r.Title</h3>
+                        <p>@r.Text</p>
+                        @if (r.Url != null)
+                        {
+                            <a class="lp-link" href="@r.Url">@r.Link <i class="bi bi-arrow-right"></i></a>
+                        }
+                        else
+                        {
+                            <p class="lp-note">@r.Link</p>
+                        }
+                    </article>
+                }
+            </div>
+        </div>
+    </section>
+
+    <section class="lp-section lp-security" id="security">
+        <div class="lp-container">
+            <div class="lp-head">
+                <span class="lp-eyebrow lp-eyebrow-dark">Security &amp; Reliability</span>
+                <h2>Responsible handling of healthcare information</h2>
+                <p>Access is controlled by role, and sign-in is authenticated end to end.</p>
+            </div>
+            <div class="lp-sec-grid">
+                @foreach (var s in security)
+                {
+                    <div class="lp-sec-item">
+                        <i class="bi @s.Icon"></i>
+                        <h3>@s.Title</h3>
+                        <p>@s.Text</p>
+                    </div>
+                }
+            </div>
+        </div>
+    </section>
+
+    <section class="lp-section">
+        <div class="lp-container">
+            <div class="lp-cta">
+                <h2>Better Connected Care Starts Here.</h2>
+                <p>Bring appointments, clinic workflows, and healthcare communication together with CuraLink.</p>
+                <a class="lp-btn lp-btn-light lp-btn-lg" href="@startUrl">@startText <i class="bi bi-arrow-right"></i></a>
+            </div>
+        </div>
+    </section>
+</main>
+
+<footer class="lp-footer">
+    <div class="lp-container lp-footer-grid">
+        <div>
+            <a class="lp-brand" href="#home"><span class="lp-brand-mark"><i class="bi bi-heart-pulse-fill"></i></span>CuraLink</a>
+            <p>CuraLink connects patients, doctors, and clinic staff in one healthcare management platform.</p>
+        </div>
+        <div>
+            <h4>Explore</h4>
+            <a href="#home">Home</a>
+            <a href="#features">Features</a>
+            <a href="#how-it-works">How It Works</a>
+            <a href="#about">About</a>
+        </div>
+        <div>
+            <h4>Platform</h4>
+            <a href="#roles">Roles</a>
+            <a href="#security">Security</a>
+            @if (!Model.HasDashboard)
+            {
+                <a href="@loginUrl">Login</a>
+            }
+            <a href="@startUrl">@startText</a>
+        </div>
+    </div>
+    <div class="lp-container lp-copy">&copy; @DateTime.Now.Year CuraLink. All rights reserved.</div>
+</footer>

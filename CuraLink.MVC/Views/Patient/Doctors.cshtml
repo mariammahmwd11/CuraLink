@@ -105,23 +105,13 @@
 
                 </div>
 
-                <div class="pd-rating">
-                    @if (doctor.HasRating)
-                    {
-                        var fullStars = (int)Math.Round(doctor.Rating);
-                        <span class="pd-stars" aria-hidden="true">
-                            @for (int i = 1; i <= 5; i++)
-                            {
-                                <i class="bi @(i <= fullStars ? "bi-star-fill" : "bi-star")"></i>
-                            }
-                        </span>
-                        <span class="pd-rating-value">@doctor.Rating.ToString("0.0")</span>
-                    }
-                    else
-                    {
-                        <span class="pd-no-rating">No ratings yet</span>
-                    }
-                </div>
+                @if (!string.IsNullOrWhiteSpace(doctor.ClinicName))
+                {
+                    <div class="pd-clinic">
+                        <i class="bi bi-hospital"></i>
+                        <span>@doctor.ClinicName</span>
+                    </div>
+                }
 
                 <div class="pd-fee">
                     <span class="pd-fee-label">Consultation Fee</span>

@@ -148,6 +148,12 @@ namespace CuraLink.MVC.Controllers
                         "Dashboard",
                         "Doctor");
                 }
+                if (roles.Contains("Admin"))
+                {
+                    return RedirectToAction(
+                        "PendingDoctors",
+                        "Admin");
+                }
 
                 // Clinic assistant -> Assistant Dashboard
                 if (roles.Contains("Receptionist") &&
